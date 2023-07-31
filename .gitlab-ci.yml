@@ -1,18 +1,22 @@
-default:
-  image:
-    name: ubuntu:latest
+image: ubuntu:latest
 
 stages:
   - test
   - release
 
+before_script:
+  - apt-get update -y
+  - apt-get install curl -y
+  - curl -fL https://github.com/coursier/coursier/releases/latest/download/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup -y
+  - source /root/.profile
+
 unit-test-job:
   stage: test
   script:
-    - sbt clean test
+    - sbt test
 
 deploy-job:
   stage: release
   environment: production
   script:
-    - echo "TODO run Semantic Release"
+    - echo "TODO Create release"
