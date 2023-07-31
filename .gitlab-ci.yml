@@ -1,0 +1,24 @@
+before_script:
+  - apt-get update -y
+  - apt-get install apt-transport-https -y
+  # Install SBT
+  - echo "deb http://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
+  - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 642AC823
+  - apt-get update -y
+  - apt-get install sbt -y
+  - sbt sbt-version
+
+stages:
+  - test
+  - release
+
+unit-test-job:
+  stage: test
+  script:
+    - sbt clean test
+
+deploy-job:
+  stage: release
+  environment: production
+  script:
+    - echo "TODO run Semantic Release"
