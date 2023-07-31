@@ -2,10 +2,10 @@ val scala3Version = "3.3.0"
 lazy val akkaVersion = "2.8.3"
 lazy val akkaGroup = "com.typesafe.akka"
 
-lazy val root = project
-  .in(file("."))
+lazy val core = project
+  .in(file("core"))
   .settings(
-    name := "CityTwin",
+    name := "CityTwin-core",
     version := "0.1.0-SNAPSHOT",
     scalaVersion := scala3Version,
     libraryDependencies ++= Seq(
