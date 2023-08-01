@@ -13,6 +13,7 @@ lazy val commonDependencies = Seq(
   "ch.qos.logback" % "logback-classic" % "1.4.8",
   akkaGroup %% "akka-actor-testkit-typed" % akkaVersion % Test,
   "org.scalatest" %% "scalatest" % "3.2.16" % Test,
+  "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 )
 lazy val scalaSwing = "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 lazy val commonSettings = Seq(
