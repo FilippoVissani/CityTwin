@@ -7,7 +7,7 @@ stages:
 before_script:
   - apt-get update -y
   - apt-get install curl -y
-  - curl -fL https://github.com/coursier/coursier/releases/latest/download/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup -y
+  - curl -fL https://github.com/coursier/coursier/releases/latest/download/cs-x86_64-pc-linux.gz | gzip -d > cs && chmod +x cs && ./cs setup --jvm 17 -y
   - source /root/.profile
 
 unit-test-job:
