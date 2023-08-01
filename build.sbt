@@ -16,13 +16,13 @@ lazy val commonDependencies = Seq(
 lazy val core = project
   .in(file("core"))
   .settings(
-    name := "CityTwin-core",
+    name := "core",
     libraryDependencies ++= commonDependencies
   )
 
 lazy val riverMonitor = project
   .in(file("river-monitor"))
   .settings(
-    name := "CityTwin-river-monitor",
+    name := "river-monitor",
     libraryDependencies ++= commonDependencies
   )
