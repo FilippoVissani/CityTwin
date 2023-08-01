@@ -9,18 +9,32 @@ import it.unibo.citytwin.core.model.Resource
 import scala.collection.immutable.Set
 
 trait MainstayActorCommand
-case class AskResourceState(replyTo: ActorRef[ResourceActorCommand], name: String) extends MainstayActorCommand with Serializable
-case class UpdateResourceState(resource: Resource) extends MainstayActorCommand with Serializable
-case class SetMainstayActors(refs: Set[ActorRef[MainstayActorCommand]]) extends MainstayActorCommand with Serializable
+case class AskResourceState(
+    replyTo: ActorRef[ResourceActorCommand],
+    name: String
+) extends MainstayActorCommand
+    with Serializable
+case class UpdateResourceState(resource: Resource)
+    extends MainstayActorCommand
+    with Serializable
+case class SetMainstayActors(refs: Set[ActorRef[MainstayActorCommand]])
+    extends MainstayActorCommand
+    with Serializable
 
 object MainstayActor:
-  val mainstayService: ServiceKey[MainstayActorCommand] = ServiceKey[MainstayActorCommand]("mainstayService")
+  val mainstayService: ServiceKey[MainstayActorCommand] =
+    ServiceKey[MainstayActorCommand]("mainstayService")
 
-  def apply(mainstays: Set[ActorRef[MainstayActorCommand]] = Set(),
-            resources: Map[String, Resource] = Map()): Behavior[MainstayActorCommand] =
-    Behaviors.setup[MainstayActorCommand]{ctx =>
+  def apply(
+      mainstays: Set[ActorRef[MainstayActorCommand]] = Set(),
+      resources: Map[String, Resource] = Map()
+  ): Behavior[MainstayActorCommand] =
+    Behaviors.setup[MainstayActorCommand] { ctx =>
       Behaviors.receiveMessage {
-        case AskResourceState(replyTo: ActorRef[ResourceActorCommand], name: String) => {
+        case AskResourceState(
+              replyTo: ActorRef[ResourceActorCommand],
+              name: String
+            ) => {
           ctx.log.debug("AskResourceState")
           replyTo ! ResponseResourceState(resources.get(name))
           Behaviors.same
