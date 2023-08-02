@@ -51,9 +51,9 @@ object Main:
     val height = rows * 200
     var port: Int = 2551
     val zones: List[Zone] = generateZones(rows, columns, Boundary(0, 0, width / columns, height / rows))
-    val fireStations: List[RiverMonitor] = generateRiverMonitor(zones)
+    val riverMonitors: List[RiverMonitor] = generateRiverMonitor(zones)
     val floodSensors: List[FloodSensor] = generateFloodSensors(zones)
-    fireStations.foreach(f => {
+    riverMonitors.foreach(f => {
       startup(port = port)(RiverMonitorGuardianActor(f, zones(f.zoneId)))
       port = port + 1
     })

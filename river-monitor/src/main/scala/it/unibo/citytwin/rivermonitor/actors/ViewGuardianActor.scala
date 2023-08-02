@@ -14,7 +14,7 @@ object ViewGuardianActor:
 
       Behaviors.receiveMessagePartial[Receptionist.Listing] {
         case riverMonitorService.Listing(listings) =>{
-          ctx.log.debug("Received fireStationService")
+          ctx.log.debug("Received riverMonitorService")
           listings.foreach(actor => actor ! IsMyZoneRequestFromViewToRiverMonitor(zoneId, viewActor))
           Behaviors.same
         }
