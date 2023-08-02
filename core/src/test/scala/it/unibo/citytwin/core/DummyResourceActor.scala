@@ -2,7 +2,10 @@ package it.unibo.citytwin.core
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import it.unibo.citytwin.core.actors.{ResourceActorCommand, ResponseResourceState}
+import it.unibo.citytwin.core.actors.{
+  ResourceActorCommand,
+  ResponseResourceState
+}
 import it.unibo.citytwin.core.model.Resource
 
 object DummyResourceActor:
@@ -15,4 +18,3 @@ object DummyResourceActor:
         }
       }
     }
-

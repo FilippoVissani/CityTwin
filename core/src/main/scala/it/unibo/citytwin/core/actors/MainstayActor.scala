@@ -10,12 +10,14 @@ import scala.collection.immutable.Set
 
 trait MainstayActorCommand
 case class AskResourcesState(
-                             replyTo: ActorRef[ResourceActorCommand],
-                             names: Set[String]
+    replyTo: ActorRef[ResourceActorCommand],
+    names: Set[String]
 ) extends MainstayActorCommand
     with Serializable
-case class SetResourceState(ref: ActorRef[ResourceActorCommand], resource: Option[Resource])
-    extends MainstayActorCommand
+case class SetResourceState(
+    ref: ActorRef[ResourceActorCommand],
+    resource: Option[Resource]
+) extends MainstayActorCommand
     with Serializable
 case class SetMainstayActors(refs: Set[ActorRef[MainstayActorCommand]])
     extends MainstayActorCommand
@@ -33,14 +35,21 @@ object MainstayActor:
       Behaviors.receiveMessage {
         case AskResourcesState(
               replyTo: ActorRef[ResourceActorCommand],
-        names: Set[String]
+              names: Set[String]
             ) => {
           ctx.log.debug("AskResourceState")
-          val result: Set[Resource] = resources.values.filter(x => x.isDefined).map(x => x.get).filter(x => names.contains(x.name)).toSet
+          val result: Set[Resource] = resources.values
+            .filter(x => x.isDefined)
+            .map(x => x.get)
+            .filter(x => names.contains(x.name))
+            .toSet
           replyTo ! ResponseResourceState(result)
           Behaviors.same
         }
-        case SetResourceState(ref: ActorRef[ResourceActorCommand], resource: Option[Resource]) => {
+        case SetResourceState(
+              ref: ActorRef[ResourceActorCommand],
+              resource: Option[Resource]
+            ) => {
           ctx.log.debug("SetResourceState")
           mainstays.foreach(x => x ! SetResourceState(ref, resource))
           MainstayActor(mainstays, resources + (ref -> resource))
