@@ -42,4 +42,4 @@ lazy val riverMonitor = project
   .settings(
     name := "river-monitor",
     libraryDependencies ++= commonDependencies
-  )
+  ).dependsOn(core)
