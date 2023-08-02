@@ -10,7 +10,7 @@ object MainstayGuardianActor:
   def apply(): Behavior[Nothing] =
     Behaviors
       .setup[Receptionist.Listing] { ctx =>
-        val fireStationActor = ctx.spawnAnonymous(MainstayActor())
+        val mainstayActor = ctx.spawnAnonymous(MainstayActor())
         ctx.system.receptionist ! Receptionist.Subscribe(
           mainstayService,
           ctx.self
@@ -18,7 +18,7 @@ object MainstayGuardianActor:
         Behaviors.receiveMessagePartial[Receptionist.Listing] {
           case mainstayService.Listing(listings) => {
             ctx.log.debug("Received mainstayService")
-            fireStationActor ! SetMainstayActors(listings)
+            mainstayActor ! SetMainstayActors(listings)
             Behaviors.same
           }
           case _ => Behaviors.stopped
