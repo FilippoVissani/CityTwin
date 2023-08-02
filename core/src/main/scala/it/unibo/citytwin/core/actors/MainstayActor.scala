@@ -9,9 +9,9 @@ import it.unibo.citytwin.core.model.Resource
 import scala.collection.immutable.Set
 
 trait MainstayActorCommand
-case class AskResourceState(
+case class AskResourcesState(
                              replyTo: ActorRef[ResourceActorCommand],
-                             resourceRef: ActorRef[ResourceActorCommand]
+                             names: Set[String]
 ) extends MainstayActorCommand
     with Serializable
 case class SetResourceState(ref: ActorRef[ResourceActorCommand], resource: Option[Resource])
@@ -31,16 +31,17 @@ object MainstayActor:
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       Behaviors.receiveMessage {
-        case AskResourceState(
+        case AskResourcesState(
               replyTo: ActorRef[ResourceActorCommand],
-        resourceRef: ActorRef[ResourceActorCommand]
+        names: Set[String]
             ) => {
           ctx.log.debug("AskResourceState")
-          replyTo ! ResponseResourceState(resources(resourceRef))
+          val result: Set[Resource] = resources.values.filter(x => x.isDefined).map(x => x.get).filter(x => names.contains(x.name)).toSet
+          replyTo ! ResponseResourceState(result)
           Behaviors.same
         }
         case SetResourceState(ref: ActorRef[ResourceActorCommand], resource: Option[Resource]) => {
-          ctx.log.debug("UpdateResourceState")
+          ctx.log.debug("SetResourceState")
           mainstays.foreach(x => x ! SetResourceState(ref, resource))
           MainstayActor(mainstays, resources + (ref -> resource))
         }

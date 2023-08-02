@@ -4,7 +4,7 @@ import akka.actor.typed.receptionist.ServiceKey
 import it.unibo.citytwin.core.model.Resource
 
 trait ResourceActorCommand
-case class ResponseResourceState(resource: Option[Resource])
+case class ResponseResourceState(resources: Set[Resource])
     extends ResourceActorCommand
 
 object ResourceActor:
