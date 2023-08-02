@@ -1,3 +1,3 @@
 package it.unibo.citytwin.rivermonitor.model
 
-case class FloodSensor(position: Point2D)
+case class FloodSensor(name: String, position: Point2D)
