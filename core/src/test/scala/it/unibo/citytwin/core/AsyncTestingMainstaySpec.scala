@@ -24,22 +24,25 @@ class AsyncTestingMainstaySpec
       val resource = Resource(
         name = "sensor1",
         position = Some(Point2D(0, 0)),
-        state = Option(1),
+        state = Some(1),
         resourceType = Set(Sense)
       )
-      val dummyResourceActor =
-        testKit.spawn(DummyResourceActor(), "dummyResource")
+      val dummyResourceActor = testKit.spawn(DummyResourceActor(), "dummyResource")
       val mainstay = testKit.spawn(MainstayActor(), "mainstay")
       val probe = testKit.createTestProbe[ResourceActorCommand]()
-      mainstay ! SetResourceState(dummyResourceActor, Some(resource))
+      mainstay ! SetResourceState(dummyResourceActor, resource)
       mainstay ! AskResourcesState(probe.ref, Set("sensor1"))
       probe.expectMessage(ResponseResourceState(Set(resource)))
+      testKit.stop(mainstay)
+      testKit.stop(dummyResourceActor)
     }
 
     "Register a new mainstay" in {
       val mainstay = testKit.spawn(MainstayActor(), "mainstay")
+      val mainstayState = Map(mainstay -> true)
       val probe = testKit.createTestProbe[MainstayActorCommand]()
-      probe ! SetMainstayActors(Set(mainstay))
-      probe.expectMessage(SetMainstayActors(Set(mainstay)))
+      probe ! SetMainstayActors(mainstayState)
+      probe.expectMessage(SetMainstayActors(mainstayState))
+      testKit.stop(mainstay)
     }
   }
