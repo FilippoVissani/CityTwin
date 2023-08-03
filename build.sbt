@@ -12,8 +12,7 @@ lazy val commonDependencies = Seq(
   "com.typesafe.akka" %% "akka-serialization-jackson" % akkaVersion,
   "ch.qos.logback" % "logback-classic" % "1.4.8",
   akkaGroup %% "akka-actor-testkit-typed" % akkaVersion % Test,
-  "org.scalatest" %% "scalatest" % "3.2.16" % Test,
-  "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
+  "org.scalatest" %% "scalatest" % "3.2.16" % Test
 )
 lazy val scalaSwing = "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 lazy val commonSettings = Seq(
@@ -41,5 +40,5 @@ lazy val riverMonitor = project
   .in(file("river-monitor"))
   .settings(
     name := "river-monitor",
-    libraryDependencies ++= commonDependencies
+    libraryDependencies ++= commonDependencies :+ "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
   ).dependsOn(core)
