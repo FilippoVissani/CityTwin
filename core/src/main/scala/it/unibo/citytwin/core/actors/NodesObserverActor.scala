@@ -2,6 +2,7 @@ package it.unibo.citytwin.core.actors
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
+import it.unibo.citytwin.core.model.Resource
 
 trait NodesObserverActorCommand
 case class UpdateMainstayNodesState(refs: Set[ActorRef[MainstayActorCommand]])
@@ -23,14 +24,14 @@ object NodesObserverActor:
           ctx.log.debug("UpdateMainstaysState")
           val result: Map[ActorRef[MainstayActorCommand], Boolean] =
             mainstays.map((k, _) => (k, false)) ++ refs.map(k => (k, true))
-          mainstay ! SetMainstayActors(result)
+          mainstay ! SetMainstays(result)
           NodesObserverActor(mainstay, result, resources)
         }
         case UpdateResourceNodesState(refs: Set[ActorRef[ResourceActorCommand]]) => {
           ctx.log.debug("UpdateResourcesState")
           val result: Map[ActorRef[ResourceActorCommand], Boolean] =
             resources.map((k, _) => (k, false)) ++ refs.map(k => (k, true))
-          mainstay ! SetResourceNodesState(result)
+          mainstay ! UpdateResources(result.map((k, v) => (k, Resource(nodeState = Some(v)))))
           NodesObserverActor(mainstay, mainstays, result)
         }
       }
