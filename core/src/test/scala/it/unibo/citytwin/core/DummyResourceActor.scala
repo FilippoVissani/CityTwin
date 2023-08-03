@@ -10,7 +10,7 @@ object DummyResourceActor:
     Behaviors.setup[ResourceActorCommand] { ctx =>
       Behaviors.receiveMessage {
         case ResponseResourceState(resources: Set[Resource]) => {
-          ctx.log.debug("ResponseResourceState")
+          ctx.log.debug(s"$resources")
           Behaviors.same
         }
       }
