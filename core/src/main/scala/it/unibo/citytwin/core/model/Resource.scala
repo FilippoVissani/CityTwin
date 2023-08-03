@@ -4,14 +4,10 @@ enum ResourceType:
   case Act
   case Sense
 
-enum NodeState:
-  case Up
-  case Down
-
 case class Resource(
-    name: String,
-    position: Option[Point2D[Int]],
-    state: Option[Any],
-    resourceType: Set[ResourceType],
-    nodeState: NodeState = NodeState.Up
+    name: String = "",
+    position: Option[Point2D[Int]] = None,
+    state: Option[Any] = None,
+    resourceType: Set[ResourceType] = Set(),
+    nodeState: Boolean = true
 )

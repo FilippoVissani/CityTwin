@@ -16,11 +16,15 @@ case class AskResourcesState(
     with Serializable
 case class SetResourceState(
     ref: ActorRef[ResourceActorCommand],
-    resource: Option[Resource]
+    resource: Resource
 ) extends MainstayActorCommand
     with Serializable
-case class SetMainstayActors(refs: Set[ActorRef[MainstayActorCommand]])
+case class SetMainstayActors(nodes: Map[ActorRef[MainstayActorCommand], Boolean])
     extends MainstayActorCommand
+    with Serializable
+
+case class SetResourceNodesState(nodes: Map[ActorRef[ResourceActorCommand], Boolean])
+  extends MainstayActorCommand
     with Serializable
 
 object MainstayActor:
@@ -28,8 +32,8 @@ object MainstayActor:
     ServiceKey[MainstayActorCommand]("mainstayService")
 
   def apply(
-      mainstays: Set[ActorRef[MainstayActorCommand]] = Set(),
-      resources: Map[ActorRef[ResourceActorCommand], Option[Resource]] = Map()
+      mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
+      resources: Map[ActorRef[ResourceActorCommand], Resource] = Map()
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       Behaviors.receiveMessage {
@@ -38,25 +42,28 @@ object MainstayActor:
               names: Set[String]
             ) => {
           ctx.log.debug("AskResourceState")
-          val result: Set[Resource] = resources.values
-            .filter(x => x.isDefined)
-            .map(x => x.get)
-            .filter(x => names.contains(x.name))
-            .toSet
-          replyTo ! ResponseResourceState(result)
+          replyTo ! ResponseResourceState(resources.values.filter(x => names.contains(x.name)).toSet)
           Behaviors.same
         }
         case SetResourceState(
               ref: ActorRef[ResourceActorCommand],
-              resource: Option[Resource]
+              resource: Resource
             ) => {
           ctx.log.debug("SetResourceState")
-          mainstays.foreach(x => x ! SetResourceState(ref, resource))
+          mainstays.foreach((k, _) => k ! SetResourceState(ref, resource))
           MainstayActor(mainstays, resources + (ref -> resource))
         }
-        case SetMainstayActors(refs: Set[ActorRef[MainstayActorCommand]]) => {
+        case SetResourceNodesState(nodes: Map[ActorRef[ResourceActorCommand], Boolean]) => {
+          ctx.log.debug("SetResourceNodesState")
+          val result: Map[ActorRef[ResourceActorCommand], Resource] = for
+            (k, v) <- resources
+            (k2, v2) <- nodes
+          yield if k == k2 then (k, v.copy(nodeState = v2)) else (k2, Resource(nodeState = v2))
+          MainstayActor(mainstays, result)
+        }
+        case SetMainstayActors(nodes: Map[ActorRef[MainstayActorCommand], Boolean]) => {
           ctx.log.debug("SetMainstayActors")
-          MainstayActor(refs.filter(x => x != ctx.self), resources)
+          MainstayActor(nodes, resources)
         }
       }
     }
