@@ -19,17 +19,17 @@ object NodesObserverActor:
   ): Behavior[NodesObserverActorCommand] =
     Behaviors.setup[NodesObserverActorCommand] { ctx =>
       Behaviors.receiveMessage {
-        case SetMainstayActors(refs: Set[ActorRef[MainstayActorCommand]]) => {
+        case UpdateMainstayNodesState(refs: Set[ActorRef[MainstayActorCommand]]) => {
           ctx.log.debug("UpdateMainstaysState")
           val result: Map[ActorRef[MainstayActorCommand], Boolean] =
-            mainstays.map((k, _) => (k, false)) ++ refs.iterator.map(k => (k, true))
+            mainstays.map((k, _) => (k, false)) ++ refs.map(k => (k, true))
           mainstay ! SetMainstayActors(result)
           NodesObserverActor(mainstay, result, resources)
         }
-        case SetResourceNodesState(refs: Set[ActorRef[ResourceActorCommand]]) => {
+        case UpdateResourceNodesState(refs: Set[ActorRef[ResourceActorCommand]]) => {
           ctx.log.debug("UpdateResourcesState")
           val result: Map[ActorRef[ResourceActorCommand], Boolean] =
-            resources.map((k, _) => (k, false)) ++ refs.iterator.map(k => (k, true))
+            resources.map((k, _) => (k, false)) ++ refs.map(k => (k, true))
           mainstay ! SetResourceNodesState(result)
           NodesObserverActor(mainstay, mainstays, result)
         }
