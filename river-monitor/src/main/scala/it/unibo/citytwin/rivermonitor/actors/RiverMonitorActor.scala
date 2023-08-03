@@ -2,6 +2,7 @@ package it.unibo.citytwin.rivermonitor.actors
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.Behaviors
+import it.unibo.citytwin.rivermonitor.actors.floodsensor.FloodSensorActorCommand
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
 import it.unibo.citytwin.rivermonitor.model.{RiverMonitor, Zone, ZoneState}
 trait RiverMonitorActorCommand

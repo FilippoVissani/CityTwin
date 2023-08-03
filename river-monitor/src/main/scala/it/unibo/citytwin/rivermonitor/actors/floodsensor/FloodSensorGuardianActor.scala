@@ -1,10 +1,11 @@
-package it.unibo.citytwin.rivermonitor.actors
+package it.unibo.citytwin.rivermonitor.actors.floodsensor
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.actors.MainstayActor.mainstayService
 import it.unibo.citytwin.core.actors.{ResourceActor, SetMainstayActorsToResourceActor}
+import it.unibo.citytwin.rivermonitor.actors.floodsensor.{FloodSensorActor, ResourceFloodSensorActor, SetResourceActor}
 import it.unibo.citytwin.rivermonitor.model.FloodSensor
 
 object FloodSensorGuardianActor:

@@ -3,7 +3,8 @@ package it.unibo.citytwin.rivermonitor.app
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorSystem, Behavior}
 import com.typesafe.config.{Config, ConfigFactory}
-import it.unibo.citytwin.rivermonitor.actors.{FloodSensorGuardianActor, RiverMonitorGuardianActor, ViewGuardianActor}
+import it.unibo.citytwin.rivermonitor.actors.floodsensor.FloodSensorGuardianActor
+import it.unibo.citytwin.rivermonitor.actors.{RiverMonitorGuardianActor, ViewGuardianActor}
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.Free
 import it.unibo.citytwin.rivermonitor.model.ZoneState.Ok
 import it.unibo.citytwin.rivermonitor.model.{Boundary, FloodSensor, Point2D, RiverMonitor, Zone}

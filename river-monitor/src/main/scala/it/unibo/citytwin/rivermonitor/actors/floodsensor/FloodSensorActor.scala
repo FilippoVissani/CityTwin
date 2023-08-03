@@ -1,18 +1,20 @@
-package it.unibo.citytwin.rivermonitor.actors
+package it.unibo.citytwin.rivermonitor.actors.floodsensor
+
 import akka.actor
-import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
-import it.unibo.citytwin.rivermonitor.model.FloodSensor
-import akka.util.Timeout
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors, TimerScheduler}
+import akka.actor.typed.{ActorRef, Behavior, SupervisorStrategy}
+import akka.util.Timeout
+import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.actors.ResourceActor.resourceService
-import it.unibo.citytwin.core.actors.{MainstayActorCommand, ResourceActorCommand, ResourceChanged, ResponseResourceState, SetResourceState}
-import it.unibo.citytwin.core.model.Resource
-import it.unibo.citytwin.core.model.ResourceType
+import it.unibo.citytwin.core.model.{Resource, ResourceType}
+import it.unibo.citytwin.rivermonitor.actors.Serializable
+import it.unibo.citytwin.rivermonitor.actors.floodsensor.{FloodSensorActorCommand, SetResourceActor, Tick}
+import it.unibo.citytwin.rivermonitor.model.FloodSensor
 
-import scala.util.{Failure, Success}
-import concurrent.duration.DurationInt
 import java.util.concurrent.ThreadLocalRandom
+import scala.concurrent.duration.DurationInt
+import scala.util.{Failure, Success}
 
 trait FloodSensorActorCommand
 
