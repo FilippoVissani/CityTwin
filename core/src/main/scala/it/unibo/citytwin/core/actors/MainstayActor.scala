@@ -15,7 +15,7 @@ case class AskResourcesState(
 ) extends MainstayActorCommand
     with Serializable
 case class UpdateResources(
-                            update: Map[ActorRef[ResourceActorCommand], Resource]
+    update: Map[ActorRef[ResourceActorCommand], Resource]
 ) extends MainstayActorCommand
     with Serializable
 case class SetMainstays(nodes: Map[ActorRef[MainstayActorCommand], Boolean])
@@ -38,14 +38,19 @@ object MainstayActor:
             ) => {
           ctx.log.debug("AskResourceState")
           replyTo ! ResponseResourceState(
-            resources.values.filter(x => x.name.isDefined).filter(x => names.contains(x.name.get)).toSet
+            resources.values
+              .filter(x => x.name.isDefined)
+              .filter(x => names.contains(x.name.get))
+              .toSet
           )
           Behaviors.same
         }
         case UpdateResources(update: Map[ActorRef[ResourceActorCommand], Resource]) => {
           ctx.log.debug("UpdateResources")
           mainstays.foreach((k, _) => k ! UpdateResources(resources))
-          val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) => if update.contains(k) then (k, v.merge(update(k))) else (k, v)) ++ (update -- resources.keys)
+          val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) =>
+            if update.contains(k) then (k, v.merge(update(k))) else (k, v)
+          ) ++ (update -- resources.keys)
           MainstayActor(mainstays, result)
         }
         case SetMainstays(nodes: Map[ActorRef[MainstayActorCommand], Boolean]) => {
