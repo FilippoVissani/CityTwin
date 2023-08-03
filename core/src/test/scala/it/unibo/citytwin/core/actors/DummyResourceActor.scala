@@ -1,4 +1,4 @@
-package it.unibo.citytwin.core
+package it.unibo.citytwin.core.actors
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors

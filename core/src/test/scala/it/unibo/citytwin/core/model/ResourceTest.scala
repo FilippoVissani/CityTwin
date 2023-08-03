@@ -1,7 +1,7 @@
-package it.unibo.citytwin.core
+package it.unibo.citytwin.core.model
 
-import it.unibo.citytwin.core.model.{Point2D, Resource}
 import it.unibo.citytwin.core.model.ResourceType.*
+import it.unibo.citytwin.core.model.{Point2D, Resource}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
