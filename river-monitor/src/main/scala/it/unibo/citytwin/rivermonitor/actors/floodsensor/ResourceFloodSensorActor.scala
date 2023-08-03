@@ -9,7 +9,7 @@ import it.unibo.citytwin.rivermonitor.actors.floodsensor.FloodSensorActorCommand
 
 object ResourceFloodSensorActor :
   def apply(floodSensorActor: ActorRef[FloodSensorActorCommand],
-            mainstayActors: Set[ActorRef[MainstayActorCommand]]): Behavior[ResourceActorCommand] =
+            mainstayActors: Set[ActorRef[MainstayActorCommand]] = Set()): Behavior[ResourceActorCommand] =
     Behaviors.setup[ResourceActorCommand] { ctx =>
       ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
       Behaviors.receiveMessage {

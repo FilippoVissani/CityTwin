@@ -12,9 +12,9 @@ object FloodSensorGuardianActor:
   def apply(floodSensor: FloodSensor): Behavior[Nothing] =
     Behaviors.setup[Receptionist.Listing] { ctx =>
       val floodSensorActor = ctx.spawnAnonymous(FloodSensorActor(floodSensor))
-      val resourceFloodSensorActor = ctx.spawnAnonymous(ResourceFloodSensorActor(floodSensorActor, Set()))
+      val resourceFloodSensorActor = ctx.spawnAnonymous(ResourceFloodSensorActor(floodSensorActor))
       floodSensorActor ! SetResourceActor(resourceFloodSensorActor)
-      
+
       ctx.system.receptionist ! Receptionist.Subscribe(mainstayService, ctx.self)
 
       Behaviors.receiveMessagePartial[Receptionist.Listing] {
