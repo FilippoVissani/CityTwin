@@ -94,7 +94,6 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
         offlineNodes + onlineNodes.head.copy(_2 = Resource(nodeState = Some(false)))
       )
       probe.expectMessage(AdaptedResourceStatesResponse(expectedResult))
-      testKit.stop(probeActor)
       onlineNodes.foreach((k, _) => testKit.stop(k))
       offlineNodes.foreach((k, _) => testKit.stop(k))
       testKit.stop(mainstay)
