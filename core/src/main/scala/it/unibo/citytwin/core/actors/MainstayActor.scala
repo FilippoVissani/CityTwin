@@ -31,7 +31,7 @@ object MainstayActor:
   def apply(
       mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
       resources: Map[ActorRef[ResourceActorCommand], Resource] = Map(),
-      isNodesObserverGuardianStarted: Boolean = false,
+      isNodesObserverGuardianStarted: Boolean = false
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       ctx.log.debug("Mainstay started")
