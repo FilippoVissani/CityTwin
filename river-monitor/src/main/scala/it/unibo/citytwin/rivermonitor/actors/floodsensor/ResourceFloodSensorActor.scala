@@ -24,7 +24,7 @@ object ResourceFloodSensorActor :
         }
         case ResourceChanged(resource) => {
           ctx.log.debug("Received ResourceChanged")
-          mainstayActors.head ! SetResourceState(ctx.self, Some(resource))
+          mainstayActors.foreach(mainstay => mainstay ! SetResourceState(ctx.self, Some(resource)))
           Behaviors.same
         }
         case _ => {
