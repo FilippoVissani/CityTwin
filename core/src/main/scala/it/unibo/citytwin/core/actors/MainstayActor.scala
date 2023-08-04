@@ -10,8 +10,8 @@ import scala.collection.immutable.{Map, Set}
 
 trait MainstayActorCommand
 case class AskResourcesState(
-                              replyTo: ActorRef[ResourceStatesResponse],
-                              names: Set[String]
+    replyTo: ActorRef[ResourceStatesResponse],
+    names: Set[String]
 ) extends MainstayActorCommand
     with Serializable
 case class UpdateResources(

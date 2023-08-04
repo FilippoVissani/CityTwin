@@ -71,10 +71,15 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
           .merge(Resource(nodeState = Some(false)))
       val mainstay = testKit.spawn(MainstayActor(), "mainstay")
       val probe    = testKit.createTestProbe[ResourceActorCommand]()
-      val mockedBehavior = Behaviors.setup[ResourceActorCommand] {ctx =>
+      val mockedBehavior = Behaviors.setup[ResourceActorCommand] { ctx =>
         implicit val timeout: Timeout = 3.seconds
-        ctx.ask(mainstay, ref => AskResourcesState(ref, LazyList.from(0).map(x => s"sensor$x").take(10).toSet[String])) {
-          case Success(ResourceStatesResponse(resources: Set[Resource])) => AdaptedResourceStatesResponse(resources)
+        ctx.ask(
+          mainstay,
+          ref =>
+            AskResourcesState(ref, LazyList.from(0).map(x => s"sensor$x").take(10).toSet[String])
+        ) {
+          case Success(ResourceStatesResponse(resources: Set[Resource])) =>
+            AdaptedResourceStatesResponse(resources)
           case _ => AdaptedResourceStatesResponse(Set())
         }
         Behaviors.receiveMessage {
@@ -83,11 +88,11 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
           }
         }
       }
+      val probeActor = testKit.spawn(Behaviors.monitor(probe.ref, mockedBehavior))
       mainstay ! UpdateResources(onlineNodes)
       mainstay ! UpdateResources(
         offlineNodes + onlineNodes.head.copy(_2 = Resource(nodeState = Some(false)))
       )
-      val probeActor = testKit.spawn(Behaviors.monitor(probe.ref, mockedBehavior))
       probe.expectMessage(AdaptedResourceStatesResponse(expectedResult))
       testKit.stop(probeActor)
       onlineNodes.foreach((k, _) => testKit.stop(k))
@@ -97,7 +102,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
     }
 
     "Inform other mainstays on Resource update" in {
-      val probe = testKit.createTestProbe[MainstayActorCommand]()
+      val probe    = testKit.createTestProbe[MainstayActorCommand]()
       val resource = testKit.spawn(DummyResourceActor(), "resource")
       val mainstay = testKit.spawn(MainstayActor(), "mainstay")
       mainstay ! SetMainstays(Map(probe.ref -> true))

@@ -6,7 +6,9 @@ import it.unibo.citytwin.core.actors.ResourceActorCommand
 import it.unibo.citytwin.core.model.Resource
 
 object DummyResourceActor:
-  def apply(mainstays: Set[ActorRef[MainstayActorCommand]] = Set()): Behavior[ResourceActorCommand] =
+  def apply(
+      mainstays: Set[ActorRef[MainstayActorCommand]] = Set()
+  ): Behavior[ResourceActorCommand] =
     Behaviors.setup[ResourceActorCommand] { ctx =>
       Behaviors.receiveMessage {
         case AdaptedResourceStatesResponse(resources: Set[Resource]) => {
