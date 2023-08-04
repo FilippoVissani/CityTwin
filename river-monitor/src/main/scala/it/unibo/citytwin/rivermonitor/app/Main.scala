@@ -35,10 +35,13 @@ object Main:
     riverMonitors.reverse*/
 
   @main def main(): Unit =
-    val floodSensor = FloodSensor("floodSensor1", Point2D[Int](0, 0))
+    val floodSensorName = "floodSensor1"
+    val floodSensor = FloodSensor(floodSensorName, Point2D[Int](0, 0))
     startup(port = 2551)(FloodSensorGuardianActor(floodSensor))
 
-    val riverMonitor = RiverMonitor(Point2D[Int](0, 0), Safe)
+    val riverMonitorName ="riverMonitor1"
+    val sensorsToCheck = Set[String]("floodSensor1")
+    val riverMonitor = RiverMonitor(riverMonitorName, sensorsToCheck, Point2D[Int](0, 0))
     startup(port = 2552)(FloodSensorGuardianActor(floodSensor))
 
     /*val rows = 1
