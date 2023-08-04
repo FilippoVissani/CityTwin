@@ -2,7 +2,9 @@ image: ubuntu:latest
 
 stages:
   - test
+  - build
   - release
+
 
 before_script:
   - apt-get update -y
@@ -15,8 +17,35 @@ unit-test-job:
   script:
     - sbt test
 
-deploy-job:
-  stage: release
-  environment: production
+build-job:
+  stage: build
   script:
-    - echo "TODO Create release"
+    - sbt Universal / packageBin
+  artifacts:
+    paths:
+      - core/target/universal/core*
+    reports:
+      # To ensure we've access to this file in the next stage
+      dotenv: build.env
+
+release-job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  script:
+    - echo 'running release_job'
+    - echo 'Previous Job ID is printed below'
+    - echo $GE_JOB_ID
+  # Specifying that this job requires artifacts from the previous job to succeed
+  needs:
+    - job: build-job
+      artifacts: true
+  release:
+    name: 'Release Executables $CI_COMMIT_SHORT_SHA'
+    description: 'Created using the release-cli'
+    tag_name: '$CI_COMMIT_SHORT_SHA'
+    assets:
+      links:
+        - name: 'Artifacts'
+          url: 'https://gitlab.com/codemancers/engineering/cw/-/jobs/${GE_JOB_ID}/artifacts/file/dist/cloudwatch-linux'
+  only:
+    - master
