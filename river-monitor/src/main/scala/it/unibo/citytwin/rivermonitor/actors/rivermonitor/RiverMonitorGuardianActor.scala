@@ -11,7 +11,7 @@ import it.unibo.citytwin.rivermonitor.model.{RiverMonitor, Zone}
 
 object RiverMonitorGuardianActor:
 
-  def apply(riverMonitor: RiverMonitor, zone: Zone): Behavior[Nothing] =
+  def apply(riverMonitor: RiverMonitor): Behavior[Nothing] =
     Behaviors.setup[Receptionist.Listing] { ctx =>
       val riverMonitorActor = ctx.spawnAnonymous(RiverMonitorActor(riverMonitor))
       val resourceRiverMonitorActor = ctx.spawnAnonymous(ResourceRiverMonitorActor(riverMonitorActor))
