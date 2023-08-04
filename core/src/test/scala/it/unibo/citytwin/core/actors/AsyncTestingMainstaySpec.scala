@@ -89,6 +89,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       )
       val probeActor = testKit.spawn(Behaviors.monitor(probe.ref, mockedBehavior))
       probe.expectMessage(AdaptedResourceStatesResponse(expectedResult))
+      testKit.stop(probeActor)
       onlineNodes.foreach((k, _) => testKit.stop(k))
       offlineNodes.foreach((k, _) => testKit.stop(k))
       testKit.stop(mainstay)
