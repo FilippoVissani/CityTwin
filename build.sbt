@@ -17,8 +17,9 @@ lazy val core = project
   .in(file("core"))
   .settings(
     name := "core",
-    libraryDependencies ++= commonDependencies
-  )
+    libraryDependencies ++= commonDependencies,
+    Compile / packageBin / mainClass := Some("it.unibo.citytwin.core.Main"),
+  ).enablePlugins(JavaAppPackaging)
 
 lazy val riverMonitor = project
   .in(file("river-monitor"))
