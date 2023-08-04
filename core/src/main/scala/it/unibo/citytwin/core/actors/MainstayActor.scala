@@ -30,9 +30,13 @@ object MainstayActor:
 
   def apply(
       mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
-      resources: Map[ActorRef[ResourceActorCommand], Resource] = Map()
+      resources: Map[ActorRef[ResourceActorCommand], Resource] = Map(),
+      isNodesObserverGuardianStarted: Boolean = false,
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
+      ctx.log.debug("Mainstay started")
+      if !isNodesObserverGuardianStarted then
+        ctx.spawnAnonymous(NodesObserverGuardianActor(ctx.self))
       Behaviors.receiveMessage {
         case AskResourcesState(
               replyTo: ActorRef[ResourceStatesResponse],
@@ -53,11 +57,11 @@ object MainstayActor:
           val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) =>
             if update.contains(k) then (k, v.merge(update(k))) else (k, v)
           ) ++ (update -- resources.keys)
-          MainstayActor(mainstays, result)
+          MainstayActor(mainstays, result, true)
         }
         case SetMainstays(nodes: Map[ActorRef[MainstayActorCommand], Boolean]) => {
           ctx.log.debug("SetMainstays")
-          MainstayActor(nodes, resources)
+          MainstayActor(nodes, resources, true)
         }
       }
     }
