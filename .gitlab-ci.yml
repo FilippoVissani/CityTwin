@@ -46,6 +46,6 @@ release-job:
     assets:
       links:
         - name: 'Artifacts'
-          url: 'https://gitlab.com/codemancers/engineering/cw/-/jobs/${GE_JOB_ID}/artifacts/file/dist/cloudwatch-linux'
+          url: 'https://dvcs.apice.unibo.it/pika-lab/courses/ds/projects/ds-project-vissani-barzi-ay2223/-/jobs/${GE_JOB_ID}/artifacts/file/core/target/universal'
   only:
     - master
