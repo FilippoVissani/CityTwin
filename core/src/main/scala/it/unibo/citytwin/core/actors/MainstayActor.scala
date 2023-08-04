@@ -10,8 +10,8 @@ import scala.collection.immutable.{Map, Set}
 
 trait MainstayActorCommand
 case class AskResourcesState(
-    replyTo: ActorRef[ResourceActorCommand],
-    names: Set[String]
+                              replyTo: ActorRef[ResourceStatesResponse],
+                              names: Set[String]
 ) extends MainstayActorCommand
     with Serializable
 case class UpdateResources(
@@ -21,6 +21,8 @@ case class UpdateResources(
 case class SetMainstays(nodes: Map[ActorRef[MainstayActorCommand], Boolean])
     extends MainstayActorCommand
     with Serializable
+
+case class ResourceStatesResponse(resources: Set[Resource])
 
 object MainstayActor:
   val mainstayService: ServiceKey[MainstayActorCommand] =
@@ -33,11 +35,11 @@ object MainstayActor:
     Behaviors.setup[MainstayActorCommand] { ctx =>
       Behaviors.receiveMessage {
         case AskResourcesState(
-              replyTo: ActorRef[ResourceActorCommand],
+              replyTo: ActorRef[ResourceStatesResponse],
               names: Set[String]
             ) => {
           ctx.log.debug("AskResourceState")
-          replyTo ! ResponseResourceState(
+          replyTo ! ResourceStatesResponse(
             resources.values
               .filter(x => x.name.isDefined)
               .filter(x => names.contains(x.name.get))
