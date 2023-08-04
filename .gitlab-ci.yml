@@ -20,7 +20,7 @@ unit-test-job:
 build-job:
   stage: build
   script:
-    - sbt Universal / packageBin
+    - sbt universal:packageBin
   artifacts:
     paths:
       - core/target/universal/core*
