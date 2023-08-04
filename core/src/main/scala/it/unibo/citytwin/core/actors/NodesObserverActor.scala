@@ -19,6 +19,7 @@ object NodesObserverActor:
       resources: Map[ActorRef[ResourceActorCommand], Boolean] = Map()
   ): Behavior[NodesObserverActorCommand] =
     Behaviors.setup[NodesObserverActorCommand] { ctx =>
+      ctx.log.debug("Nodes observer started")
       Behaviors.receiveMessage {
         case UpdateMainstayNodesState(refs: Set[ActorRef[MainstayActorCommand]]) => {
           ctx.log.debug("UpdateMainstaysState")

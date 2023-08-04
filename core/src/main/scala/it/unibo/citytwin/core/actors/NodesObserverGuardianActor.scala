@@ -10,6 +10,7 @@ object NodesObserverGuardianActor:
   def apply(mainstay: ActorRef[MainstayActorCommand]): Behavior[Nothing] =
     Behaviors
       .setup[Receptionist.Listing] { ctx =>
+        ctx.log.debug("Nodes observer guardian started")
         val nodesObserverActor = ctx.spawnAnonymous(NodesObserverActor(mainstay))
         ctx.system.receptionist ! Receptionist.Subscribe(
           mainstayService,
