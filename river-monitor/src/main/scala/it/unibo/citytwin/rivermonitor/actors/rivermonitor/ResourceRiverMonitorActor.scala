@@ -31,13 +31,14 @@ object ResourceRiverMonitorActor :
     Behaviors.receiveMessage {
       case AskResourcesToMainstay(resourcesNames) => {
         ctx.log.debug("Received AskResourcesToMainstay")
-        ctx.ask(mainstayActors.head, ref => AskResourcesState(ref, resourcesNames)){
-              //TODO: check success case received message
-          case Success(ResponseResourceState(resources)) => ResponseResourceState(resources)
-          case _ => {
-            ctx.log.debug("Resources not received from Mainstay actor. Mainstay actor is unreachable.")
-            ResponseResourceState(Set())
-          }
+        if mainstayActors.nonEmpty then
+          ctx.ask(mainstayActors.head, ref => AskResourcesState(ref, resourcesNames)){
+                //TODO: check success case received message
+            case Success(ResponseResourceState(resources)) => ResponseResourceState(resources)
+            case _ => {
+              ctx.log.debug("Resources not received from Mainstay actor. Mainstay actor is unreachable.")
+              ResponseResourceState(Set())
+            }
         }
         Behaviors.same
       }
@@ -52,7 +53,7 @@ object ResourceRiverMonitorActor :
       }
       case ResourceChanged(resource) => {
         ctx.log.debug("Received ResourceChanged")
-        mainstayActors.head ! SetResourceState(ctx.self, Some(resource))
+        mainstayActors.foreach(mainstayActor => mainstayActor ! SetResourceState(ctx.self, Some(resource)))
         Behaviors.same
       }
       case _ => {
