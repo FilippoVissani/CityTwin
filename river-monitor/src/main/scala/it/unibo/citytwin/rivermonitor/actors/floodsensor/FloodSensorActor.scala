@@ -8,7 +8,7 @@ import akka.util.Timeout
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.actors.ResourceActor.resourceService
 import it.unibo.citytwin.core.model.{Resource, ResourceType}
-import it.unibo.citytwin.rivermonitor.actors.Serializable
+import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.rivermonitor.actors.floodsensor.{FloodSensorActorCommand, SetResourceActor, Tick}
 import it.unibo.citytwin.rivermonitor.model.FloodSensor
 

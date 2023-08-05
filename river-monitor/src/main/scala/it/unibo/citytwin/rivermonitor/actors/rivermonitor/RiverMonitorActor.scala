@@ -6,7 +6,8 @@ import akka.actor.typed.{ActorRef, Behavior}
 import it.unibo.citytwin.core.actors.ResourceActorCommand
 import it.unibo.citytwin.rivermonitor.actors.floodsensor.FloodSensorActorCommand
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
-import it.unibo.citytwin.rivermonitor.model.{RiverMonitor, Zone, ZoneState}
+import it.unibo.citytwin.rivermonitor.model.RiverMonitor
+import it.unibo.citytwin.core.Serializable
 
 trait RiverMonitorActorCommand
 /**
