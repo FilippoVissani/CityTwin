@@ -6,7 +6,7 @@ import akka.actor.typed.{ActorRef, Behavior}
 import akka.util.Timeout
 import it.unibo.citytwin.core.actors.ResourceActor.resourceService
 import it.unibo.citytwin.core.actors.*
-import it.unibo.citytwin.core.model.{Resource, SerializableMap}
+import it.unibo.citytwin.core.model.Resource
 import it.unibo.citytwin.rivermonitor.actors.rivermonitor.RiverMonitorActorCommand
 import scala.util.{Failure, Success}
 import scala.concurrent.duration.DurationInt
@@ -33,7 +33,6 @@ object ResourceRiverMonitorActor :
         ctx.log.debug("Received AskResourcesToMainstay")
         if mainstayActors.nonEmpty then
           ctx.ask(mainstayActors.head, ref => AskResourcesState(ref, resourcesNames)){
-                //TODO: check success case received message
             case Success(ResourceStatesResponse(resources: Set[Resource])) => AdaptedResourcesStateResponse(resources)
             case _ => {
               ctx.log.debug("Resources not received from Mainstay actor. Mainstay actor is unreachable.")
@@ -58,7 +57,7 @@ object ResourceRiverMonitorActor :
       case ResourceChanged(resource) => {
         ctx.log.debug("Received ResourceChanged")
         //ogni volta che il riverMonitor passa da uno stato all'altro
-        mainstayActors.foreach(mainstay => mainstay ! UpdateResources(Map(ctx.self -> resource)))
+        mainstayActors.foreach(mainstay => mainstay ! UpdateResources(Map(ctx.self -> resource).toSet))
         Behaviors.same
       }
       case _ => {
