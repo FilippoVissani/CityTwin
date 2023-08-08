@@ -25,9 +25,9 @@ case class SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActo
  * Message received by the `ResourceActor` from the effective sensor or actuator actor to notify
  * that the resource has changed.
  *
- * @param resources The updated resource.
+ * @param resource The updated resource.
  */
-case class ResourceChanged(resources: Resource) extends ResourceActorCommand with Serializable
+case class ResourceChanged(resource: Resource) extends ResourceActorCommand with Serializable
 /**
  * Used by view/actuators.
  * Message that contact the `MainstayActor` to ask for the current state of resources.
