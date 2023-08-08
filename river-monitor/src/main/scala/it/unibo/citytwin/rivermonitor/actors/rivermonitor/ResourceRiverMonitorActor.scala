@@ -6,7 +6,7 @@ import akka.actor.typed.{ActorRef, Behavior}
 import akka.util.Timeout
 import it.unibo.citytwin.core.actors.ResourceActor.resourceService
 import it.unibo.citytwin.core.actors.*
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.{Resource, SerializableMap}
 import it.unibo.citytwin.rivermonitor.actors.rivermonitor.RiverMonitorActorCommand
 import scala.util.{Failure, Success}
 import scala.concurrent.duration.DurationInt
@@ -47,7 +47,7 @@ object ResourceRiverMonitorActor :
         //controllo che ci siano delle risorse
         //se la maggioranza delle misurazioni è sopra la soglia metto in WARNING
         if resources.nonEmpty then
-          if resources.filter(resource => resource.state.nonEmpty).count(resource => resource.state.get.asInstanceOf[Int] > 5) > resources.size / 2 then
+          if resources.filter(resource => resource.state.nonEmpty).count(resource => resource.state.get.asInstanceOf[Float] > 5) > resources.size / 2 then
             riverMonitorActor ! WarnRiverMonitor
         Behaviors.same
       }
