@@ -29,7 +29,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       val dummyResourceActor = testKit.spawn(DummyResourceActor(), "dummyResource")
       val mainstay           = testKit.spawn(MainstayActor(), "mainstay")
       val probe              = testKit.createTestProbe[ResourceStatesResponse]()
-      mainstay ! UpdateResources(Map(dummyResourceActor -> resource))
+      mainstay ! UpdateResources(Map(dummyResourceActor -> resource).toSet)
       mainstay ! AskResourcesState(probe.ref, Set("sensor1"))
       probe.expectMessage(ResourceStatesResponse(Set(resource)))
       testKit.stop(mainstay)
@@ -40,8 +40,8 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       val mainstay      = testKit.spawn(MainstayActor(), "mainstay")
       val mainstayState = Map(mainstay -> true)
       val probe         = testKit.createTestProbe[MainstayActorCommand]()
-      probe ! SetMainstays(mainstayState)
-      probe.expectMessage(SetMainstays(mainstayState))
+      probe ! SetMainstays(mainstayState.toSet)
+      probe.expectMessage(SetMainstays(mainstayState.toSet))
       testKit.stop(mainstay)
     }
 
@@ -89,9 +89,9 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
         }
       }
       val probeActor = testKit.spawn(Behaviors.monitor(probe.ref, mockedBehavior))
-      mainstay ! UpdateResources(onlineNodes)
+      mainstay ! UpdateResources(onlineNodes.toSet)
       mainstay ! UpdateResources(
-        offlineNodes + onlineNodes.head.copy(_2 = Resource(nodeState = Some(false)))
+        (offlineNodes + onlineNodes.head.copy(_2 = Resource(nodeState = Some(false)))).toSet
       )
       probe.expectMessage(AdaptedResourcesStateResponse(expectedResult))
       onlineNodes.foreach((k, _) => testKit.stop(k))
@@ -104,9 +104,9 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       val probe    = testKit.createTestProbe[MainstayActorCommand]()
       val resource = testKit.spawn(DummyResourceActor(), "resource")
       val mainstay = testKit.spawn(MainstayActor(), "mainstay")
-      mainstay ! SetMainstays(Map(probe.ref -> true))
-      mainstay ! UpdateResources(Map(resource -> Resource()))
-      probe.expectMessage(UpdateResources(Map(resource -> Resource())))
+      mainstay ! SetMainstays(Map(probe.ref -> true).toSet)
+      mainstay ! UpdateResources(Map(resource -> Resource()).toSet)
+      probe.expectMessage(UpdateResources(Map(resource -> Resource()).toSet))
       testKit.stop(resource)
       testKit.stop(mainstay)
     }
