@@ -22,7 +22,7 @@ case class SetMainstays(nodes: Map[ActorRef[MainstayActorCommand], Boolean])
     extends MainstayActorCommand
     with Serializable
 
-case class ResourceStatesResponse(resources: Set[Resource])
+case class ResourceStatesResponse(resources: Set[Resource]) extends Serializable
 
 object MainstayActor:
   val mainstayService: ServiceKey[MainstayActorCommand] =
