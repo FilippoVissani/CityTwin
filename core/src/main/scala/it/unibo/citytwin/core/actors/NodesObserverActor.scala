@@ -25,14 +25,14 @@ object NodesObserverActor:
           ctx.log.debug("UpdateMainstaysState")
           val result: Map[ActorRef[MainstayActorCommand], Boolean] =
             mainstays.map((k, _) => (k, false)) ++ refs.map(k => (k, true))
-          mainstay ! SetMainstays(result)
+          mainstay ! SetMainstays(result.toSet)
           NodesObserverActor(mainstay, result, resources)
         }
         case UpdateResourceNodesState(refs: Set[ActorRef[ResourceActorCommand]]) => {
           ctx.log.debug("UpdateResourcesState")
           val result: Map[ActorRef[ResourceActorCommand], Boolean] =
             resources.map((k, _) => (k, false)) ++ refs.map(k => (k, true))
-          mainstay ! UpdateResources(result.map((k, v) => (k, Resource(nodeState = Some(v)))))
+          mainstay ! UpdateResources(result.map((k, v) => (k, Resource(nodeState = Some(v)))).toSet)
           NodesObserverActor(mainstay, mainstays, result)
         }
       }

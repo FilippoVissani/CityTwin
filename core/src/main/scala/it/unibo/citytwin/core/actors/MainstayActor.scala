@@ -15,10 +15,10 @@ case class AskResourcesState(
 ) extends MainstayActorCommand
     with Serializable
 case class UpdateResources(
-    update: Map[ActorRef[ResourceActorCommand], Resource]
+    update: Set[(ActorRef[ResourceActorCommand], Resource)]
 ) extends MainstayActorCommand
     with Serializable
-case class SetMainstays(nodes: Map[ActorRef[MainstayActorCommand], Boolean])
+case class SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)])
     extends MainstayActorCommand
     with Serializable
 
@@ -52,17 +52,18 @@ object MainstayActor:
           )
           Behaviors.same
         }
-        case UpdateResources(update: Map[ActorRef[ResourceActorCommand], Resource]) => {
+        case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {
           ctx.log.debug("UpdateResources")
+          val updateMap = update.toMap
           mainstays.filter((k, _) => k != ctx.self).foreach((k, v) => if v then k ! UpdateResources(update))
           val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) =>
-            if update.contains(k) then (k, v.merge(update(k))) else (k, v)
-          ) ++ (update -- resources.keys)
+            if updateMap.contains(k) then (k, v.merge(updateMap(k))) else (k, v)
+          ) ++ (updateMap -- resources.keys)
           MainstayActor(mainstays, result, true)
         }
-        case SetMainstays(nodes: Map[ActorRef[MainstayActorCommand], Boolean]) => {
+        case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) => {
           ctx.log.debug("SetMainstays")
-          MainstayActor(nodes, resources, true)
+          MainstayActor(nodes.toMap, resources, true)
         }
       }
     }
