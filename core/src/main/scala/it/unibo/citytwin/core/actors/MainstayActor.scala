@@ -1,6 +1,6 @@
 package it.unibo.citytwin.core.actors
 
-import akka.actor.typed.receptionist.ServiceKey
+import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import it.unibo.citytwin.core.Serializable
@@ -35,6 +35,7 @@ object MainstayActor:
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       ctx.log.debug("Mainstay started")
+      ctx.system.receptionist ! Receptionist.Register(mainstayService, ctx.self)
       if !isNodesObserverGuardianStarted then
         ctx.spawnAnonymous(NodesObserverGuardianActor(ctx.self))
       Behaviors.receiveMessage {
