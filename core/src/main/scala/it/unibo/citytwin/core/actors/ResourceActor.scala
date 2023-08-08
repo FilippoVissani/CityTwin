@@ -1,7 +1,8 @@
 package it.unibo.citytwin.core.actors
 
-import akka.actor.typed.ActorRef
-import akka.actor.typed.receptionist.ServiceKey
+import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
+import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
 
@@ -41,3 +42,14 @@ case class ResourcesFromMainstayResponse(resources: Set[Resource]) extends Seria
 object ResourceActor:
   val resourceService: ServiceKey[ResourceActorCommand] =
     ServiceKey[ResourceActorCommand]("resourceService")
+
+  def apply(): Behavior[ResourceActorCommand] =
+    Behaviors.setup[ResourceActorCommand] { ctx =>
+      ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
+      Behaviors.receiveMessage {
+        case AdaptedResourcesStateResponse(resources: Set[Resource]) => ???
+        case SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActorCommand]]) => ???
+        case ResourceChanged(resource: Resource) => ???
+        case AskResourcesToMainstay(names: Set[String]) => ???
+      }
+    }
