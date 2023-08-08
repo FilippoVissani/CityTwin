@@ -79,11 +79,11 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
             AskResourcesState(ref, LazyList.from(0).map(x => s"sensor$x").take(10).toSet[String])
         ) {
           case Success(ResourceStatesResponse(resources: Set[Resource])) =>
-            AdaptedResourceStatesResponse(resources)
-          case _ => AdaptedResourceStatesResponse(Set())
+            AdaptedResourcesStateResponse(resources)
+          case _ => AdaptedResourcesStateResponse(Set())
         }
         Behaviors.receiveMessage {
-          case AdaptedResourceStatesResponse(_: Set[Resource]) => {
+          case AdaptedResourcesStateResponse(_: Set[Resource]) => {
             Behaviors.same
           }
         }
@@ -93,7 +93,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       mainstay ! UpdateResources(
         offlineNodes + onlineNodes.head.copy(_2 = Resource(nodeState = Some(false)))
       )
-      probe.expectMessage(AdaptedResourceStatesResponse(expectedResult))
+      probe.expectMessage(AdaptedResourcesStateResponse(expectedResult))
       onlineNodes.foreach((k, _) => testKit.stop(k))
       offlineNodes.foreach((k, _) => testKit.stop(k))
       testKit.stop(mainstay)

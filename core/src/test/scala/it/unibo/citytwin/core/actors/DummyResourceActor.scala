@@ -11,7 +11,7 @@ object DummyResourceActor:
   ): Behavior[ResourceActorCommand] =
     Behaviors.setup[ResourceActorCommand] { ctx =>
       Behaviors.receiveMessage {
-        case AdaptedResourceStatesResponse(resources: Set[Resource]) => {
+        case AdaptedResourcesStateResponse(resources: Set[Resource]) => {
           ctx.log.debug(s"$resources")
           Behaviors.same
         }
