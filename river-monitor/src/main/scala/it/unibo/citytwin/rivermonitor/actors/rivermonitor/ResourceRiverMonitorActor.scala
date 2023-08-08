@@ -34,15 +34,15 @@ object ResourceRiverMonitorActor :
         if mainstayActors.nonEmpty then
           ctx.ask(mainstayActors.head, ref => AskResourcesState(ref, resourcesNames)){
                 //TODO: check success case received message
-            case Success(ResponseResourceState(resources)) => ResponseResourceState(resources)
+            case Success(ResourceStatesResponse(resources: Set[Resource])) => AdaptedResourcesStateResponse(resources)
             case _ => {
               ctx.log.debug("Resources not received from Mainstay actor. Mainstay actor is unreachable.")
-              ResponseResourceState(Set())
+              AdaptedResourcesStateResponse(Set())
             }
         }
         Behaviors.same
       }
-      case ResponseResourceState(resources) => {
+      case AdaptedResourcesStateResponse(resources) => {
         ctx.log.debug("Received ResponseResourceState")
         //controllo che ci siano delle risorse
         //se la maggioranza delle misurazioni è sopra la soglia metto in WARNING
@@ -58,7 +58,7 @@ object ResourceRiverMonitorActor :
       case ResourceChanged(resource) => {
         ctx.log.debug("Received ResourceChanged")
         //ogni volta che il riverMonitor passa da uno stato all'altro
-        mainstayActors.foreach(mainstayActor => mainstayActor ! SetResourceState(ctx.self, Some(resource)))
+        mainstayActors.foreach(mainstay => mainstay ! UpdateResources(Map(ctx.self -> resource)))
         Behaviors.same
       }
       case _ => {

@@ -47,7 +47,7 @@ object FloodSensorActor :
       case Tick => {
         ctx.log.debug(s"Received Tick")
         val waterLevel = ThreadLocalRandom.current().nextFloat(20)
-        val resource = Resource(floodSensor.name, Some(floodSensor.position), Some(waterLevel), Set(ResourceType.Sense))
+        val resource = Resource(Some(floodSensor.name), Some(floodSensor.position), Some(waterLevel), Set(ResourceType.Sense))
         if (resourceActor.nonEmpty) resourceActor.get ! ResourceChanged(resource)
         Behaviors.same
       }

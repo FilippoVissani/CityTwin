@@ -5,7 +5,6 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import it.unibo.citytwin.core.actors.ResourceActor.resourceService
 import it.unibo.citytwin.core.actors.*
-import it.unibo.citytwin.rivermonitor.actors.floodsensor.FloodSensorActorCommand
 
 object ResourceFloodSensorActor :
   def apply(floodSensorActor: ActorRef[FloodSensorActorCommand],
@@ -13,7 +12,7 @@ object ResourceFloodSensorActor :
     Behaviors.setup[ResourceActorCommand] { ctx =>
       ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
       Behaviors.receiveMessage {
-        case ResponseResourceState(resources) => {
+        case AdaptedResourcesStateResponse(resources) => {
           ctx.log.debug("Received ResponseResourceState")
           //do nothing, this is a sensor that don't ask for other resource status
           Behaviors.same
@@ -24,7 +23,7 @@ object ResourceFloodSensorActor :
         }
         case ResourceChanged(resource) => {
           ctx.log.debug("Received ResourceChanged")
-          mainstayActors.foreach(mainstay => mainstay ! SetResourceState(ctx.self, Some(resource)))
+          mainstayActors.foreach(mainstay => mainstay ! UpdateResources(Map(ctx.self -> resource)))
           Behaviors.same
         }
         case _ => {
