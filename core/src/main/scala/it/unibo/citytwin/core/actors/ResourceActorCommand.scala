@@ -36,6 +36,8 @@ case class ResourceChanged(resource: Resource) extends ResourceActorCommand with
  */
 case class AskResourcesToMainstay(names: Set[String]) extends ResourceActorCommand with Serializable
 
+case class ResourcesFromMainstayResponse(resources: Set[Resource]) extends Serializable
+
 object ResourceActor:
   val resourceService: ServiceKey[ResourceActorCommand] =
     ServiceKey[ResourceActorCommand]("resourceService")
