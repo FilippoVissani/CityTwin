@@ -23,6 +23,13 @@ lazy val core = project
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.core.Main"),
   ).enablePlugins(JavaAppPackaging)
 
+lazy val controlPanel = project
+  .in(file("control-panel"))
+  .settings(
+    name := "control-panel",
+    libraryDependencies ++= commonDependencies,
+  ).dependsOn(core).enablePlugins(JavaAppPackaging)
+
 lazy val riverMonitor = project
   .in(file("river-monitor"))
   .settings(
