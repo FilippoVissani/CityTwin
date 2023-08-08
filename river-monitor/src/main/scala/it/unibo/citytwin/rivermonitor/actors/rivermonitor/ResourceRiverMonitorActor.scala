@@ -44,7 +44,11 @@ object ResourceRiverMonitorActor :
       }
       case ResponseResourceState(resources) => {
         ctx.log.debug("Received ResponseResourceState")
-        elaborateResources(resources)
+        //controllo che ci siano delle risorse
+        //se la maggioranza delle misurazioni è sopra la soglia metto in WARNING
+        if resources.nonEmpty then
+          if resources.filter(resource => resource.state.nonEmpty).count(resource => resource.state.get.asInstanceOf[Int] > 5) > resources.size / 2 then
+            riverMonitorActor ! WarnRiverMonitor
         Behaviors.same
       }
       case SetMainstayActorsToResourceActor(mainstayActors) => {
@@ -53,6 +57,7 @@ object ResourceRiverMonitorActor :
       }
       case ResourceChanged(resource) => {
         ctx.log.debug("Received ResourceChanged")
+        //ogni volta che il riverMonitor passa da uno stato all'altro
         mainstayActors.foreach(mainstayActor => mainstayActor ! SetResourceState(ctx.self, Some(resource)))
         Behaviors.same
       }
@@ -61,7 +66,4 @@ object ResourceRiverMonitorActor :
         Behaviors.stopped
       }
     }
-
-  def elaborateResources(resources: Set[Resource]): Unit =
-    ???
 
