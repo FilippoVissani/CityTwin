@@ -5,9 +5,7 @@ import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.actors.MainstayActor.mainstayService
 import it.unibo.citytwin.core.actors.SetMainstayActorsToResourceActor
-import it.unibo.citytwin.rivermonitor.actors.rivermonitor.SetResourceActor
-import it.unibo.citytwin.rivermonitor.actors.rivermonitor.RiverMonitorActor
-import it.unibo.citytwin.rivermonitor.model.{RiverMonitor, Zone}
+import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 
 object RiverMonitorGuardianActor:
 

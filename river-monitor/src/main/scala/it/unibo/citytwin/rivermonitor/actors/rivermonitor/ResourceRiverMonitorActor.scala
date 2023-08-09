@@ -1,14 +1,13 @@
 package it.unibo.citytwin.rivermonitor.actors.rivermonitor
 
-import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors, TimerScheduler}
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.util.Timeout
 import it.unibo.citytwin.core.actors.ResourceActor.resourceService
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.Resource
-import it.unibo.citytwin.rivermonitor.actors.rivermonitor.RiverMonitorActorCommand
-import scala.util.{Failure, Success}
+import scala.util.Success
 import scala.concurrent.duration.DurationInt
 
 object ResourceRiverMonitorActor :
