@@ -1,6 +1,7 @@
 package it.unibo.citytwin.core.actors
 
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
+import akka.actor.typed.ActorRef
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.MemberStatus.Up
@@ -11,8 +12,8 @@ import it.unibo.citytwin.core.model.{Point2D, Resource}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import concurrent.duration.DurationInt
 
+import concurrent.duration.DurationInt
 import scala.util.{Failure, Success}
 
 class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with Matchers:
@@ -71,7 +72,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
           .merge(Resource(nodeState = Some(false)))
       val mainstay = testKit.spawn(MainstayActor(), "mainstay")
       val probe    = testKit.createTestProbe[ResourceActorCommand]()
-      val mockedBehavior = Behaviors.setup[ResourceActorCommand] { ctx =>
+      val mockedResourceBehavior = Behaviors.setup[ResourceActorCommand] { ctx =>
         implicit val timeout: Timeout = 3.seconds
         ctx.ask(
           mainstay,
@@ -79,21 +80,21 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
             AskResourcesState(ref, LazyList.from(0).map(x => s"sensor$x").take(10).toSet[String])
         ) {
           case Success(ResourceStatesResponse(resources: Set[Resource])) =>
-            AdaptedResourcesStateResponse(resources)
-          case _ => AdaptedResourcesStateResponse(Set())
+            AdaptedResourcesStateResponse(null, resources)
+          case _ => AdaptedResourcesStateResponse(null, Set())
         }
         Behaviors.receiveMessage {
-          case AdaptedResourcesStateResponse(_: Set[Resource]) => {
+          case AdaptedResourcesStateResponse(replyTo: ActorRef[ResourcesFromMainstayResponse], resources: Set[Resource]) => {
             Behaviors.same
           }
         }
       }
-      val probeActor = testKit.spawn(Behaviors.monitor(probe.ref, mockedBehavior))
+      val probeActor = testKit.spawn(Behaviors.monitor(probe.ref, mockedResourceBehavior))
       mainstay ! UpdateResources(onlineNodes.toSet)
       mainstay ! UpdateResources(
         (offlineNodes + onlineNodes.head.copy(_2 = Resource(nodeState = Some(false)))).toSet
       )
-      probe.expectMessage(AdaptedResourcesStateResponse(expectedResult))
+      probe.expectMessage(AdaptedResourcesStateResponse(null, expectedResult))
       onlineNodes.foreach((k, _) => testKit.stop(k))
       offlineNodes.foreach((k, _) => testKit.stop(k))
       testKit.stop(mainstay)
