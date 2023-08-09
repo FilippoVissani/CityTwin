@@ -66,16 +66,18 @@ object ResourceActor:
           ResourceActor(mainstays)
         }
         case ResourceChanged(resource: Resource) => {
-          val selectedMainstay = Random.shuffle(mainstays).head
-          selectedMainstay ! UpdateResources(Set((ctx.self, resource)))
+          if mainstays.nonEmpty then
+            val selectedMainstay = Random.shuffle(mainstays).head
+            selectedMainstay ! UpdateResources(Set((ctx.self, resource)))
           Behaviors.same
         }
         case AskResourcesToMainstay(replyTo: ActorRef[ResourcesFromMainstayResponse], names: Set[String]) => {
-          val selectedMainstay = Random.shuffle(mainstays).head
-          ctx.ask(selectedMainstay, ref => AskResourcesState(ref, names)) {
-            case Success(ResourceStatesResponse(resources: Set[Resource])) => AdaptedResourcesStateResponse(replyTo, resources)
-            case _ => AdaptedResourcesStateResponse(replyTo, Set())
-          }
+          if mainstays.nonEmpty then
+            val selectedMainstay = Random.shuffle(mainstays).head
+            ctx.ask(selectedMainstay, ref => AskResourcesState(ref, names)) {
+              case Success(ResourceStatesResponse(resources: Set[Resource])) => AdaptedResourcesStateResponse(replyTo, resources)
+              case _ => AdaptedResourcesStateResponse(replyTo, Set())
+            }
           Behaviors.same
         }
       }
