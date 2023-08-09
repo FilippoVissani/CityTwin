@@ -1,8 +1,9 @@
-package it.unibo.citytwin.rivermonitor.actors
+package it.unibo.citytwin.rivermonitor.actors.view
 
-import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.{ActorRef, Behavior}
+import it.unibo.citytwin.rivermonitor.actors.*
 import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor, Zone}
 import it.unibo.citytwin.rivermonitor.view.View
 
@@ -16,15 +17,13 @@ case class IsMyZoneResponseView(replyTo: ActorRef[RiverMonitorActorCommand]) ext
 val viewService = ServiceKey[ViewActorCommand]("viewService")
 
 class ViewActor(ctx: ActorContext[ViewActorCommand],
-                zoneId: Int,
+                viewName: String,
                 width: Int,
                 height: Int) extends AbstractBehavior(ctx):
 
-  val view: View = View(width, height, zoneId, ctx.self)
+  val view: View = View(width, height, viewName, ctx.self)
   var riverMonitorActor: Option[ActorRef[RiverMonitorActorCommand]] = Option.empty
-
-  ctx.system.receptionist ! Receptionist.register(viewService, ctx.self)
-
+  
   override def onMessage(msg: ViewActorCommand): Behavior[ViewActorCommand] =
     msg match
       case UpdateFloodSensor(floodSensor) => {

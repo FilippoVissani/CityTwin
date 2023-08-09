@@ -2,34 +2,30 @@ package it.unibo.citytwin.rivermonitor.view
 
 import akka.actor.typed.ActorRef
 import akka.actor.typed.receptionist.Receptionist
-import it.unibo.citytwin.rivermonitor.actors.{EvacuatedZone, EvacuatingZone, ViewActorCommand}
-import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor, Zone}
+import it.unibo.citytwin.rivermonitor.actors.view.{EvacuatedZone, EvacuatingZone, ViewActorCommand}
+import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor}
 
 trait View:
   def width: Int
   def height: Int
-  def zoneId: Int
+  def viewName: String
   def updateFloodSensor(floodSensor: FloodSensor): Unit
-  def updateZone(zone: Zone): Unit
   def updateRiverMonitor(riverMonitor: RiverMonitor): Unit
   def evacuateZonePressed(): Unit
   def evacuatedZonePressed(): Unit
 
 object View:
-  def apply(width: Int, height: Int, zoneId: Int, viewActor: ActorRef[ViewActorCommand]): View =
-    ViewImpl(width, height, zoneId, viewActor)
+  def apply(width: Int, height: Int, viewName: String, viewActor: ActorRef[ViewActorCommand]): View =
+    ViewImpl(width, height, viewName, viewActor)
 
   /**
    * Implementation of View trait
    */
   private class ViewImpl(override val width: Int,
                          override val height: Int,
-                         override val zoneId: Int,
+                         override val viewName: String,
                          val viewActor: ActorRef[ViewActorCommand]) extends View:
     val frame: SwingControlPanel = SwingControlPanel(this)
-
-    override def updateZone(zone: Zone): Unit =
-      frame.updateZone(zone)
 
     override def updateFloodSensor(floodSensor: FloodSensor): Unit =
       frame.updateFloodSensor(floodSensor)
