@@ -6,6 +6,7 @@ import it.unibo.citytwin.core.actors.MainstayActor
 import it.unibo.citytwin.core.model.Point2D
 import it.unibo.citytwin.rivermonitor.actors.floodsensor.FloodSensorGuardianActor
 import it.unibo.citytwin.rivermonitor.actors.rivermonitor.RiverMonitorGuardianActor
+import it.unibo.citytwin.rivermonitor.actors.view.ViewGuardianActor
 import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor}
 
 object Main:
@@ -21,6 +22,11 @@ object Main:
     startup(port = 2552)(RiverMonitorGuardianActor(riverMonitor))
 
     startup(port = 2553)(MainstayActor())
+
+    val viewName = "view1"
+    val width = 200
+    val height = 200
+    startup(port = 2554)(ViewGuardianActor(viewName, width, height))
 
   private def startup[X](file: String = "cluster", port: Int)(root: => Behavior[X]): ActorSystem[X] =
     // Override the configuration of the port
