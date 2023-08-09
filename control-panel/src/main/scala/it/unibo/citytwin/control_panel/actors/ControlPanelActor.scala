@@ -3,7 +3,7 @@ package it.unibo.citytwin.control_panel.actors
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.util.Timeout
-import it.unibo.citytwin.core.actors.{AskResourcesToMainstay, ResourceActorCommand, ResourcesFromMainstayResponse}
+import it.unibo.citytwin.core.actors.{AskAllResourcesToMainstay, AskResourcesToMainstay, ResourceActorCommand, ResourcesFromMainstayResponse}
 import it.unibo.citytwin.core.model.Resource
 
 import concurrent.duration.DurationInt
@@ -21,7 +21,7 @@ object ControlPanelActor:
         Behaviors.receiveMessage {
           case AdaptedResourcesFromMainstayResponse(resources: Set[Resource]) => ???
           case Tick => {
-            ctx.ask(resourceActor, ref => AskResourcesToMainstay(ref, ???)) {
+            ctx.ask(resourceActor, ref => AskAllResourcesToMainstay(ref)) {
               case Success(ResourcesFromMainstayResponse(resources: Set[Resource])) => AdaptedResourcesFromMainstayResponse(resources)
               case _ => AdaptedResourcesFromMainstayResponse(Set())
             }
