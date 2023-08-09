@@ -55,7 +55,9 @@ object MainstayActor:
         case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {
           ctx.log.debug("UpdateResources")
           val updateMap = update.toMap
-          mainstays.filter((k, _) => k != ctx.self).foreach((k, v) => if v then k ! UpdateResources(update))
+          mainstays
+            .filter((k, _) => k != ctx.self)
+            .foreach((k, v) => if v then k ! UpdateResources(update))
           val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) =>
             if updateMap.contains(k) then (k, v.merge(updateMap(k))) else (k, v)
           ) ++ (updateMap -- resources.keys)
