@@ -2,10 +2,12 @@ package it.unibo.citytwin.rivermonitor.actors.rivermonitor
 
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
-import it.unibo.citytwin.core.actors.ResourceActorCommand
+import it.unibo.citytwin.core.actors.{ResourceActorCommand, ResourceChanged}
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
 import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 import it.unibo.citytwin.core.Serializable
+import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
 
 trait RiverMonitorActorCommand
 
@@ -35,6 +37,8 @@ object RiverMonitorActor:
   def apply(riverMonitor: RiverMonitor,
             resourceActor: Option[ActorRef[ResourceActorCommand]] = Option.empty): Behavior[RiverMonitorActorCommand] =
     Behaviors.setup[RiverMonitorActorCommand] { ctx =>
+      val resource = Resource(Some(riverMonitor.riverMonitorName), Some(riverMonitor.position), Some(riverMonitor.state), Set(Sense, Act))
+      if (resourceActor.nonEmpty) resourceActor.get ! ResourceChanged(resource)
       Behaviors.receiveMessage {
         case SetResourceActor(resourceActor) => {
           ctx.log.debug(s"Received SetResourceActor")
