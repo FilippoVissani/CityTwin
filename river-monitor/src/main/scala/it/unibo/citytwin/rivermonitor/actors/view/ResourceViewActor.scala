@@ -8,6 +8,8 @@ import it.unibo.citytwin.core.actors.ResourceActor.resourceService
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.Resource
 import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.{RiverMonitorState, Safe, Evacuating, Warned}
+import it.unibo.citytwin.rivermonitor.actors.view.UpdateRiverMonitorState
 import scala.util.Success
 import scala.concurrent.duration.DurationInt
 
@@ -43,14 +45,11 @@ object ResourceViewActor :
       }
       case AdaptedResourcesStateResponse(resources) => {
         ctx.log.debug("Received AdaptedResourcesStateResponse")
-        
         if resources.nonEmpty then
-          ???
-          //qui conosco lo stato del river monitor (safe, warned, evacuating)
-          //se safe -> viewActor ! RivermonitorIsSafe()
-          //se warned -> viewActor ! RivermonitorIsWarned()
-          //se evacuating -> viewActor ! RivermonitorIsEvacuating()
-
+          resources.filter(resource => resource.state.nonEmpty).foreach(resource => {
+            //TODO: error: class scala.collection.immutable.Map$Map2 cannot be cast to class scala.Enumeration$Value
+            viewActor ! UpdateRiverMonitorState(Warned)//resource.state.get.asInstanceOf[RiverMonitorState])
+          })
         Behaviors.same
       }
       case SetMainstayActorsToResourceActor(mainstayActors) => {
