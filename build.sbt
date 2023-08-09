@@ -14,6 +14,7 @@ lazy val commonDependencies = Seq(
   akkaGroup %% "akka-actor-testkit-typed" % akkaVersion % Test,
   "org.scalatest" %% "scalatest" % "3.2.16" % Test,
 )
+lazy val commonDependenciesGUI = commonDependencies ++ Seq("org.scala-lang.modules" %% "scala-swing" % "3.0.0")
 
 lazy val core = project
   .in(file("core"))
@@ -27,8 +28,7 @@ lazy val controlPanel = project
   .in(file("control-panel"))
   .settings(
     name := "control-panel",
-    libraryDependencies ++= commonDependencies,
-    Compile / packageBin / mainClass := Some("it.unibo.citytwin.control_panel.Main"),
+    libraryDependencies ++= commonDependenciesGUI,
   ).dependsOn(core).enablePlugins(JavaAppPackaging)
 
 lazy val riverMonitor = project
