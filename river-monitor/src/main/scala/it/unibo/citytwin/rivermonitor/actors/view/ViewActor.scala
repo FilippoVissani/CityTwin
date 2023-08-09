@@ -3,49 +3,59 @@ package it.unibo.citytwin.rivermonitor.actors.view
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
+import it.unibo.citytwin.core.actors.{ResourceActorCommand, ResourceChanged}
 import it.unibo.citytwin.rivermonitor.actors.*
-import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor, Zone}
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.{Evacuating, RiverMonitorState, Safe}
+import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor}
 import it.unibo.citytwin.rivermonitor.view.View
+import it.unibo.citytwin.core.model.{Resource, ResourceType}
 
 trait ViewActorCommand
-case class UpdateFloodSensor(floodSensor: FloodSensor) extends Serializable with ViewActorCommand
-case class UpdateZone(riverMonitor: RiverMonitor, zone: Zone) extends Serializable with ViewActorCommand
-object EvacuatedZone extends Serializable with ViewActorCommand
+case class UpdateRiverMonitorState(riverMonitorState: RiverMonitorState) extends Serializable with ViewActorCommand
 object EvacuatingZone extends Serializable with ViewActorCommand
-case class IsMyZoneResponseView(replyTo: ActorRef[RiverMonitorActorCommand]) extends Serializable with ViewActorCommand
+object EvacuatedZone extends Serializable with ViewActorCommand
 
-val viewService = ServiceKey[ViewActorCommand]("viewService")
+/**
+ * A message received by the ViewActor to set the reference to the ResourceActor.
+ *
+ * @param resourceActor The reference to the ResourceActor to communicate with.
+ */
+case class SetResourceActor(resourceActor: ActorRef[ResourceActorCommand]) extends Serializable with ViewActorCommand
 
-class ViewActor(ctx: ActorContext[ViewActorCommand],
-                viewName: String,
-                width: Int,
-                height: Int) extends AbstractBehavior(ctx):
 
-  val view: View = View(width, height, viewName, ctx.self)
-  var riverMonitorActor: Option[ActorRef[RiverMonitorActorCommand]] = Option.empty
-  
-  override def onMessage(msg: ViewActorCommand): Behavior[ViewActorCommand] =
-    msg match
-      case UpdateFloodSensor(floodSensor) => {
-        ctx.log.debug("Received UpdateFloodSensor")
-        view.updateFloodSensor(floodSensor)
+object ViewActor :
+  def apply(viewName: String, width: Int, height: Int): Behavior[ViewActorCommand] =
+    Behaviors.setup[ViewActorCommand] { ctx =>
+      val view: View = View(width, height, viewName, ctx.self)
+      viewActorLogic(ctx, view, viewName, width, height)
+    }
+
+  private def viewActorLogic(ctx: ActorContext[ViewActorCommand], view:View, viewName: String, width: Int, height: Int,
+                             resourceActor: Option[ActorRef[ResourceActorCommand]] = Option.empty): Behavior[ViewActorCommand] =
+    Behaviors.receiveMessage {
+      case SetResourceActor(resourceActor) => {
+        ctx.log.debug(s"Received SetResourceActor")
+        viewActorLogic(ctx, view, viewName, width, height, Some(resourceActor))
       }
-      case UpdateZone(riverMonitor, zone) => {
-        ctx.log.debug("Received UpdateZone")
-        view.updateZone(zone)
-        view.updateRiverMonitor(riverMonitor)
+      case UpdateRiverMonitorState(riverMonitorState: RiverMonitorState) => {
+        ctx.log.debug("Received UpdateRiverMonitorState")
+        view.updateRiverMonitorState(riverMonitorState)
+        Behaviors.same
+      }
+      case EvacuatingZone => {
+          ctx.log.debug("Received EvacuatingZone")
+          //messaggio ricevuto dalla pressione del bottone evacuate
+          //mandare al resourceActor la resource che indichi questo
+          val resource = Resource(name = Some(viewName), state = Some(Evacuating), resourceType = Set(ResourceType.Act))
+          if resourceActor.isDefined then resourceActor.get ! ResourceChanged(resource)
+          Behaviors.same
       }
       case EvacuatedZone => {
         ctx.log.debug("Received EvacuatedZone")
-        if riverMonitorActor.isDefined then riverMonitorActor.get ! EvacuatedRiverMonitor
+        //messaggio ricevuto dalla pressione del bottone evacuated
+        //mandare al resourceActor la resource che indichi questo
+        val resource = Resource(name = Some(viewName), state = Some(Safe), resourceType = Set(ResourceType.Act))
+        if resourceActor.isDefined then resourceActor.get ! ResourceChanged(resource)
+        Behaviors.same
       }
-      case EvacuatingZone => {
-        ctx.log.debug("Received EvacuatingZone")
-        if riverMonitorActor.isDefined then riverMonitorActor.get ! EvacuatingRiverMonitor
-      }
-      case IsMyZoneResponseView(replyTo) => {
-        ctx.log.debug("Received IsMyZoneResponseView")
-        riverMonitorActor = Option(replyTo)
-      }
-    this
-
+    }

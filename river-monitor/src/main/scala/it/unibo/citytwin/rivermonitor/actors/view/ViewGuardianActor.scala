@@ -11,7 +11,7 @@ object ViewGuardianActor:
             width: Int,
             height: Int): Behavior[Nothing] = 
     Behaviors.setup[Receptionist.Listing] { ctx =>
-      val viewActor = ctx.spawnAnonymous(Behaviors.setup(new ViewActor(_, viewName, width, height)))
+      val viewActor = ctx.spawnAnonymous(ViewActor(viewName, width, height))
       val resourceViewActor = ctx.spawnAnonymous(ResourceViewActor(viewActor))
       viewActor ! SetResourceActor(resourceViewActor)
       
