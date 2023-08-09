@@ -58,7 +58,7 @@ object ResourceRiverMonitorActor :
       }
       case SetMainstayActorsToResourceActor(mainstayActors) => {
         ctx.log.debug("Received SetMainstayActorsToResourceActor")
-        ResourceRiverMonitorActor(riverMonitorActor, mainstayActors)
+        ResourceRiverMonitorActorLogic(ctx, riverMonitorActor, mainstayActors)
       }
       case ResourceChanged(resource) => {
         ctx.log.debug("Received ResourceChanged")
