@@ -15,9 +15,9 @@ case class AskResourcesState(
     with Serializable
 
 case class AskAllResourcesState(
-                              replyTo: ActorRef[ResourceStatesResponse]
-                            ) extends MainstayActorCommand
-  with Serializable
+    replyTo: ActorRef[ResourceStatesResponse]
+) extends MainstayActorCommand
+    with Serializable
 case class UpdateResources(
     update: Set[(ActorRef[ResourceActorCommand], Resource)]
 ) extends MainstayActorCommand
@@ -57,8 +57,8 @@ object MainstayActor:
           Behaviors.same
         }
         case AskAllResourcesState(
-        replyTo: ActorRef[ResourceStatesResponse]
-        ) => {
+              replyTo: ActorRef[ResourceStatesResponse]
+            ) => {
           ctx.log.debug("AskAllResourcesState")
           replyTo ! ResourceStatesResponse(resources.values.toSet)
           Behaviors.same
