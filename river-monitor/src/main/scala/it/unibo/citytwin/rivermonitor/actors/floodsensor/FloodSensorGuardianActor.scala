@@ -25,7 +25,7 @@ object FloodSensorGuardianActor:
           Behaviors.same
         }
         case _ => {
-          ctx.log.debug("Received Stop")
+          ctx.log.debug(s"Unexpected message. The actor is being stopped")
           Behaviors.stopped
         }
       }

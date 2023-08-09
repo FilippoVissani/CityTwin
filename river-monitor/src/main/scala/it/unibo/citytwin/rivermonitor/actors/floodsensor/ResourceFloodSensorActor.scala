@@ -27,6 +27,7 @@ object ResourceFloodSensorActor :
           Behaviors.same
         }
         case _ => {
+          ctx.log.debug(s"Unexpected message. The actor is being stopped")
           Behaviors.stopped
         }
       }
