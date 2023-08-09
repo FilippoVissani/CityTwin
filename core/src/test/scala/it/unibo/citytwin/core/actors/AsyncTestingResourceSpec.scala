@@ -38,7 +38,7 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
       val mainstayActor = testKit.spawn(MainstayActor(), "mainstayActor")
       val resourceActor = testKit.spawn(ResourceActor(), "resourceActor")
       val probe         = testKit.createTestProbe[ResourcesFromMainstayResponse]()
-      val resource      = Resource(name = Some("sensor1"))
+      val resource      = Resource(name = Some("sensor1"), nodeState = Some(true))
       resourceActor ! SetMainstayActorsToResourceActor(Set(mainstayActor))
       resourceActor ! ResourceChanged(resource)
       resourceActor ! AskResourcesToMainstay(probe.ref, Set("sensor1"))
