@@ -5,7 +5,6 @@ import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
-
 import scala.collection.immutable.{Map, Set}
 
 trait MainstayActorCommand
@@ -14,6 +13,11 @@ case class AskResourcesState(
     names: Set[String]
 ) extends MainstayActorCommand
     with Serializable
+
+case class AskAllResourcesState(
+                              replyTo: ActorRef[ResourceStatesResponse]
+                            ) extends MainstayActorCommand
+  with Serializable
 case class UpdateResources(
     update: Set[(ActorRef[ResourceActorCommand], Resource)]
 ) extends MainstayActorCommand
@@ -50,6 +54,13 @@ object MainstayActor:
               .filter(x => names.contains(x.name.get))
               .toSet
           )
+          Behaviors.same
+        }
+        case AskAllResourcesState(
+        replyTo: ActorRef[ResourceStatesResponse]
+        ) => {
+          ctx.log.debug("AskAllResourcesState")
+          replyTo ! ResourceStatesResponse(resources.values.toSet)
           Behaviors.same
         }
         case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {

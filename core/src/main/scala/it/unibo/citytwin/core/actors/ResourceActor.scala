@@ -53,6 +53,11 @@ case class AskResourcesToMainstay(
 ) extends ResourceActorCommand
     with Serializable
 
+case class AskAllResourcesToMainstay(
+                                   replyTo: ActorRef[ResourcesFromMainstayResponse]
+                                 ) extends ResourceActorCommand
+  with Serializable
+
 case class ResourcesFromMainstayResponse(resources: Set[Resource]) extends Serializable
 
 object ResourceActor:
@@ -89,6 +94,18 @@ object ResourceActor:
           if mainstays.nonEmpty then
             val selectedMainstay = Random.shuffle(mainstays).head
             ctx.ask(selectedMainstay, ref => AskResourcesState(ref, names)) {
+              case Success(ResourceStatesResponse(resources: Set[Resource])) =>
+                AdaptedResourcesStateResponse(replyTo, resources)
+              case _ => AdaptedResourcesStateResponse(replyTo, Set())
+            }
+          Behaviors.same
+        }
+        case AskAllResourcesToMainstay(
+        replyTo: ActorRef[ResourcesFromMainstayResponse]
+        ) => {
+          if mainstays.nonEmpty then
+            val selectedMainstay = Random.shuffle(mainstays).head
+            ctx.ask(selectedMainstay, ref => AskAllResourcesState(ref)) {
               case Success(ResourceStatesResponse(resources: Set[Resource])) =>
                 AdaptedResourcesStateResponse(replyTo, resources)
               case _ => AdaptedResourcesStateResponse(replyTo, Set())
