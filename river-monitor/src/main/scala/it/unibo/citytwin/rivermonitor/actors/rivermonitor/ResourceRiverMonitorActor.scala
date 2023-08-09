@@ -7,6 +7,7 @@ import akka.util.Timeout
 import it.unibo.citytwin.core.actors.ResourceActor.resourceService
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
 import scala.util.Success
 import scala.concurrent.duration.DurationInt
 
@@ -42,11 +43,17 @@ object ResourceRiverMonitorActor :
       }
       case AdaptedResourcesStateResponse(resources) => {
         ctx.log.debug("Received ResponseResourceState")
-        //controllo che ci siano delle risorse
-        //se la maggioranza delle misurazioni è sopra la soglia metto in WARNING
-        if resources.nonEmpty then
-          if resources.filter(resource => resource.state.nonEmpty).count(resource => resource.state.get.asInstanceOf[Float] > 5) > resources.size / 2 then
+        val senseResources = resources.filter(resource => resource.resourceType.contains(Sense))
+        val actResources = resources.filter(resource => resource.resourceType.contains(Act))
+
+        if senseResources.nonEmpty then
+          //se la maggioranza delle misurazioni è sopra la soglia metto in WARNING
+          if senseResources.filter(resource => resource.state.nonEmpty).count(resource => resource.state.get.asInstanceOf[Float] > 5) > resources.size / 2 then
             riverMonitorActor ! WarnRiverMonitor
+
+        if actResources.nonEmpty then
+          ???
+
         Behaviors.same
       }
       case SetMainstayActorsToResourceActor(mainstayActors) => {
