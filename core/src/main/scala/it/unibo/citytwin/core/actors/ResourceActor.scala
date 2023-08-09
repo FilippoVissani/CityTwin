@@ -68,8 +68,9 @@ object ResourceActor:
       mainstays: Set[ActorRef[MainstayActorCommand]] = Set()
   ): Behavior[ResourceActorCommand] =
     Behaviors.setup[ResourceActorCommand] { ctx =>
-      ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
       implicit val timeout: Timeout = 3.seconds
+      ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
+      ctx.spawnAnonymous(ResourceGuardianActor(ctx.self))
       Behaviors.receiveMessage {
         case AdaptedResourcesStateResponse(
               replyTo: ActorRef[ResourcesFromMainstayResponse],
