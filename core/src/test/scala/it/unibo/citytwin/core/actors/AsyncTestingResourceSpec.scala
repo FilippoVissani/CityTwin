@@ -25,9 +25,9 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
   "Resource actor" should {
 
     "Ask resources to mainstay" in {
-      val probe = testKit.createTestProbe[MainstayActorCommand]()
+      val probe         = testKit.createTestProbe[MainstayActorCommand]()
       val resourceActor = testKit.spawn(ResourceActor(), "resourceActor")
-      val resource = Resource(name = Some("sensor1"))
+      val resource      = Resource(name = Some("sensor1"))
       resourceActor ! SetMainstayActorsToResourceActor(Set(probe.ref))
       resourceActor ! ResourceChanged(resource)
       probe.expectMessage(UpdateResources(Set((resourceActor, resource))))
@@ -37,8 +37,8 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
     "Send response when resource state is asked" in {
       val mainstayActor = testKit.spawn(MainstayActor(), "mainstayActor")
       val resourceActor = testKit.spawn(ResourceActor(), "resourceActor")
-      val probe = testKit.createTestProbe[ResourcesFromMainstayResponse]()
-      val resource = Resource(name = Some("sensor1"))
+      val probe         = testKit.createTestProbe[ResourcesFromMainstayResponse]()
+      val resource      = Resource(name = Some("sensor1"))
       resourceActor ! SetMainstayActorsToResourceActor(Set(mainstayActor))
       resourceActor ! ResourceChanged(resource)
       resourceActor ! AskResourcesToMainstay(probe.ref, Set("sensor1"))
@@ -48,7 +48,7 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
     }
 
     "Set mainstays correctly and notify new resource state to mainstay" in {
-      val probe = testKit.createTestProbe[MainstayActorCommand]()
+      val probe    = testKit.createTestProbe[MainstayActorCommand]()
       val resource = testKit.spawn(ResourceActor(), "resource")
       resource ! SetMainstayActorsToResourceActor(Set(probe.ref))
       resource ! ResourceChanged(Resource())

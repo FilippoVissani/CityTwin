@@ -84,7 +84,10 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
           case _ => AdaptedResourcesStateResponse(null, Set())
         }
         Behaviors.receiveMessage {
-          case AdaptedResourcesStateResponse(replyTo: ActorRef[ResourcesFromMainstayResponse], resources: Set[Resource]) => {
+          case AdaptedResourcesStateResponse(
+                replyTo: ActorRef[ResourcesFromMainstayResponse],
+                resources: Set[Resource]
+              ) => {
             Behaviors.same
           }
         }
