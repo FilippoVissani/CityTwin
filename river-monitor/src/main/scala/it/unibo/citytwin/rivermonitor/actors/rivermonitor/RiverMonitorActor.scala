@@ -1,15 +1,14 @@
 package it.unibo.citytwin.rivermonitor.actors.rivermonitor
 
-import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import it.unibo.citytwin.core.actors.ResourceActorCommand
-import it.unibo.citytwin.rivermonitor.actors.floodsensor.FloodSensorActorCommand
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
 import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 import it.unibo.citytwin.core.Serializable
 
 trait RiverMonitorActorCommand
+
 /**
  * A message received by the RiverMonitorActor to set the reference to the ResourceActor.
  *
@@ -21,10 +20,12 @@ case class SetResourceActor(resourceActor: ActorRef[ResourceActorCommand]) exten
  * Message to set the riverMonitor state as 'Warned'
  */
 object WarnRiverMonitor extends Serializable with RiverMonitorActorCommand
+
 /**
  * Message received from the view when clicking on "Evacuated" button.
  */
 object EvacuatedRiverMonitor extends Serializable with RiverMonitorActorCommand
+
 /**
  * Message received from the view when clicking on "Evacuate" button.
  */
@@ -47,14 +48,21 @@ object RiverMonitorActor:
           else Behaviors.same
         }
         case EvacuatedRiverMonitor => {
-          ctx.log.debug("Received FreeRiverMonitor")
-          RiverMonitorActor(riverMonitor.state_(Safe), resourceActor)
+          ctx.log.debug("Received EvacuatedRiverMonitor")
+          if riverMonitor.state == Evacuating then {
+            RiverMonitorActor(riverMonitor.state_(Safe), resourceActor)
+          }
+          else Behaviors.same
         }
         case EvacuatingRiverMonitor => {
-          ctx.log.debug("Received BusyRiverMonitor")
-          RiverMonitorActor(riverMonitor.state_(Evacuating), resourceActor)
+          ctx.log.debug("Received EvacuatingRiverMonitor")
+          if riverMonitor.state == Warned then {
+            RiverMonitorActor(riverMonitor.state_(Evacuating), resourceActor)
+          }
+          else Behaviors.same
         }
         case _ => {
+          ctx.log.debug(s"Unexpected message. The actor is being stopped")
           Behaviors.stopped
         }
       }

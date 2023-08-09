@@ -22,7 +22,7 @@ object RiverMonitorGuardianActor:
       Behaviors.receiveMessagePartial[Receptionist.Listing] {
         case mainstayService.Listing(listings) => {
           ctx.log.debug("Received mainstayService")
-          //tell all mainstayActors to resourceFloodSensorActor
+          //tell all mainstayActors to resourceRiverMonitorActor
           resourceRiverMonitorActor ! SetMainstayActorsToResourceActor(listings)
           Behaviors.same
         }
