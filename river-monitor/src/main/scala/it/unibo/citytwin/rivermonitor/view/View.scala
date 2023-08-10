@@ -11,7 +11,7 @@ trait View:
   def height: Int
   def viewName: String
   def viewActor: ActorRef[ViewActorCommand]
-  def updateRiverMonitorState(riverMonitorState: RiverMonitorState): Unit
+  def updateRiverMonitorState(riverMonitorState: String): Unit
   def evacuateZonePressed(): Unit
   def evacuatedZonePressed(): Unit
 
@@ -29,7 +29,7 @@ object View:
     val frame: SwingControlPanel = SwingControlPanel(this)
 
     //chiamato dal viewActor
-    override def updateRiverMonitorState(riverMonitorState: RiverMonitorState): Unit =
+    override def updateRiverMonitorState(riverMonitorState: String): Unit =
       frame.updateRiverMonitorState(riverMonitorState)
 
     override def evacuateZonePressed(): Unit =

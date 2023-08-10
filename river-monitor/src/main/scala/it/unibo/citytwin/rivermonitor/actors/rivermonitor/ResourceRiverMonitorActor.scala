@@ -55,9 +55,9 @@ object ResourceRiverMonitorActor :
         if actResources.nonEmpty then
           //può arrivare Evacuating o Safe dalla view
           actResources.foreach(resource => {
-            resource.state.get match //TODO: check error
-              case Evacuating => riverMonitorActor ! EvacuatingRiverMonitor
-              case Safe => riverMonitorActor ! EvacuatedRiverMonitor
+            resource.state.get.asInstanceOf[String] match
+              case "Evacuating" => riverMonitorActor ! EvacuatingRiverMonitor
+              case "Safe" => riverMonitorActor ! EvacuatedRiverMonitor
           })
 
         Behaviors.same

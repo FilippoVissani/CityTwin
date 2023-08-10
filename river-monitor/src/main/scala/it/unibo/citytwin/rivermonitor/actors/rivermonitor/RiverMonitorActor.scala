@@ -37,7 +37,7 @@ object RiverMonitorActor:
   def apply(riverMonitor: RiverMonitor,
             resourceActor: Option[ActorRef[ResourceActorCommand]] = Option.empty): Behavior[RiverMonitorActorCommand] =
     Behaviors.setup[RiverMonitorActorCommand] { ctx =>
-      val resource = Resource(Some(riverMonitor.riverMonitorName), Some(riverMonitor.position), Some(riverMonitor.state), Set(Sense, Act))
+      val resource = Resource(Some(riverMonitor.riverMonitorName), Some(riverMonitor.position), Some(riverMonitor.state.toString), Set(Sense, Act))
       if (resourceActor.nonEmpty) resourceActor.get ! ResourceChanged(resource)
       Behaviors.receiveMessage {
         case SetResourceActor(resourceActor) => {

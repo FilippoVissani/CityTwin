@@ -11,7 +11,7 @@ import it.unibo.citytwin.rivermonitor.view.View
 import it.unibo.citytwin.core.model.{Resource, ResourceType}
 
 trait ViewActorCommand
-case class UpdateRiverMonitorState(riverMonitorState: RiverMonitorState) extends Serializable with ViewActorCommand
+case class UpdateRiverMonitorState(riverMonitorState: String) extends Serializable with ViewActorCommand
 object EvacuatingZone extends Serializable with ViewActorCommand
 object EvacuatedZone extends Serializable with ViewActorCommand
 
@@ -37,7 +37,7 @@ object ViewActor :
         ctx.log.debug(s"Received SetResourceActor")
         viewActorLogic(ctx, view, viewName, width, height, Some(resourceActor))
       }
-      case UpdateRiverMonitorState(riverMonitorState: RiverMonitorState) => {
+      case UpdateRiverMonitorState(riverMonitorState: String) => {
         ctx.log.debug("Received UpdateRiverMonitorState")
         view.updateRiverMonitorState(riverMonitorState)
         Behaviors.same
@@ -46,7 +46,7 @@ object ViewActor :
           ctx.log.debug("Received EvacuatingZone")
           //messaggio ricevuto dalla pressione del bottone evacuate
           //mandare al resourceActor la resource che indichi questo
-          val resource = Resource(name = Some(viewName), state = Some(Evacuating), resourceType = Set(ResourceType.Act))
+          val resource = Resource(name = Some(viewName), state = Some("Evacuating"), resourceType = Set(ResourceType.Act))
           if resourceActor.isDefined then resourceActor.get ! ResourceChanged(resource)
           Behaviors.same
       }
@@ -54,7 +54,7 @@ object ViewActor :
         ctx.log.debug("Received EvacuatedZone")
         //messaggio ricevuto dalla pressione del bottone evacuated
         //mandare al resourceActor la resource che indichi questo
-        val resource = Resource(name = Some(viewName), state = Some(Safe), resourceType = Set(ResourceType.Act))
+        val resource = Resource(name = Some(viewName), state = Some("Safe"), resourceType = Set(ResourceType.Act))
         if resourceActor.isDefined then resourceActor.get ! ResourceChanged(resource)
         Behaviors.same
       }

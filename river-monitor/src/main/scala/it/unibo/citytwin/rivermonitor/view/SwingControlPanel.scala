@@ -12,7 +12,7 @@ import scala.swing.{Action, BorderPanel, Button, FlowPanel, Frame, Label, Panel}
 
 trait SwingControlPanel:
   def updateFloodSensor(floodSensor: FloodSensor): Unit
-  def updateRiverMonitorState(riverMonitorState: RiverMonitorState): Unit
+  def updateRiverMonitorState(riverMonitorState: String): Unit
 
 object SwingControlPanel:
 
@@ -39,10 +39,10 @@ object SwingControlPanel:
     })
 
     //chiamato dalla View
-    override def updateRiverMonitorState(riverMonitorState: RiverMonitorState): Unit =
+    override def updateRiverMonitorState(riverMonitorState: String): Unit =
       SwingUtilities.invokeLater(() => {
         riverPanel.updateRiverMonitorState(riverMonitorState)
-        if riverMonitorState == Warned then
+        if riverMonitorState == "Warned" then
           buttonsPanel.buttonEvacuate.visible = true
         repaint()
       })
@@ -80,7 +80,7 @@ sealed class ButtonsPanel(view: View) extends FlowPanel:
 end ButtonsPanel
 
 sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel:
-  var riverMonitorState: RiverMonitorState = Safe
+  var riverMonitorState: String = "Safe"
   var floodSensors: List[FloodSensor] = List()
 
   preferredSize = Dimension(width, height)
@@ -92,9 +92,10 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
     g2.drawRect(0, 0, width - 1, height - 1)
     g2.setColor(java.awt.Color.BLUE)
     riverMonitorState match
-      case Safe => g2.setColor(java.awt.Color.GREEN)
-      case Evacuating => g2.setColor(java.awt.Color.YELLOW)
-      case Warned => g2.setColor(java.awt.Color.RED)
+      case "Safe" => g2.setColor(java.awt.Color.GREEN)
+      case "Evacuating" => g2.setColor(java.awt.Color.YELLOW)
+      case "Warned" => g2.setColor(java.awt.Color.RED)
+      case _ => g2.setColor(java.awt.Color.BLUE)
     g2.fillRect(0, 0, width, height)
     g2.setColor(java.awt.Color.BLACK)
     g2.drawString(s"RIVER MONITOR ${viewName}: ${riverMonitorState.toString}", 5, 15)
@@ -105,7 +106,7 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
 
   def updateFloodSensor(floodSensor: FloodSensor): Unit =
     this.floodSensors = floodSensor :: this.floodSensors.filter(x => x.name != floodSensor.name)
-  def updateRiverMonitorState(riverMonitorState: RiverMonitorState): Unit =
+  def updateRiverMonitorState(riverMonitorState: String): Unit =
     this.riverMonitorState = riverMonitorState
 
 end RiverPanel

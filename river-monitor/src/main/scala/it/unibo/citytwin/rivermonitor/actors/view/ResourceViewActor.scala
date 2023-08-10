@@ -47,8 +47,7 @@ object ResourceViewActor :
         ctx.log.debug("Received AdaptedResourcesStateResponse")
         if resources.nonEmpty then
           resources.filter(resource => resource.state.nonEmpty).foreach(resource => {
-            //TODO: error: class scala.collection.immutable.Map$Map2 cannot be cast to class scala.Enumeration$Value
-            viewActor ! UpdateRiverMonitorState(resource.state.get.asInstanceOf[RiverMonitorState])
+            viewActor ! UpdateRiverMonitorState(resource.state.get.asInstanceOf[String])
           })
         Behaviors.same
       }
