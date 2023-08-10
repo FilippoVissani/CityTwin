@@ -24,7 +24,7 @@ object Main:
     startup(port = 2553)(MainstayActor())
 
     val viewName = "view1"
-    val width = 200
+    val width = 600
     val height = 200
     startup(port = 2554)(ViewGuardianActor(viewName, width, height))
 
