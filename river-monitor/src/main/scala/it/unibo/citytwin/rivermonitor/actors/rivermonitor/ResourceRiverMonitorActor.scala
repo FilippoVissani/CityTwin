@@ -8,6 +8,7 @@ import it.unibo.citytwin.core.actors.ResourceActor.resourceService
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.Resource
 import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.{Safe, Evacuating}
 import scala.util.Success
 import scala.concurrent.duration.DurationInt
 
@@ -18,7 +19,7 @@ object ResourceRiverMonitorActor :
       Behaviors.withTimers { timers =>
         ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
         //TODO: take sensorsToCheck from riverMonitor (ask to riverMonitorActor)
-        val sensorsToCheck = Set[String]("floodSensor1")
+        val sensorsToCheck = Set[String]("floodSensor1", "view1")
         timers.startTimerAtFixedRate(AskResourcesToMainstay(sensorsToCheck), 1.seconds)
         ResourceRiverMonitorActorLogic(ctx, riverMonitorActor, mainstayActors)
       }
@@ -43,16 +44,21 @@ object ResourceRiverMonitorActor :
       }
       case AdaptedResourcesStateResponse(resources) => {
         ctx.log.debug("Received ResponseResourceState")
-        val senseResources = resources.filter(resource => resource.resourceType.contains(Sense))
-        val actResources = resources.filter(resource => resource.resourceType.contains(Act))
+        val senseResources = resources.filter(resource => resource.resourceType.contains(Sense)).filter(resource => resource.state.nonEmpty)
+        val actResources = resources.filter(resource => resource.resourceType.contains(Act)).filter(resource => resource.state.nonEmpty)
 
         if senseResources.nonEmpty then
           //se la maggioranza delle misurazioni è sopra la soglia metto in WARNING
-          if senseResources.filter(resource => resource.state.nonEmpty).count(resource => resource.state.get.asInstanceOf[Float] > 5) > resources.size / 2 then
+          if senseResources.count(resource => resource.state.get.asInstanceOf[Float] > 5) > resources.size / 2 then
             riverMonitorActor ! WarnRiverMonitor
 
         if actResources.nonEmpty then
-          ???
+          //può arrivare Evacuating o Safe dalla view
+          actResources.foreach(resource => {
+            resource.state.get match //TODO: check error
+              case Evacuating => riverMonitorActor ! EvacuatingRiverMonitor
+              case Safe => riverMonitorActor ! EvacuatedRiverMonitor
+          })
 
         Behaviors.same
       }
