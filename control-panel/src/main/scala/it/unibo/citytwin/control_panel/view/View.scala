@@ -14,7 +14,7 @@ import scala.swing.{BorderPanel, Frame, Graphics2D, Panel}
 trait View:
   def drawResources(resources: Set[Resource]): Unit
 
-  def drawMainstays(mainstays: Set[ActorRef[MainstayActorCommand]]): Unit
+  def drawMainstays(mainstays: Set[String]): Unit
 
 object View:
   def apply(): View = ViewImpl()
@@ -58,7 +58,7 @@ object View:
         mainPanel.drawResources(resources)
       })
 
-    override def drawMainstays(mainstays: Set[ActorRef[MainstayActorCommand]]): Unit =
+    override def drawMainstays(mainstays: Set[String]): Unit =
       SwingUtilities.invokeLater(() => {
         mainPanel.drawMainstays(mainstays)
       })
@@ -67,7 +67,7 @@ object View:
 
   sealed class MainPanel(frameDimension: Dimension, resourcesPanelDimension: Dimension, mainstaysPanelDimension: Dimension) extends Panel:
     private var resources: Set[Resource] = Set()
-    private var mainstays: Set[ActorRef[MainstayActorCommand]] = Set()
+    private var mainstays: Set[String] = Set()
     private val mainstaysPanelArea: (Int, Int, Int, Int) = (0, 0, mainstaysPanelDimension.width - 1, mainstaysPanelDimension.height - 1)
     private val resourcesPanelArea: (Int, Int, Int, Int) = (mainstaysPanelDimension.width, mainstaysPanelDimension.height, resourcesPanelDimension.width - 1, resourcesPanelDimension.height - 1)
     preferredSize = frameDimension
@@ -75,7 +75,7 @@ object View:
     def drawResources(resources: Set[Resource]): Unit =
       this.resources = resources
 
-    def drawMainstays(mainstays: Set[ActorRef[MainstayActorCommand]]): Unit =
+    def drawMainstays(mainstays: Set[String]): Unit =
       this.mainstays = mainstays
 
     override def paint(g: Graphics2D): Unit =

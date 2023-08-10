@@ -29,7 +29,7 @@ object ControlPanelActor:
             Behaviors.same
           }
           case AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]]) => {
-            view.drawMainstays(mainstays)
+            view.drawMainstays(mainstays.map(m => m.path.toString))
             Behaviors.same
           }
           case Tick => {
