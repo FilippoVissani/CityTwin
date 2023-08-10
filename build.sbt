@@ -2,6 +2,8 @@ ThisBuild / version := "0.1.0"
 ThisBuild / scalaVersion := "3.3.0"
 ThisBuild / organization := "it.unibo"
 
+fork := true
+
 lazy val akkaVersion = "2.8.3"
 lazy val akkaGroup = "com.typesafe.akka"
 lazy val commonDependencies = Seq(
