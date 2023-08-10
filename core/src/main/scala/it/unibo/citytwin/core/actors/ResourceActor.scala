@@ -58,7 +58,14 @@ case class AskAllResourcesToMainstay(
 ) extends ResourceActorCommand
     with Serializable
 
+case class AskMainstaysState(
+                                      replyTo: ActorRef[MainstaysStateResponse]
+                                    ) extends ResourceActorCommand
+  with Serializable
+
 case class ResourcesFromMainstayResponse(resources: Set[Resource]) extends Serializable
+
+case class MainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]]) extends Serializable
 
 object ResourceActor:
   val resourceService: ServiceKey[ResourceActorCommand] =
@@ -111,6 +118,10 @@ object ResourceActor:
                 AdaptedResourcesStateResponse(replyTo, resources)
               case _ => AdaptedResourcesStateResponse(replyTo, Set())
             }
+          Behaviors.same
+        }
+        case AskMainstaysState(replyTo: ActorRef[MainstaysStateResponse]) => {
+          replyTo ! MainstaysStateResponse(mainstays)
           Behaviors.same
         }
       }
