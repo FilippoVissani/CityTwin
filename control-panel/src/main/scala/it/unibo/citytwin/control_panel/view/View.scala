@@ -2,14 +2,17 @@ package it.unibo.citytwin.control_panel.view
 
 import akka.actor.typed.ActorRef
 import com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener
-import it.unibo.citytwin.control_panel.view.View.MainPanel
+import it.unibo.citytwin.control_panel.view.View.{InfoPanel, MapPanel}
 import it.unibo.citytwin.core.actors.MainstayActorCommand
 import it.unibo.citytwin.core.model.Resource
-
-import java.awt.{Dimension, RenderingHints, Toolkit}
+import java.awt.{Component, Dimension, RenderingHints, Toolkit}
 import java.awt.event.{WindowAdapter, WindowEvent}
-import javax.swing.SwingUtilities
-import scala.swing.{BorderPanel, Frame, Graphics2D, Panel}
+import java.io.File
+import javax.imageio.ImageIO
+import javax.swing.{JPanel, JTabbedPane, SwingUtilities}
+import scala.io.{BufferedSource, Source}
+import scala.swing.TabbedPane.Page
+import scala.swing.{BorderPanel, BoxPanel, BufferWrapper, Button, FlowPanel, Frame, Graphics2D, Orientation, Panel, ScrollPane, TabbedPane, TextArea}
 
 trait View:
   def drawResources(resources: Set[Resource]): Unit
@@ -20,18 +23,20 @@ object View:
   def apply(): View = ViewImpl()
 
   private class ViewImpl extends Frame with View:
-    private val framePercentSize = (90, 90)
-    private val resourcesPanelPercentSize = (80, 100)
-    private val mainstaysPanelPercentSize = (20, 100)
+    private val framePercentSize = (80, 80)
+    private val mapPanelPercentSize = (100, 100)
     private val frameDimension = calcFrameDimension(framePercentSize)
-    private val resourcesPanelDimension = calcPanelDimension(resourcesPanelPercentSize, frameDimension)
-    private val mainstaysPanelDimension = calcPanelDimension(mainstaysPanelPercentSize, frameDimension)
-    private val mainPanel: MainPanel = MainPanel(frameDimension, resourcesPanelDimension, mainstaysPanelDimension)
+    private val mapPanelDimension = calcPanelDimension(mapPanelPercentSize, frameDimension)
+    private val mapPanel: MapPanel = MapPanel(frameDimension, mapPanelDimension)
+    private val infoPanel = InfoPanel()
+    private val mainPane = TabbedPane()
+    mainPane.pages += Page("Map", mapPanel)
+    mainPane.pages += Page("Info", infoPanel.mainPanel)
     title = "CityTwin Control Panel"
     size = calcFrameDimension(framePercentSize)
     resizable = false
     visible = true
-    contents = mainPanel
+    contents = mainPane
 
     private def calcFrameDimension(framePercentSize: (Int, Int)) =
       Dimension(
@@ -55,42 +60,55 @@ object View:
 
     override def drawResources(resources: Set[Resource]): Unit =
       SwingUtilities.invokeLater(() => {
-        mainPanel.drawResources(resources)
+        mapPanel.drawResources(resources)
+        infoPanel.drawResources(resources)
       })
 
     override def drawMainstays(mainstays: Set[String]): Unit =
       SwingUtilities.invokeLater(() => {
-        mainPanel.drawMainstays(mainstays)
+        infoPanel.drawMainstays(mainstays)
       })
 
   end ViewImpl
 
-  sealed class MainPanel(frameDimension: Dimension, resourcesPanelDimension: Dimension, mainstaysPanelDimension: Dimension) extends Panel:
+  sealed class MapPanel(frameDimension: Dimension, mapPanelDimension: Dimension) extends Panel:
+    private val image = Toolkit.getDefaultToolkit.getImage("control-panel/src/main/resources/city-map.png")
     private var resources: Set[Resource] = Set()
-    private var mainstays: Set[String] = Set()
-    private val mainstaysPanelArea: (Int, Int, Int, Int) = (0, 0, mainstaysPanelDimension.width - 1, mainstaysPanelDimension.height - 1)
-    private val resourcesPanelArea: (Int, Int, Int, Int) = (mainstaysPanelDimension.width, mainstaysPanelDimension.height, resourcesPanelDimension.width - 1, resourcesPanelDimension.height - 1)
     preferredSize = frameDimension
 
     def drawResources(resources: Set[Resource]): Unit =
       this.resources = resources
 
-    def drawMainstays(mainstays: Set[String]): Unit =
-      this.mainstays = mainstays
-
     override def paint(g: Graphics2D): Unit =
       val g2: Graphics2D = g
       g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
       g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
-      // RENDER MAINSTAYS STATE
-      g2.setColor(java.awt.Color.BLUE)
-      g2.fillRect(mainstaysPanelArea._1, mainstaysPanelArea._2, mainstaysPanelArea._3, mainstaysPanelArea._4)
-      g2.setColor(java.awt.Color.WHITE)
-      mainstays.foreach(m => g2.drawString(m.toString, mainstaysPanelArea._1 + 5, mainstaysPanelArea._2 + 15))
       // RENDER RESOURCES STATE
-      g2.setColor(java.awt.Color.WHITE)
-      g2.fillRect(resourcesPanelArea._1, resourcesPanelArea._2, resourcesPanelArea._3, resourcesPanelArea._4)
-      g2.setColor(java.awt.Color.BLACK)
+      g2.drawImage(image, 0, 0, mapPanelDimension.width, mapPanelDimension.height, null)
+      g2.setColor(java.awt.Color.RED)
       resources.filter(r => r.position.isDefined).foreach(r => g2.fillOval(r.position.get.x, r.position.get.y, 10, 10))
     end paint
-  end MainPanel
+  end MapPanel
+
+  sealed class InfoPanel:
+    private val mainstaysInfoTextArea = new TextArea {
+      this.text = "MAINSTAYS INFO:\n"
+      this.editable = false
+    }
+    private val mainstaysInfoPanel = ScrollPane(mainstaysInfoTextArea)
+    private val resourcesInfoTextArea = new TextArea {
+      this.text = "RESOURCES INFO:\n"
+      this.editable = false
+    }
+    private val resourcesInfoPanel = ScrollPane(resourcesInfoTextArea)
+    val mainPanel: BoxPanel = new BoxPanel(Orientation.Horizontal) {
+      contents ++= Seq(mainstaysInfoPanel, resourcesInfoPanel)
+    }
+
+    def drawResources(resources: Set[Resource]): Unit =
+      resourcesInfoTextArea.text = "RESOURCES INFO:\n"
+      resources.foreach(r => resourcesInfoTextArea.text = resourcesInfoTextArea.text + r.toString + "\n")
+
+    def drawMainstays(mainstays: Set[String]): Unit =
+      mainstaysInfoTextArea.text = "MAINSTAYS INFO:\n"
+      mainstays.foreach(m => mainstaysInfoTextArea.text = mainstaysInfoTextArea.text + m + "\n")
