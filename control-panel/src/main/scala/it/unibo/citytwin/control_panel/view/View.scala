@@ -20,7 +20,7 @@ object View:
   def apply(): View = ViewImpl()
 
   private class ViewImpl extends Frame with View:
-    private val framePercentSize = (80, 80)
+    private val framePercentSize = (90, 90)
     private val resourcesPanelPercentSize = (80, 100)
     private val mainstaysPanelPercentSize = (20, 100)
     private val frameDimension = calcFrameDimension(framePercentSize)
