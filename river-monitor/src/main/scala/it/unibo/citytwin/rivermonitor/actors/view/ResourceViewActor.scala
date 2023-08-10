@@ -15,12 +15,11 @@ import scala.concurrent.duration.DurationInt
 
 object ResourceViewActor :
   def apply(viewActor: ActorRef[ViewActorCommand],
-            mainstayActors: Set[ActorRef[MainstayActorCommand]] = Set()): Behavior[ResourceActorCommand] =
+            mainstayActors: Set[ActorRef[MainstayActorCommand]] = Set(),
+            resourcesToCheck: Set[String]): Behavior[ResourceActorCommand] =
     Behaviors.setup[ResourceActorCommand] { ctx =>
       Behaviors.withTimers { timers =>
         ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
-        //TODO: take resourcesToCheck from view
-        val resourcesToCheck = Set[String]("riverMonitor1")
         timers.startTimerAtFixedRate(AskResourcesToMainstay(resourcesToCheck), 1.seconds)
         ResourceViewActorLogic(ctx, viewActor, mainstayActors)
       }

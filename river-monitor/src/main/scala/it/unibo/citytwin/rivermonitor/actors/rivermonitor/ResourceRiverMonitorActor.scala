@@ -14,13 +14,12 @@ import scala.concurrent.duration.DurationInt
 
 object ResourceRiverMonitorActor :
   def apply(riverMonitorActor: ActorRef[RiverMonitorActorCommand],
-            mainstayActors: Set[ActorRef[MainstayActorCommand]] = Set()): Behavior[ResourceActorCommand] =
+            mainstayActors: Set[ActorRef[MainstayActorCommand]] = Set(),
+            resourcesToCheck: Set[String]): Behavior[ResourceActorCommand] =
     Behaviors.setup[ResourceActorCommand] { ctx =>
       Behaviors.withTimers { timers =>
         ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
-        //TODO: take sensorsToCheck from riverMonitor (ask to riverMonitorActor)
-        val sensorsToCheck = Set[String]("floodSensor1", "view1")
-        timers.startTimerAtFixedRate(AskResourcesToMainstay(sensorsToCheck), 1.seconds)
+        timers.startTimerAtFixedRate(AskResourcesToMainstay(resourcesToCheck), 1.seconds)
         ResourceRiverMonitorActorLogic(ctx, riverMonitorActor, mainstayActors)
       }
     }

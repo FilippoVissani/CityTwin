@@ -9,10 +9,10 @@ import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 
 object RiverMonitorGuardianActor:
 
-  def apply(riverMonitor: RiverMonitor): Behavior[Nothing] =
+  def apply(riverMonitor: RiverMonitor, resourcesToCheck: Set[String]): Behavior[Nothing] =
     Behaviors.setup[Receptionist.Listing] { ctx =>
       val riverMonitorActor = ctx.spawnAnonymous(RiverMonitorActor(riverMonitor))
-      val resourceRiverMonitorActor = ctx.spawnAnonymous(ResourceRiverMonitorActor(riverMonitorActor))
+      val resourceRiverMonitorActor = ctx.spawnAnonymous(ResourceRiverMonitorActor(riverMonitorActor = riverMonitorActor, resourcesToCheck = resourcesToCheck))
       riverMonitorActor ! SetResourceActor(resourceRiverMonitorActor)
 
       ctx.system.receptionist ! Receptionist.Subscribe(mainstayService, ctx.self)

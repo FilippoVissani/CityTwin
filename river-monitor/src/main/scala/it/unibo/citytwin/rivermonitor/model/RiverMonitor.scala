@@ -7,9 +7,8 @@ object RiverMonitorState extends Enumeration:
   val Safe, Evacuating, Warned = Value
 
 case class RiverMonitor(riverMonitorName: String,
-                        sensorsToCheck: Set[String],
                         position: Point2D[Int],
                        state: RiverMonitorState = Safe):
 
   def state_(newState: RiverMonitorState): RiverMonitor =
-    RiverMonitor(riverMonitorName, sensorsToCheck, position, newState)
+    RiverMonitor(riverMonitorName, position, newState)

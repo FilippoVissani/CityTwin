@@ -8,11 +8,12 @@ import it.unibo.citytwin.core.actors.SetMainstayActorsToResourceActor
 
 object ViewGuardianActor:
   def apply(viewName: String,
+            resourcesToCheck: Set[String],
             width: Int,
             height: Int): Behavior[Nothing] = 
     Behaviors.setup[Receptionist.Listing] { ctx =>
       val viewActor = ctx.spawnAnonymous(ViewActor(viewName, width, height))
-      val resourceViewActor = ctx.spawnAnonymous(ResourceViewActor(viewActor))
+      val resourceViewActor = ctx.spawnAnonymous(ResourceViewActor(viewActor = viewActor, resourcesToCheck = resourcesToCheck))
       viewActor ! SetResourceActor(resourceViewActor)
       
       ctx.system.receptionist ! Receptionist.subscribe(mainstayService, ctx.self)

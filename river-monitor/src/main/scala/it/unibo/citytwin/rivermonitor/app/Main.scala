@@ -13,20 +13,22 @@ object Main:
 
   @main def inizia(): Unit =
     val floodSensorName = "floodSensor1"
+    val riverMonitorName ="riverMonitor1"
+    val viewName = "view1"
+
     val floodSensor = FloodSensor(floodSensorName, Point2D[Int](0, 0))
     startup(port = 2551)(FloodSensorGuardianActor(floodSensor))
 
-    val riverMonitorName ="riverMonitor1"
-    val sensorsToCheck = Set[String](floodSensorName)
-    val riverMonitor = RiverMonitor(riverMonitorName, sensorsToCheck, Point2D[Int](0, 0))
-    startup(port = 2552)(RiverMonitorGuardianActor(riverMonitor))
+    val rmResourcesToCheck = Set[String](floodSensorName, viewName)
+    val riverMonitor = RiverMonitor(riverMonitorName, Point2D[Int](0, 0))
+    startup(port = 2552)(RiverMonitorGuardianActor(riverMonitor, rmResourcesToCheck))
 
     startup(port = 2553)(MainstayActor())
 
-    val viewName = "view1"
     val width = 600
     val height = 200
-    startup(port = 2554)(ViewGuardianActor(viewName, width, height))
+    val vResourcesToCheck = Set[String](riverMonitorName)
+    startup(port = 2554)(ViewGuardianActor(viewName, vResourcesToCheck, width, height))
 
   private def startup[X](file: String = "cluster", port: Int)(root: => Behavior[X]): ActorSystem[X] =
     // Override the configuration of the port
