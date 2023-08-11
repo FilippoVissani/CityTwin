@@ -4,11 +4,9 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
-import akka.actor.typed.receptionist.Receptionist
-import it.unibo.citytwin.core.actors.{MainstayActor, MainstayActorCommand, SetMainstayActorsToResourceActor, UpdateResources}
-import it.unibo.citytwin.core.actors.ResourceActor.resourceService
-import it.unibo.citytwin.core.model.{Point2D, Resource, ResourceType}
-import it.unibo.citytwin.rivermonitor.actors.floodsensor.{FloodSensorActor, FloodSensorGuardianActor, ResourceFloodSensorActor, SetResourceActor}
+import it.unibo.citytwin.core.actors.{MainstayActorCommand, SetMainstayActorsToResourceActor, UpdateResources}
+import it.unibo.citytwin.core.model.Point2D
+import it.unibo.citytwin.rivermonitor.actors.floodsensor.{FloodSensorActor, ResourceFloodSensorActor, SetResourceActor}
 import it.unibo.citytwin.rivermonitor.model.FloodSensor
 
 import scala.concurrent.duration.DurationInt
