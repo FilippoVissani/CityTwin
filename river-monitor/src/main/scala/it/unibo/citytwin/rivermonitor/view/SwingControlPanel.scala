@@ -42,8 +42,21 @@ object SwingControlPanel:
     override def updateRiverMonitorState(riverMonitorState: String): Unit =
       SwingUtilities.invokeLater(() => {
         riverPanel.updateRiverMonitorState(riverMonitorState)
-        if riverMonitorState == "Warned" then
-          buttonsPanel.buttonEvacuate.visible = true
+
+        riverMonitorState match
+          case "Safe" => {
+            buttonsPanel.buttonEvacuate.visible = false
+            buttonsPanel.buttonEvacuated.visible = false
+          }
+          case "Warned" => {
+            buttonsPanel.buttonEvacuate.visible = true
+            buttonsPanel.buttonEvacuated.visible = false
+          }
+          case "Evacuating" => {
+            buttonsPanel.buttonEvacuate.visible = false
+            buttonsPanel.buttonEvacuated.visible = true
+          }
+
         repaint()
       })
 
@@ -62,7 +75,6 @@ sealed class ButtonsPanel(view: View) extends FlowPanel:
     visible = false
     action = new Action("Evacuate Zone"):
       override def apply(): Unit =
-        buttonEvacuated.visible = true
         visible = false
         view.evacuateZonePressed()
   }
@@ -98,7 +110,7 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
       case _ => g2.setColor(java.awt.Color.BLUE)
     g2.fillRect(0, 0, width, height)
     g2.setColor(java.awt.Color.BLACK)
-    g2.drawString(s"RIVER MONITOR ${viewName}: ${riverMonitorState.toString}", 5, 15)
+    g2.drawString(s"RIVER MONITOR ${viewName}: ${riverMonitorState}", 5, 15)
     g2.drawRect(0, 0, width, height)
     g2.setColor(java.awt.Color.BLACK)
     floodSensors.foreach(floodSensor => g2.fillOval(floodSensor.position.x, floodSensor.position.y, 10, 10))
