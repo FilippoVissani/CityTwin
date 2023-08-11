@@ -48,7 +48,7 @@ object ResourceRiverMonitorActor :
 
         if senseResources.nonEmpty then
           //se la maggioranza delle misurazioni è sopra la soglia metto in WARNING
-          if senseResources.count(resource => resource.state.get.asInstanceOf[Float] > 5) > resources.size / 2 then
+          if senseResources.count(resource => resource.state.get.asInstanceOf[Float] > 5) > senseResources.size / 2 then
             riverMonitorActor ! WarnRiverMonitor
 
         if actResources.nonEmpty then
@@ -67,7 +67,6 @@ object ResourceRiverMonitorActor :
       }
       case ResourceChanged(resource) => {
         ctx.log.debug("Received ResourceChanged")
-        //ogni volta che il riverMonitor passa da uno stato all'altro
         mainstayActors.foreach(mainstay => mainstay ! UpdateResources(Map(ctx.self -> resource).toSet))
         Behaviors.same
       }
