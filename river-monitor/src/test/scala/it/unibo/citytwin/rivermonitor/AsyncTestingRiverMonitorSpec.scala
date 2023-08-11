@@ -1,7 +1,8 @@
 package it.unibo.citytwin.rivermonitor
 
 import akka.actor.testkit.typed.scaladsl.ActorTestKit
-import it.unibo.citytwin.core.actors.{MainstayActorCommand, SetMainstayActorsToResourceActor, UpdateResources}
+import akka.actor.typed.scaladsl.Behaviors
+import it.unibo.citytwin.core.actors.{AskResourcesState, MainstayActorCommand, SetMainstayActorsToResourceActor, UpdateResources}
 import it.unibo.citytwin.core.model.{Point2D, Resource}
 import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
 import it.unibo.citytwin.rivermonitor.actors.rivermonitor.{EvacuatedRiverMonitor, EvacuatingRiverMonitor, ResourceRiverMonitorActor, RiverMonitorActor, SetResourceActor, WarnRiverMonitor}
@@ -10,6 +11,9 @@ import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.Safe
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import akka.actor.typed.{ActorRef, Behavior}
+import it.unibo.citytwin.core.actors.ResourceStatesResponse
+import scala.concurrent.duration.DurationInt
 
 class AsyncTestingRiverMonitorSpec extends AnyWordSpec with BeforeAndAfterAll with Matchers:
 
@@ -45,5 +49,22 @@ class AsyncTestingRiverMonitorSpec extends AnyWordSpec with BeforeAndAfterAll wi
       riverMonitorActor ! EvacuatedRiverMonitor
       dummyResource = dummyResource.copy(state = Some("Safe"))
       mainstayProbe.expectMessage(UpdateResources(Map(resourceRiverMonitorActor -> dummyResource).toSet))
+    }
+  }
+
+  "Resource RiverMonitor Actor" should {
+    "ask resources to mainstay" in {
+      val mainstayProbe = testKit.createTestProbe[MainstayActorCommand]()
+
+      val dummyRiverMonitor = RiverMonitor("riverMonitor1", Point2D[Int](0, 0), Safe)
+      //Guardian work
+      val riverMonitorActor = testKit.spawn(RiverMonitorActor(dummyRiverMonitor))
+      val resourceRiverMonitorActor = testKit.spawn(ResourceRiverMonitorActor(riverMonitorActor = riverMonitorActor, resourcesToCheck = Set()))
+      resourceRiverMonitorActor ! SetMainstayActorsToResourceActor(Set(mainstayProbe.ref))
+      //end Guardian work
+
+      mainstayProbe.within(10.seconds) {
+        mainstayProbe.expectMessageType[AskResourcesState]
+      }
     }
   }
