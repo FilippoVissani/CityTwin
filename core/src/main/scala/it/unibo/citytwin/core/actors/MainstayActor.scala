@@ -78,5 +78,9 @@ object MainstayActor:
           ctx.log.debug("SetMainstays")
           MainstayActor(nodes.toMap, resources, true)
         }
+        case _ => {
+          ctx.log.error("ERROR. Mainstay Actor stopped")
+          Behaviors.stopped
+        }
       }
     }

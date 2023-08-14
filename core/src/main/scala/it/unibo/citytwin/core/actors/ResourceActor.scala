@@ -124,5 +124,9 @@ object ResourceActor:
           replyTo ! MainstaysStateResponse(mainstays)
           Behaviors.same
         }
+        case _ => {
+          ctx.log.error("ERROR. Resource Actor stopped")
+          Behaviors.stopped
+        }
       }
     }
