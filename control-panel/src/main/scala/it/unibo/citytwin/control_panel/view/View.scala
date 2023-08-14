@@ -12,7 +12,20 @@ import javax.imageio.ImageIO
 import javax.swing.{JPanel, JTabbedPane, SwingUtilities}
 import scala.io.{BufferedSource, Source}
 import scala.swing.TabbedPane.Page
-import scala.swing.{BorderPanel, BoxPanel, BufferWrapper, Button, FlowPanel, Frame, Graphics2D, Orientation, Panel, ScrollPane, TabbedPane, TextArea}
+import scala.swing.{
+  BorderPanel,
+  BoxPanel,
+  BufferWrapper,
+  Button,
+  FlowPanel,
+  Frame,
+  Graphics2D,
+  Orientation,
+  Panel,
+  ScrollPane,
+  TabbedPane,
+  TextArea
+}
 
 trait View:
   def drawResources(resources: Set[Resource]): Unit
@@ -23,13 +36,13 @@ object View:
   def apply(): View = ViewImpl()
 
   private class ViewImpl extends Frame with View:
-    private val framePercentSize = (80, 80)
+    private val framePercentSize    = (80, 80)
     private val mapPanelPercentSize = (100, 100)
-    private val frameDimension = calcFrameDimension(framePercentSize)
-    private val mapPanelDimension = calcPanelDimension(mapPanelPercentSize, frameDimension)
-    private val mapPanel: MapPanel = MapPanel(frameDimension, mapPanelDimension)
-    private val infoPanel = InfoPanel()
-    private val mainPane = TabbedPane()
+    private val frameDimension      = calcFrameDimension(framePercentSize)
+    private val mapPanelDimension   = calcPanelDimension(mapPanelPercentSize, frameDimension)
+    private val mapPanel: MapPanel  = MapPanel(frameDimension, mapPanelDimension)
+    private val infoPanel           = InfoPanel()
+    private val mainPane            = TabbedPane()
     mainPane.pages += Page("Map", mapPanel)
     mainPane.pages += Page("Info", infoPanel.mainPanel)
     title = "CityTwin Control Panel"
@@ -72,7 +85,8 @@ object View:
   end ViewImpl
 
   sealed class MapPanel(frameDimension: Dimension, mapPanelDimension: Dimension) extends Panel:
-    private val image = Toolkit.getDefaultToolkit.getImage("control-panel/src/main/resources/city-map.png")
+    private val image =
+      Toolkit.getDefaultToolkit.getImage("control-panel/src/main/resources/city-map.png")
     private var resources: Set[Resource] = Set()
     preferredSize = frameDimension
 
@@ -86,7 +100,9 @@ object View:
       // RENDER RESOURCES STATE
       g2.drawImage(image, 0, 0, mapPanelDimension.width, mapPanelDimension.height, null)
       g2.setColor(java.awt.Color.RED)
-      resources.filter(r => r.position.isDefined).foreach(r => g2.fillOval(r.position.get.x, r.position.get.y, 10, 10))
+      resources
+        .filter(r => r.position.isDefined)
+        .foreach(r => g2.fillOval(r.position.get.x, r.position.get.y, 10, 10))
     end paint
   end MapPanel
 
@@ -107,7 +123,9 @@ object View:
 
     def drawResources(resources: Set[Resource]): Unit =
       resourcesInfoTextArea.text = "RESOURCES INFO:\n"
-      resources.foreach(r => resourcesInfoTextArea.text = resourcesInfoTextArea.text + r.toString + "\n")
+      resources.foreach(r =>
+        resourcesInfoTextArea.text = resourcesInfoTextArea.text + r.toString + "\n"
+      )
 
     def drawMainstays(mainstays: Set[String]): Unit =
       mainstaysInfoTextArea.text = "MAINSTAYS INFO:\n"

@@ -59,13 +59,14 @@ case class AskAllResourcesToMainstay(
     with Serializable
 
 case class AskMainstaysState(
-                                      replyTo: ActorRef[MainstaysStateResponse]
-                                    ) extends ResourceActorCommand
-  with Serializable
+    replyTo: ActorRef[MainstaysStateResponse]
+) extends ResourceActorCommand
+    with Serializable
 
 case class ResourcesFromMainstayResponse(resources: Set[Resource]) extends Serializable
 
-case class MainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]]) extends Serializable
+case class MainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]])
+    extends Serializable
 
 object ResourceActor:
   val resourceService: ServiceKey[ResourceActorCommand] =
