@@ -20,8 +20,8 @@ class AsyncTestingNodesObserverSpec extends AnyWordSpec with BeforeAndAfterAll w
   "Nodes observer actor" should {
     "Send resource updates to mainstay correctly" in {
       val probe    = testKit.createTestProbe[MainstayActorCommand]()
-      val observer = testKit.spawn(NodesObserverActor(probe.ref), "observer")
-      val resource = testKit.spawn(DummyResourceActor(), "resource")
+      val observer = testKit.spawn(NodesObserverActor(probe.ref))
+      val resource = testKit.spawn(DummyResourceActor())
       observer ! UpdateResourceNodesState(Set(resource))
       probe.expectMessage(UpdateResources(Map(resource -> Resource(nodeState = Some(true))).toSet))
       observer ! UpdateResourceNodesState(Set())
@@ -32,8 +32,8 @@ class AsyncTestingNodesObserverSpec extends AnyWordSpec with BeforeAndAfterAll w
 
     "Send mainstay updates to mainstay correctly" in {
       val probe    = testKit.createTestProbe[MainstayActorCommand]()
-      val observer = testKit.spawn(NodesObserverActor(probe.ref), "observer")
-      val mainstay = testKit.spawn(MainstayActor(), "mainstay")
+      val observer = testKit.spawn(NodesObserverActor(probe.ref))
+      val mainstay = testKit.spawn(MainstayActor())
       observer ! UpdateMainstayNodesState(Set(mainstay))
       probe.expectMessage(SetMainstays(Map(mainstay -> true).toSet))
       observer ! UpdateMainstayNodesState(Set())

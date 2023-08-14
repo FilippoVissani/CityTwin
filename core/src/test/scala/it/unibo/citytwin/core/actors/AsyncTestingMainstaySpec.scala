@@ -27,8 +27,8 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       val resource = Resource(
         name = Option("sensor1")
       )
-      val dummyResourceActor = testKit.spawn(DummyResourceActor(), "dummyResource")
-      val mainstay           = testKit.spawn(MainstayActor(), "mainstay")
+      val dummyResourceActor = testKit.spawn(DummyResourceActor())
+      val mainstay           = testKit.spawn(MainstayActor())
       val probe              = testKit.createTestProbe[ResourceStatesResponse]()
       mainstay ! UpdateResources(Map(dummyResourceActor -> resource).toSet)
       mainstay ! AskResourcesState(probe.ref, Set("sensor1"))
@@ -38,7 +38,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
     }
 
     "Register a new mainstay" in {
-      val mainstay      = testKit.spawn(MainstayActor(), "mainstay")
+      val mainstay      = testKit.spawn(MainstayActor())
       val mainstayState = Map(mainstay -> true)
       val probe         = testKit.createTestProbe[MainstayActorCommand]()
       probe ! SetMainstays(mainstayState.toSet)
@@ -51,7 +51,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
         .from(0)
         .map(x =>
           (
-            testKit.spawn(DummyResourceActor(), s"dummyResource$x"),
+            testKit.spawn(DummyResourceActor()),
             Resource(name = Some(s"sensor$x"), nodeState = Some(true))
           )
         )
@@ -61,7 +61,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
         .from(2)
         .map(x =>
           (
-            testKit.spawn(DummyResourceActor(), s"dummyResource$x"),
+            testKit.spawn(DummyResourceActor()),
             Resource(name = Some(s"sensor$x"), nodeState = Some(false))
           )
         )
@@ -70,7 +70,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       val expectedResult: Set[Resource] =
         onlineNodes.values.toSet - onlineNodes.values.head ++ offlineNodes.values.toSet + onlineNodes.values.head
           .merge(Resource(nodeState = Some(false)))
-      val mainstay = testKit.spawn(MainstayActor(), "mainstay")
+      val mainstay = testKit.spawn(MainstayActor())
       val probe    = testKit.createTestProbe[ResourceActorCommand]()
       val mockedResourceBehavior = Behaviors.setup[ResourceActorCommand] { ctx =>
         implicit val timeout: Timeout = 3.seconds
@@ -85,11 +85,12 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
         }
         Behaviors.receiveMessage {
           case AdaptedResourcesStateResponse(
-                replyTo: ActorRef[ResourcesFromMainstayResponse],
-                resources: Set[Resource]
+                _: ActorRef[ResourcesFromMainstayResponse],
+                _: Set[Resource]
               ) => {
             Behaviors.same
           }
+          case _ => Behaviors.stopped
         }
       }
       val probeActor = testKit.spawn(Behaviors.monitor(probe.ref, mockedResourceBehavior))
@@ -106,8 +107,8 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
 
     "Inform other mainstays on Resource update" in {
       val probe    = testKit.createTestProbe[MainstayActorCommand]()
-      val resource = testKit.spawn(DummyResourceActor(), "resource")
-      val mainstay = testKit.spawn(MainstayActor(), "mainstay")
+      val resource = testKit.spawn(DummyResourceActor())
+      val mainstay = testKit.spawn(MainstayActor())
       mainstay ! SetMainstays(Map(probe.ref -> true).toSet)
       mainstay ! UpdateResources(Map(resource -> Resource()).toSet)
       probe.expectMessage(UpdateResources(Map(resource -> Resource()).toSet))
