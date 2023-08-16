@@ -2,10 +2,11 @@ package it.unibo.citytwin.core.actors
 
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
-import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.util.Timeout
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
+
 import concurrent.duration.DurationInt
 import scala.util.{Random, Success}
 
@@ -76,58 +77,63 @@ object ResourceActor:
       mainstays: Set[ActorRef[MainstayActorCommand]] = Set()
   ): Behavior[ResourceActorCommand] =
     Behaviors.setup[ResourceActorCommand] { ctx =>
-      implicit val timeout: Timeout = 3.seconds
       ctx.system.receptionist ! Receptionist.Register(resourceService, ctx.self)
       ctx.spawnAnonymous(ResourceGuardianActor(ctx.self))
-      Behaviors.receiveMessage {
-        case AdaptedResourcesStateResponse(
-              replyTo: ActorRef[ResourcesFromMainstayResponse],
-              resources: Set[Resource]
-            ) => {
-          replyTo ! ResourcesFromMainstayResponse(resources)
-          Behaviors.same
-        }
-        case SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActorCommand]]) => {
-          ResourceActor(mainstays)
-        }
-        case ResourceChanged(resource: Resource) => {
-          if mainstays.nonEmpty then
-            val selectedMainstay = Random.shuffle(mainstays).head
-            selectedMainstay ! UpdateResources(Set((ctx.self, resource)))
-          Behaviors.same
-        }
-        case AskResourcesToMainstay(
-              replyTo: ActorRef[ResourcesFromMainstayResponse],
-              names: Set[String]
-            ) => {
-          if mainstays.nonEmpty then
-            val selectedMainstay = Random.shuffle(mainstays).head
-            ctx.ask(selectedMainstay, ref => AskResourcesState(ref, names)) {
-              case Success(ResourceStatesResponse(resources: Set[Resource])) =>
-                AdaptedResourcesStateResponse(replyTo, resources)
-              case _ => AdaptedResourcesStateResponse(replyTo, Set())
-            }
-          Behaviors.same
-        }
-        case AskAllResourcesToMainstay(
-              replyTo: ActorRef[ResourcesFromMainstayResponse]
-            ) => {
-          if mainstays.nonEmpty then
-            val selectedMainstay = Random.shuffle(mainstays).head
-            ctx.ask(selectedMainstay, ref => AskAllResourcesState(ref)) {
-              case Success(ResourceStatesResponse(resources: Set[Resource])) =>
-                AdaptedResourcesStateResponse(replyTo, resources)
-              case _ => AdaptedResourcesStateResponse(replyTo, Set())
-            }
-          Behaviors.same
-        }
-        case AskMainstaysState(replyTo: ActorRef[MainstaysStateResponse]) => {
-          replyTo ! MainstaysStateResponse(mainstays)
-          Behaviors.same
-        }
-        case _ => {
-          ctx.log.error("ERROR. Resource Actor stopped")
-          Behaviors.stopped
-        }
+      resourceActorBehaviour(ctx, mainstays)
+    }
+
+  private def resourceActorBehaviour(ctx: ActorContext[ResourceActorCommand],
+                                      mainstays: Set[ActorRef[MainstayActorCommand]] = Set(),
+                                    ): Behavior[ResourceActorCommand] =
+    implicit val timeout: Timeout = 3.seconds
+    Behaviors.receiveMessage {
+      case AdaptedResourcesStateResponse(
+      replyTo: ActorRef[ResourcesFromMainstayResponse],
+      resources: Set[Resource]
+      ) => {
+        replyTo ! ResourcesFromMainstayResponse(resources)
+        Behaviors.same
+      }
+      case SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActorCommand]]) => {
+        resourceActorBehaviour(ctx, mainstays)
+      }
+      case ResourceChanged(resource: Resource) => {
+        if mainstays.nonEmpty then
+          val selectedMainstay = Random.shuffle(mainstays).head
+          selectedMainstay ! UpdateResources(Set((ctx.self, resource)))
+        Behaviors.same
+      }
+      case AskResourcesToMainstay(
+      replyTo: ActorRef[ResourcesFromMainstayResponse],
+      names: Set[String]
+      ) => {
+        if mainstays.nonEmpty then
+          val selectedMainstay = Random.shuffle(mainstays).head
+          ctx.ask(selectedMainstay, ref => AskResourcesState(ref, names)) {
+            case Success(ResourceStatesResponse(resources: Set[Resource])) =>
+              AdaptedResourcesStateResponse(replyTo, resources)
+            case _ => AdaptedResourcesStateResponse(replyTo, Set())
+          }
+        Behaviors.same
+      }
+      case AskAllResourcesToMainstay(
+      replyTo: ActorRef[ResourcesFromMainstayResponse]
+      ) => {
+        if mainstays.nonEmpty then
+          val selectedMainstay = Random.shuffle(mainstays).head
+          ctx.ask(selectedMainstay, ref => AskAllResourcesState(ref)) {
+            case Success(ResourceStatesResponse(resources: Set[Resource])) =>
+              AdaptedResourcesStateResponse(replyTo, resources)
+            case _ => AdaptedResourcesStateResponse(replyTo, Set())
+          }
+        Behaviors.same
+      }
+      case AskMainstaysState(replyTo: ActorRef[MainstaysStateResponse]) => {
+        replyTo ! MainstaysStateResponse(mainstays)
+        Behaviors.same
+      }
+      case _ => {
+        ctx.log.error("ERROR. Resource Actor stopped")
+        Behaviors.stopped
       }
     }
