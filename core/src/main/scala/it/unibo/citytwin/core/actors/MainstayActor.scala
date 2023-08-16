@@ -35,52 +35,57 @@ object MainstayActor:
   def apply(
       mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
       resources: Map[ActorRef[ResourceActorCommand], Resource] = Map(),
-      isNodesObserverGuardianStarted: Boolean = false
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       ctx.log.debug("Mainstay started")
       ctx.system.receptionist ! Receptionist.Register(mainstayService, ctx.self)
-      if !isNodesObserverGuardianStarted then
-        ctx.spawnAnonymous(NodesObserverGuardianActor(ctx.self))
-      Behaviors.receiveMessage {
-        case AskResourcesState(
-              replyTo: ActorRef[ResourceStatesResponse],
-              names: Set[String]
-            ) => {
-          ctx.log.debug("AskResourceState")
-          replyTo ! ResourceStatesResponse(
-            resources.values
-              .filter(x => x.name.isDefined)
-              .filter(x => names.contains(x.name.get))
-              .toSet
-          )
-          Behaviors.same
-        }
-        case AskAllResourcesState(
-              replyTo: ActorRef[ResourceStatesResponse]
-            ) => {
-          ctx.log.debug("AskAllResourcesState")
-          replyTo ! ResourceStatesResponse(resources.values.toSet)
-          Behaviors.same
-        }
-        case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {
-          ctx.log.debug("UpdateResources")
-          val updateMap = update.toMap
-          mainstays
-            .filter((k, _) => k != ctx.self)
-            .foreach((k, v) => if v then k ! UpdateResources(update))
-          val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) =>
-            if updateMap.contains(k) then (k, v.merge(updateMap(k))) else (k, v)
-          ) ++ (updateMap -- resources.keys)
-          MainstayActor(mainstays, result, true)
-        }
-        case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) => {
-          ctx.log.debug("SetMainstays")
-          MainstayActor(nodes.toMap, resources, true)
-        }
-        case _ => {
-          ctx.log.error("ERROR. Mainstay Actor stopped")
-          Behaviors.stopped
-        }
+      ctx.spawnAnonymous(NodesObserverGuardianActor(ctx.self))
+      mainstayActorBehavior(ctx, mainstays, resources)
+    }
+    
+  private def mainstayActorBehavior(
+                                     ctx: ActorContext[MainstayActorCommand],
+                                     mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
+                                     resources: Map[ActorRef[ResourceActorCommand], Resource] = Map(),
+                                   ): Behavior[MainstayActorCommand] =
+    Behaviors.receiveMessage {
+      case AskResourcesState(
+      replyTo: ActorRef[ResourceStatesResponse],
+      names: Set[String]
+      ) => {
+        ctx.log.debug("AskResourceState")
+        replyTo ! ResourceStatesResponse(
+          resources.values
+            .filter(x => x.name.isDefined)
+            .filter(x => names.contains(x.name.get))
+            .toSet
+        )
+        Behaviors.same
+      }
+      case AskAllResourcesState(
+      replyTo: ActorRef[ResourceStatesResponse]
+      ) => {
+        ctx.log.debug("AskAllResourcesState")
+        replyTo ! ResourceStatesResponse(resources.values.toSet)
+        Behaviors.same
+      }
+      case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {
+        ctx.log.debug("UpdateResources")
+        val updateMap = update.toMap
+        mainstays
+          .filter((k, _) => k != ctx.self)
+          .foreach((k, v) => if v then k ! UpdateResources(update))
+        val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) =>
+          if updateMap.contains(k) then (k, v.merge(updateMap(k))) else (k, v)
+        ) ++ (updateMap -- resources.keys)
+        mainstayActorBehavior(ctx, mainstays, result)
+      }
+      case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) => {
+        ctx.log.debug("SetMainstays")
+        mainstayActorBehavior(ctx, nodes.toMap, resources)
+      }
+      case _ => {
+        ctx.log.error("ERROR. Mainstay Actor stopped")
+        Behaviors.stopped
       }
     }
