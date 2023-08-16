@@ -38,10 +38,12 @@ object ControlPanelActor:
         timers.startTimerAtFixedRate(Tick, 5.seconds)
         Behaviors.receiveMessage {
           case AdaptedResourcesFromMainstayResponse(resources: Set[Resource]) => {
+            ctx.log.debug(s"Received resources: ${resources}")
             view.drawResources(resources)
             Behaviors.same
           }
           case AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]]) => {
+            ctx.log.debug(s"Received mainstays: ${mainstays}")
             view.drawMainstays(mainstays.map(m => m.path.toString))
             Behaviors.same
           }
