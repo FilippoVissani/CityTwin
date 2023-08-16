@@ -5,7 +5,7 @@ import akka.actor.typed.{ActorRef, Behavior}
 import akka.util.Timeout
 import scala.util.Success
 import concurrent.duration.DurationInt
-import it.unibo.citytwin.core.actors.{AskResourcesToMainstay, ResourceActor, ResourceActorCommand, ResourceChanged, ResourcesFromMainstayResponse}
+import it.unibo.citytwin.core.actors.{AskResourcesToMainstay, ResourceActor, ResourceActorCommand, ResourcesFromMainstayResponse}
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
 import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 import it.unibo.citytwin.core.Serializable
@@ -23,24 +23,21 @@ case class Tick(resourcesToCheck: Set[String]) extends Serializable with RiverMo
 case class AdaptedResourcesStateResponse(resources: Set[Resource]) extends Serializable with RiverMonitorActorCommand
 
 object RiverMonitorActor:
-  def apply(riverMonitor: RiverMonitor,
-            resourcesToCheck: Set[String]): Behavior[RiverMonitorActorCommand] =
+  def apply(riverMonitor: RiverMonitor, resourcesToCheck: Set[String]): Behavior[RiverMonitorActorCommand] =
     Behaviors.setup[RiverMonitorActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds
       val resourceActor = ctx.spawnAnonymous(ResourceActor())
+      val riverMonitorStateActor = ctx.spawnAnonymous(RiverMonitorStateActor(riverMonitor, resourceActor))
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick(resourcesToCheck), 1.seconds)
-        RiverMonitorActorLogic(ctx, riverMonitor, resourceActor)
+        RiverMonitorActorLogic(ctx, riverMonitorStateActor, resourceActor)
       }
     }
 
   private def RiverMonitorActorLogic(ctx: ActorContext[RiverMonitorActorCommand],
-                                     riverMonitor: RiverMonitor,
+                                     riverMonitorStateActor: ActorRef[RiverMonitorStateActorCommand],
                                      resourceActor: ActorRef[ResourceActorCommand]): Behavior[RiverMonitorActorCommand] =
     implicit val timeout: Timeout = 3.seconds
-    val resource = Resource(Some(riverMonitor.riverMonitorName), Some(riverMonitor.position), Some(riverMonitor.state.toString), Set(Sense, Act))
-    resourceActor ! ResourceChanged(resource)
-    //TODO: controllare che non lo esegua anche con il Behaviors.same ma solo quando chiami la funzione RiverMonitorActorLogic
     Behaviors.receiveMessage {
       case Tick(resourcesToCheck) => {
         ctx.log.debug("Received Tick")
@@ -59,14 +56,14 @@ object RiverMonitorActor:
         val actResources = resources.filter(resource => resource.resourceType.contains(Act)).filter(resource => resource.state.nonEmpty)
 
         if senseResources.nonEmpty then
-          if senseResources.count(resource => resource.state.get.asInstanceOf[Float] > 5) > senseResources.size / 2 then
-            WarnRiverMonitor(ctx, riverMonitor, resourceActor)
+          if senseResources.count(resource => resource.state.get.asInstanceOf[Float] > 15) > senseResources.size / 2 then
+            riverMonitorStateActor ! WarnRiverMonitor
 
         if actResources.nonEmpty then
           actResources.foreach(resource => {
             resource.state.get.asInstanceOf[String] match
-              case "Evacuating" => EvacuatingRiverMonitor(ctx, riverMonitor, resourceActor)
-              case "Safe" => EvacuatedRiverMonitor(ctx, riverMonitor, resourceActor)
+              case "Evacuating" => riverMonitorStateActor ! EvacuatingRiverMonitor
+              case "Safe" => riverMonitorStateActor ! EvacuatedRiverMonitor
           })
         Behaviors.same
       }
@@ -75,15 +72,3 @@ object RiverMonitorActor:
         Behaviors.stopped
       }
     }
-
-  private def WarnRiverMonitor(ctx: ActorContext [RiverMonitorActorCommand], riverMonitor: RiverMonitor, resourceActor: ActorRef[ResourceActorCommand]): Unit =
-    if riverMonitor.state == Safe then
-      RiverMonitorActorLogic(ctx, riverMonitor.state_(Warned), resourceActor)
-
-  private def EvacuatingRiverMonitor(ctx: ActorContext[RiverMonitorActorCommand], riverMonitor: RiverMonitor, resourceActor: ActorRef[ResourceActorCommand]): Unit =
-    if riverMonitor.state == Warned then
-      RiverMonitorActorLogic(ctx, riverMonitor.state_(Evacuating), resourceActor)
-
-  private def EvacuatedRiverMonitor(ctx: ActorContext[RiverMonitorActorCommand], riverMonitor: RiverMonitor, resourceActor: ActorRef[ResourceActorCommand]): Unit =
-    if riverMonitor.state == Evacuating then
-      RiverMonitorActorLogic(ctx, riverMonitor.state_(Safe), resourceActor)
