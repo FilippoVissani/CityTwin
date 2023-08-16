@@ -5,4 +5,4 @@ import it.unibo.citytwin.control_panel.actors.{ControlPanelActor, ControlPanelAc
 import it.unibo.citytwin.core.ActorSystemStarter.startup
 
 @main def main(args: String*): ActorSystem[ControlPanelActorCommand] =
-  startup()(ControlPanelActor())
+  startup(ControlPanelActor())
