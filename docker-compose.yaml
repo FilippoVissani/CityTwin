@@ -2,7 +2,6 @@ version: '3.1'
 
 services:
   seed:
-    container_name: mainstay
     image: core:0.1.0
     ports:
       - '1600:1600'
@@ -17,7 +16,7 @@ services:
       - '1601:1601'
     environment:
       CLUSTER_PORT: 1601
-      CLUSTER_IP: control
+      CLUSTER_IP: control-panel
       SEED_PORT_1600_TCP_ADDR: seed
       DISPLAY: ${DISPLAY}
     volumes:
