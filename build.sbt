@@ -39,8 +39,8 @@ lazy val controlPanel = project
 lazy val riverMonitor = project
   .in(file("river-monitor"))
   .settings(
+    commonSettings,
     name := "river-monitor",
-    libraryDependencies ++= commonDependencies :+ "org.scala-lang.modules" %% "scala-swing" % "3.0.0",
+    libraryDependencies += scalaSwing,
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.rivermonitor.app.Main"),
-    dockerBaseImage := "eclipse-temurin",
   ).dependsOn(core).enablePlugins(JavaAppPackaging, DockerPlugin)
