@@ -14,24 +14,28 @@ lazy val commonDependencies = Seq(
   akkaGroup %% "akka-actor-testkit-typed" % akkaVersion % Test,
   "org.scalatest" %% "scalatest" % "3.2.16" % Test,
 )
-lazy val commonDependenciesGUI = commonDependencies ++ Seq("org.scala-lang.modules" %% "scala-swing" % "3.0.0")
+lazy val scalaSwing = "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
+lazy val commonSettings = Seq(
+  libraryDependencies := commonDependencies,
+  dockerBaseImage := "eclipse-temurin",
+  dockerExposedPorts := Seq(1600)
+)
 
 lazy val core = project
   .in(file("core"))
   .settings(
+    commonSettings,
     name := "core",
-    libraryDependencies ++= commonDependencies,
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.core.Main"),
-    dockerBaseImage := "eclipse-temurin",
   ).enablePlugins(JavaAppPackaging, DockerPlugin)
 
 lazy val controlPanel = project
   .in(file("control-panel"))
   .settings(
+    commonSettings,
     name := "control-panel",
-    libraryDependencies ++= commonDependenciesGUI,
+    libraryDependencies += scalaSwing,
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.control_panel.Main"),
-    dockerBaseImage := "eclipse-temurin",
   ).dependsOn(core).enablePlugins(JavaAppPackaging, DockerPlugin)
 
 lazy val riverMonitor = project
