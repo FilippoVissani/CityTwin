@@ -70,7 +70,7 @@ object MainstayActor:
         Behaviors.same
       }
       case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {
-        ctx.log.debug("UpdateResources")
+        ctx.log.debug(s"UpdateResources: $update")
         val updateMap = update.toMap
         mainstays
           .filter((k, _) => k != ctx.self)
