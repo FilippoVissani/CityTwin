@@ -22,7 +22,8 @@ lazy val core = project
     name := "core",
     libraryDependencies ++= commonDependencies,
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.core.Main"),
-  ).enablePlugins(JavaAppPackaging)
+    dockerBaseImage := "eclipse-temurin",
+  ).enablePlugins(JavaAppPackaging, DockerPlugin)
 
 lazy val controlPanel = project
   .in(file("control-panel"))
@@ -30,7 +31,8 @@ lazy val controlPanel = project
     name := "control-panel",
     libraryDependencies ++= commonDependenciesGUI,
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.control_panel.Main"),
-  ).dependsOn(core).enablePlugins(JavaAppPackaging)
+    dockerBaseImage := "eclipse-temurin",
+  ).dependsOn(core).enablePlugins(JavaAppPackaging, DockerPlugin)
 
 lazy val riverMonitor = project
   .in(file("river-monitor"))
