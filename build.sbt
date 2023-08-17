@@ -42,5 +42,4 @@ lazy val riverMonitor = project
     commonSettings,
     name := "river-monitor",
     libraryDependencies += scalaSwing,
-    Compile / packageBin / mainClass := Some("it.unibo.citytwin.rivermonitor.app.Main"),
-  ).dependsOn(core).enablePlugins(JavaAppPackaging, DockerPlugin)
+  ).dependsOn(core).enablePlugins(JavaAppPackaging)
