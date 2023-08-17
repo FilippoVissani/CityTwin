@@ -16,19 +16,25 @@ trait View:
   def evacuatedZonePressed(): Unit
 
 object View:
-  def apply(width: Int, height: Int, viewName: String, viewActor: ActorRef[ViewActorCommand]): View =
+  def apply(
+      width: Int,
+      height: Int,
+      viewName: String,
+      viewActor: ActorRef[ViewActorCommand]
+  ): View =
     ViewImpl(width, height, viewName, viewActor)
 
-  /**
-   * Implementation of View trait
-   */
-  private class ViewImpl(override val width: Int,
-                         override val height: Int,
-                         override val viewName: String,
-                         override val viewActor: ActorRef[ViewActorCommand]) extends View:
+  /** Implementation of View trait
+    */
+  private class ViewImpl(
+      override val width: Int,
+      override val height: Int,
+      override val viewName: String,
+      override val viewActor: ActorRef[ViewActorCommand]
+  ) extends View:
     val frame: SwingControlPanel = SwingControlPanel(this)
 
-    //chiamato dal viewActor
+    // chiamato dal viewActor
     override def updateRiverMonitorState(riverMonitorState: String): Unit =
       frame.updateRiverMonitorState(riverMonitorState)
 

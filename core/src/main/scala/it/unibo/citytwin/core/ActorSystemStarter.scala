@@ -11,4 +11,3 @@ object ActorSystemStarter:
       .withFallback(ConfigFactory.load())
     // Create an Akka system
     ActorSystem(root, "ClusterSystem", config)
-

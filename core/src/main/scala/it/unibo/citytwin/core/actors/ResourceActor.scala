@@ -82,15 +82,16 @@ object ResourceActor:
       resourceActorBehaviour(ctx, mainstays)
     }
 
-  private def resourceActorBehaviour(ctx: ActorContext[ResourceActorCommand],
-                                      mainstays: Set[ActorRef[MainstayActorCommand]] = Set(),
-                                    ): Behavior[ResourceActorCommand] =
+  private def resourceActorBehaviour(
+      ctx: ActorContext[ResourceActorCommand],
+      mainstays: Set[ActorRef[MainstayActorCommand]] = Set()
+  ): Behavior[ResourceActorCommand] =
     implicit val timeout: Timeout = 3.seconds
     Behaviors.receiveMessage {
       case AdaptedResourcesStateResponse(
-      replyTo: ActorRef[ResourcesFromMainstayResponse],
-      resources: Set[Resource]
-      ) => {
+            replyTo: ActorRef[ResourcesFromMainstayResponse],
+            resources: Set[Resource]
+          ) => {
         replyTo ! ResourcesFromMainstayResponse(resources)
         Behaviors.same
       }
@@ -102,9 +103,9 @@ object ResourceActor:
         Behaviors.same
       }
       case AskResourcesToMainstay(
-      replyTo: ActorRef[ResourcesFromMainstayResponse],
-      names: Set[String]
-      ) => {
+            replyTo: ActorRef[ResourcesFromMainstayResponse],
+            names: Set[String]
+          ) => {
         if mainstays.nonEmpty then
           val selectedMainstay = Random.shuffle(mainstays).head
           ctx.ask(selectedMainstay, ref => AskResourcesState(ref, names)) {
@@ -115,8 +116,8 @@ object ResourceActor:
         Behaviors.same
       }
       case AskAllResourcesToMainstay(
-      replyTo: ActorRef[ResourcesFromMainstayResponse]
-      ) => {
+            replyTo: ActorRef[ResourcesFromMainstayResponse]
+          ) => {
         if mainstays.nonEmpty then
           val selectedMainstay = Random.shuffle(mainstays).head
           ctx.ask(selectedMainstay, ref => AskAllResourcesState(ref)) {

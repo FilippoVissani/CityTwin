@@ -34,7 +34,7 @@ object MainstayActor:
 
   def apply(
       mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
-      resources: Map[ActorRef[ResourceActorCommand], Resource] = Map(),
+      resources: Map[ActorRef[ResourceActorCommand], Resource] = Map()
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       ctx.log.debug("Mainstay started")
@@ -42,17 +42,17 @@ object MainstayActor:
       ctx.spawnAnonymous(NodesObserverGuardianActor(ctx.self))
       mainstayActorBehavior(ctx, mainstays, resources)
     }
-    
+
   private def mainstayActorBehavior(
-                                     ctx: ActorContext[MainstayActorCommand],
-                                     mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
-                                     resources: Map[ActorRef[ResourceActorCommand], Resource] = Map(),
-                                   ): Behavior[MainstayActorCommand] =
+      ctx: ActorContext[MainstayActorCommand],
+      mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
+      resources: Map[ActorRef[ResourceActorCommand], Resource] = Map()
+  ): Behavior[MainstayActorCommand] =
     Behaviors.receiveMessage {
       case AskResourcesState(
-      replyTo: ActorRef[ResourceStatesResponse],
-      names: Set[String]
-      ) => {
+            replyTo: ActorRef[ResourceStatesResponse],
+            names: Set[String]
+          ) => {
         ctx.log.debug("AskResourceState")
         replyTo ! ResourceStatesResponse(
           resources.values
@@ -63,8 +63,8 @@ object MainstayActor:
         Behaviors.same
       }
       case AskAllResourcesState(
-      replyTo: ActorRef[ResourceStatesResponse]
-      ) => {
+            replyTo: ActorRef[ResourceStatesResponse]
+          ) => {
         ctx.log.debug("AskAllResourcesState")
         replyTo ! ResourceStatesResponse(resources.values.toSet)
         Behaviors.same
