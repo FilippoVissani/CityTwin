@@ -17,8 +17,6 @@ lazy val commonDependencies = Seq(
 lazy val scalaSwing = "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 lazy val commonSettings = Seq(
   libraryDependencies := commonDependencies,
-  dockerBaseImage := "eclipse-temurin",
-  dockerExposedPorts := Seq(1600)
 )
 
 lazy val core = project
@@ -27,7 +25,7 @@ lazy val core = project
     commonSettings,
     name := "core",
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.core.Main"),
-  ).enablePlugins(JavaAppPackaging, DockerPlugin)
+  ).enablePlugins(JavaAppPackaging)
 
 lazy val controlPanel = project
   .in(file("control-panel"))
@@ -36,7 +34,7 @@ lazy val controlPanel = project
     name := "control-panel",
     libraryDependencies += scalaSwing,
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.control_panel.Main"),
-  ).dependsOn(core).enablePlugins(JavaAppPackaging, DockerPlugin)
+  ).dependsOn(core).enablePlugins(JavaAppPackaging)
 
 lazy val riverMonitor = project
   .in(file("river-monitor"))

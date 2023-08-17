@@ -4,8 +4,11 @@ import akka.actor.typed.{ActorSystem, Behavior}
 import com.typesafe.config.{Config, ConfigFactory}
 
 object ActorSystemStarter:
-  def startup[X](root: => Behavior[X]): ActorSystem[X] =
-    val config: Config = ConfigFactory.load()
-    val clusterName = config.getString("clustering.cluster.name")
+  def startup[X](port: Int)(root: => Behavior[X]): ActorSystem[X] =
+    // Override the configuration of the port
+    val config: Config = ConfigFactory
+      .parseString(s"""akka.remote.artery.canonical.port=$port""")
+      .withFallback(ConfigFactory.load())
     // Create an Akka system
-    ActorSystem(root, clusterName)
+    ActorSystem(root, "ClusterSystem", config)
+
