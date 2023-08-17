@@ -29,11 +29,11 @@ case class AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCo
     with Serializable
 object Tick extends ControlPanelActorCommand with Serializable
 object ControlPanelActor:
-  def apply(): Behavior[ControlPanelActorCommand] =
+  def apply(citySize: (Double, Double)): Behavior[ControlPanelActorCommand] =
     Behaviors.setup[ControlPanelActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds
       val resourceActor             = ctx.spawnAnonymous(ResourceActor())
-      val view                      = View()
+      val view                      = View(citySize)
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick, 5.seconds)
         Behaviors.receiveMessage {

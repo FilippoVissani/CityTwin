@@ -33,14 +33,14 @@ trait View:
   def drawMainstays(mainstays: Set[String]): Unit
 
 object View:
-  def apply(): View = ViewImpl()
+  def apply(citySize: (Double, Double)): View = ViewImpl(citySize)
 
-  private class ViewImpl extends Frame with View:
+  private class ViewImpl(citySize: (Double, Double)) extends Frame with View:
     private val framePercentSize    = (80, 80)
     private val mapPanelPercentSize = (100, 100)
     private val frameDimension      = calcFrameDimension(framePercentSize)
     private val mapPanelDimension   = calcPanelDimension(mapPanelPercentSize, frameDimension)
-    private val mapPanel: MapPanel  = MapPanel(frameDimension, mapPanelDimension)
+    private val mapPanel: MapPanel  = MapPanel(frameDimension, mapPanelDimension, citySize)
     private val infoPanel           = InfoPanel()
     private val mainPane            = TabbedPane()
     mainPane.pages += Page("Map", mapPanel)
@@ -84,12 +84,11 @@ object View:
 
   end ViewImpl
 
-  sealed class MapPanel(frameDimension: Dimension, mapPanelDimension: Dimension) extends Panel:
+  sealed class MapPanel(frameDimension: Dimension, mapPanelDimension: Dimension, citySize: (Double, Double)) extends Panel:
     private val image =
       Toolkit.getDefaultToolkit.getImage("control-panel/src/main/resources/city-map.png")
     private var resources: Set[Resource] = Set()
     preferredSize = frameDimension
-    private val citySize = (16000, 9000)
 
     def drawResources(resources: Set[Resource]): Unit =
       this.resources = resources
