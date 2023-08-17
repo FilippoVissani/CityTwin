@@ -98,9 +98,7 @@ object ResourceActor:
         resourceActorBehaviour(ctx, mainstays)
       }
       case ResourceChanged(resource: Resource) => {
-        if mainstays.nonEmpty then
-          val selectedMainstay = Random.shuffle(mainstays).head
-          selectedMainstay ! UpdateResources(Set((ctx.self, resource)))
+        mainstays.foreach(m => m ! UpdateResources(Set((ctx.self, resource))))
         Behaviors.same
       }
       case AskResourcesToMainstay(
