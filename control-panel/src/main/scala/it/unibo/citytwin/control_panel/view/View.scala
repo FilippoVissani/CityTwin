@@ -89,6 +89,7 @@ object View:
       Toolkit.getDefaultToolkit.getImage("control-panel/src/main/resources/city-map.png")
     private var resources: Set[Resource] = Set()
     preferredSize = frameDimension
+    private val citySize = (16000, 9000)
 
     def drawResources(resources: Set[Resource]): Unit =
       this.resources = resources
@@ -99,11 +100,30 @@ object View:
       g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
       // RENDER RESOURCES STATE
       g2.drawImage(image, 0, 0, mapPanelDimension.width, mapPanelDimension.height, null)
-      g2.setColor(java.awt.Color.RED)
       resources
         .filter(r => r.position.isDefined)
-        .foreach(r => g2.fillOval(r.position.get.x, r.position.get.y, 10, 10))
+        .filter(r => r.name.isDefined)
+        .filter(r => r.nodeState.isDefined)
+        .foreach(r => {
+          val scaledPosition = (scaleX(r.position.get.x), scaleY(r.position.get.y))
+          g2.setColor(java.awt.Color.BLACK)
+          g2.drawString(r.name.get, scaledPosition._1 - 20, scaledPosition._2 - 10)
+          if r.nodeState.get then
+            g2.setColor(java.awt.Color.RED)
+          else
+            g2.setColor(java.awt.Color.GRAY)
+          g2.fillOval(scaledPosition._1, scaledPosition._2, 10, 10)
+        })
     end paint
+
+    private def scaleX(value: Double): Int =
+      val percent = value * 100 / citySize._1
+      Math.round(percent * size.width / 100).toInt
+
+    private def scaleY(value: Double): Int =
+      val percent = value * 100 / citySize._2
+      Math.round(percent * size.height / 100).toInt
+
   end MapPanel
 
   sealed class InfoPanel:
