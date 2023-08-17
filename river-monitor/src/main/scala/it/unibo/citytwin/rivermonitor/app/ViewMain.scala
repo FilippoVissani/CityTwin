@@ -10,4 +10,5 @@ import it.unibo.citytwin.rivermonitor.actors.view.ViewActor
   val width = 600
   val height = 200
   val vResourcesToCheck = Set[String](riverMonitorName)
-  startup(ViewActor(viewName, vResourcesToCheck, width, height))
+  val port: Int = if args.isEmpty then 2551 else args(0).toInt
+  startup(port)(ViewActor(viewName, vResourcesToCheck, width, height))

@@ -12,4 +12,5 @@ import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 
   val rmResourcesToCheck = Set[String](floodSensorName, viewName)
   val riverMonitor = RiverMonitor(riverMonitorName, Point2D[Int](0, 0))
-  startup(RiverMonitorActor(riverMonitor, rmResourcesToCheck))
+  val port: Int = if args.isEmpty then 2551 else args(0).toInt
+  startup(port)(RiverMonitorActor(riverMonitor, rmResourcesToCheck))
