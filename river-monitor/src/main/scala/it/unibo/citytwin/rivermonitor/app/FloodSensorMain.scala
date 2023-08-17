@@ -10,6 +10,6 @@ import it.unibo.citytwin.rivermonitor.model.FloodSensor
   val riverMonitorName = "riverMonitor1"
   val viewName         = "view1"
 
-  val floodSensor = FloodSensor(floodSensorName, Point2D[Int](0, 0))
+  val floodSensor = FloodSensor(floodSensorName, Point2D[Int](4800, 4500))
   val port: Int   = if args.isEmpty then 2551 else args(0).toInt
   startup(port)(FloodSensorActor(floodSensor))
