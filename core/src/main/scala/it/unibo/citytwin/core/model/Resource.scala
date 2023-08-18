@@ -1,6 +1,7 @@
 package it.unibo.citytwin.core.model
 
 import it.unibo.citytwin.core.model.ResourceType.ResourceType
+import play.api.libs.json.JsValue
 
 object ResourceType extends Enumeration:
   type ResourceType = Value
@@ -9,7 +10,7 @@ object ResourceType extends Enumeration:
 case class Resource(
     name: Option[String] = None,
     position: Option[Point2D[Int]] = None,
-    state: Option[Any] = None,
+    state: Option[JsValue] = None,
     resourceType: Set[ResourceType] = Set(),
     nodeState: Option[Boolean] = None
 ):
