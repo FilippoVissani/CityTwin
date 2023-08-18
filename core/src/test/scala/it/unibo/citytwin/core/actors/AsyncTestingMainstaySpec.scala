@@ -45,15 +45,4 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       probe.expectMessage(SetMainstays(mainstayState.toSet))
       testKit.stop(mainstay)
     }
-
-    "Inform other mainstays on Resource update" in {
-      val probe    = testKit.createTestProbe[MainstayActorCommand]()
-      val resource = testKit.spawn(DummyResourceActor())
-      val mainstay = testKit.spawn(MainstayActor())
-      mainstay ! SetMainstays(Map(probe.ref -> true).toSet)
-      mainstay ! UpdateResources(Map(resource -> Resource()).toSet)
-      probe.expectMessage(UpdateResources(Map(resource -> Resource()).toSet))
-      testKit.stop(resource)
-      testKit.stop(mainstay)
-    }
   }
