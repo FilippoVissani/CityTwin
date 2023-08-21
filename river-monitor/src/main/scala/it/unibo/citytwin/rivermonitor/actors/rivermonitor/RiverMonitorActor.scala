@@ -68,6 +68,7 @@ object RiverMonitorActor:
         ctx.log.debug("Received AdaptedResourcesStateResponse")
         val senseResources = resources
           .filter(resource => resource.resourceType.contains(Sense))
+          .filter(resource => resource.nodeState.get)
           .filter(resource => resource.state.nonEmpty)
         val actResources = resources
           .filter(resource => resource.resourceType.contains(Act))
