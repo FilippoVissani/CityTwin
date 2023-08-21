@@ -6,11 +6,14 @@ import it.unibo.citytwin.rivermonitor.actors.rivermonitor.RiverMonitorActor
 import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 
 @main def riverMonitorMain(args: String*): Unit =
-  val floodSensorName  = "floodSensor1"
-  val riverMonitorName = "riverMonitor1"
-  val viewName         = "view1"
-
-  val rmResourcesToCheck = Set[String](floodSensorName, viewName)
-  val riverMonitor       = RiverMonitor(riverMonitorName, Point2D[Int](100, 100))
-  val port: Int          = if args.isEmpty then 2551 else args(0).toInt
-  startup(port)(RiverMonitorActor(riverMonitor, rmResourcesToCheck))
+  if args.length < 5 then
+    println("Usage: riverMonitorMain <Port> <riverMonitorName> <x_position> <y_position> [<resources_to_check>...]")
+  else {
+    val port = args(0).toInt
+    val riverMonitorName = args(1)
+    val positionX = args(2).toInt
+    val positionY = args(3).toInt
+    val resourcesToCheck = args.drop(4).toSet
+    val riverMonitor = RiverMonitor(riverMonitorName, Point2D[Int](positionX, positionY))
+    startup(port)(RiverMonitorActor(riverMonitor, resourcesToCheck))
+  }
