@@ -1,0 +1,36 @@
+version: '3.1'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin # mongo admin username
+      MONGO_INITDB_ROOT_PASSWORD: admin # mongo admin password
+    ports:
+      - "27017:27017" # mongo default port
+
+  mongo-dashboard:
+    depends_on:
+      - mongo
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081" # mongo dashboard port
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin # same mongo username as above
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin # same mongo password as above
+      ME_CONFIG_MONGODB_URL: mongodb://admin:admin@mongo:27017/
+
+  mongo-service:
+    depends_on:
+      - mongo
+    build: persistence-service/
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      MONGO_USER: admin
+      MONGO_PASSWORD: admin
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017

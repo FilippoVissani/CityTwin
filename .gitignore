@@ -34,3 +34,5 @@ metals.sbt
 /node_modules
 
 *.log
+
+**/node_modules
