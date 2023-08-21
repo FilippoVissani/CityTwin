@@ -40,14 +40,15 @@ object RiverMonitorActor:
         ctx.spawnAnonymous(RiverMonitorStateActor(riverMonitor, resourceActor))
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick(resourcesToCheck), 1.seconds)
-        RiverMonitorActorLogic(ctx, riverMonitorStateActor, resourceActor)
+        RiverMonitorActorLogic(ctx, riverMonitorStateActor, resourceActor, riverMonitor)
       }
     }
 
   private def RiverMonitorActorLogic(
       ctx: ActorContext[RiverMonitorActorCommand],
       riverMonitorStateActor: ActorRef[RiverMonitorStateActorCommand],
-      resourceActor: ActorRef[ResourceActorCommand]
+      resourceActor: ActorRef[ResourceActorCommand],
+      riverMonitor: RiverMonitor
   ): Behavior[RiverMonitorActorCommand] =
     implicit val timeout: Timeout = 3.seconds
     Behaviors.receiveMessage {
@@ -74,7 +75,7 @@ object RiverMonitorActor:
 
         if senseResources.nonEmpty then
           if senseResources.count(resource =>
-              resource.state.get.toFloat > 15
+              resource.state.get.toFloat > riverMonitor.threshold
             ) > senseResources.size / 2
           then riverMonitorStateActor ! WarnRiverMonitor
 

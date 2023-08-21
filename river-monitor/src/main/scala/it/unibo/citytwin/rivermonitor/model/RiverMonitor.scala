@@ -9,5 +9,6 @@ object RiverMonitorState extends Enumeration:
 case class RiverMonitor(
     riverMonitorName: String,
     position: Point2D[Int],
-    state: RiverMonitorState = Safe
+    state: RiverMonitorState = Safe,
+    threshold: Float
 )
