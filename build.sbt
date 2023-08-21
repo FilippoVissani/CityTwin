@@ -15,8 +15,6 @@ lazy val commonDependencies = Seq(
   "org.scalatest" %% "scalatest" % "3.2.16" % Test
 )
 lazy val scalaSwing = "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
-lazy val mongoDBDriver = ("org.mongodb.scala" %% "mongo-scala-driver" % "4.10.2").cross(CrossVersion.for3Use2_13)
-lazy val playJSON = ("com.typesafe.play" %% "play-json" % "2.9.4").cross(CrossVersion.for3Use2_13)
 lazy val commonSettings = Seq(
   libraryDependencies := commonDependencies,
 )
@@ -26,7 +24,6 @@ lazy val core = project
   .settings(
     commonSettings,
     name := "core",
-    libraryDependencies ++= Seq(mongoDBDriver, playJSON),
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.core.Main"),
   ).enablePlugins(JavaAppPackaging)
 
