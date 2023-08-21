@@ -32,7 +32,7 @@ object FloodSensorActor:
             val resource = Resource(
               Some(floodSensor.name),
               Some(floodSensor.position),
-              Some(waterLevel),
+              Some(waterLevel.toString),
               Set(ResourceType.Sense)
             )
             resourceActor ! ResourceChanged(resource)

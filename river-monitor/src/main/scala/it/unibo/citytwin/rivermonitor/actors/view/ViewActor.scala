@@ -85,7 +85,7 @@ object ViewActor:
           resources
             .filter(resource => resource.state.nonEmpty)
             .foreach(resource => {
-              view.updateRiverMonitorState(resource.state.get.asInstanceOf[String])
+              view.updateRiverMonitorState(resource.state.get)
             })
         Behaviors.same
       }

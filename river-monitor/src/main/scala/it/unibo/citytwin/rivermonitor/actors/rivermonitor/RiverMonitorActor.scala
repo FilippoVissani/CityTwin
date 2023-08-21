@@ -74,13 +74,13 @@ object RiverMonitorActor:
 
         if senseResources.nonEmpty then
           if senseResources.count(resource =>
-              resource.state.get.asInstanceOf[Float] > 15
+              resource.state.get.toFloat > 15
             ) > senseResources.size / 2
           then riverMonitorStateActor ! WarnRiverMonitor
 
         if actResources.nonEmpty then
           actResources.foreach(resource => {
-            resource.state.get.asInstanceOf[String] match
+            resource.state.get match
               case "Evacuating" => riverMonitorStateActor ! EvacuatingRiverMonitor
               case "Safe"       => riverMonitorStateActor ! EvacuatedRiverMonitor
           })
