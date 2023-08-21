@@ -40,19 +40,19 @@ object RiverMonitorStateActor:
         case WarnRiverMonitor => {
           ctx.log.debug("Received WarnRiverMonitor")
           if riverMonitor.state == Safe then {
-            RiverMonitorStateActor(riverMonitor.state_(Warned), resourceActor)
+            RiverMonitorStateActor(riverMonitor.copy(state = Warned), resourceActor)
           } else Behaviors.same
         }
         case EvacuatedRiverMonitor => {
           ctx.log.debug("Received EvacuatedRiverMonitor")
           if riverMonitor.state == Evacuating then {
-            RiverMonitorStateActor(riverMonitor.state_(Safe), resourceActor)
+            RiverMonitorStateActor(riverMonitor.copy(state = Safe), resourceActor)
           } else Behaviors.same
         }
         case EvacuatingRiverMonitor => {
           ctx.log.debug("Received EvacuatingRiverMonitor")
           if riverMonitor.state == Warned then {
-            RiverMonitorStateActor(riverMonitor.state_(Evacuating), resourceActor)
+            RiverMonitorStateActor(riverMonitor.copy(state = Evacuating), resourceActor)
           } else Behaviors.same
         }
         case _ => {

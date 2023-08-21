@@ -10,7 +10,4 @@ case class RiverMonitor(
     riverMonitorName: String,
     position: Point2D[Int],
     state: RiverMonitorState = Safe
-):
-
-  def state_(newState: RiverMonitorState): RiverMonitor =
-    RiverMonitor(riverMonitorName, position, newState)
+)
