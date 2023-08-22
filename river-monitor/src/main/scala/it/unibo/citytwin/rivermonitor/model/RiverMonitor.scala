@@ -12,3 +12,9 @@ case class RiverMonitor(
     state: RiverMonitorState = Safe,
     threshold: Float
 )
+
+case class RiverMonitorResourceState(
+    riverMonitorState: String,
+    threshold: Float,
+    sensorsForView: Option[Map[String, Map[String, String]]]
+)

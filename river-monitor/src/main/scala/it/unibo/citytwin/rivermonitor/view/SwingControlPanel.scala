@@ -1,16 +1,15 @@
 package it.unibo.citytwin.rivermonitor.view
 
 import com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener
-import it.unibo.citytwin.rivermonitor.actors.rivermonitor.RiverMonitorResourceState
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.{
   Evacuating,
   RiverMonitorState,
   Safe,
   Warned
 }
-import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor}
-import upickle.default.{ReadWriter => RW, macroRW}
-import upickle.default._
+import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor, RiverMonitorResourceState}
+import upickle.default.{macroRW, ReadWriter as RW}
+import upickle.default.*
 import java.awt.event.{WindowAdapter, WindowEvent}
 import java.awt.{Dimension, Graphics2D, RenderingHints}
 import javax.swing.{BorderFactory, SwingUtilities}
@@ -113,7 +112,7 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
     g2.fillRect(0, 0, width, height)
     g2.setColor(java.awt.Color.BLACK)
     var yStringPosition: Int = 15
-    g2.drawString(s"View name: ${viewName}", 5, yStringPosition)
+    g2.drawString(s"View name: $viewName", 5, yStringPosition)
     yStringPosition += 15
     g2.drawString(
       s"River monitor state: ${riverMonitorResourceState.riverMonitorState}",

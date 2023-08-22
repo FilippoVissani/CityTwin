@@ -4,13 +4,13 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import it.unibo.citytwin.core.actors.{ResourceActorCommand, ResourceChanged}
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
-import it.unibo.citytwin.rivermonitor.model.RiverMonitor
+import it.unibo.citytwin.rivermonitor.model.{RiverMonitor, RiverMonitorResourceState}
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
 import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
-import upickle.default._
-import upickle.default.{ReadWriter => RW, macroRW}
-import upickle._
+import upickle.default.*
+import upickle.default.{macroRW, ReadWriter as RW}
+import upickle.*
 
 trait RiverMonitorStateActorCommand
 
@@ -29,12 +29,6 @@ object EvacuatingRiverMonitor extends Serializable with RiverMonitorStateActorCo
 case class SensorsForView(sensorsForView: Map[String, Map[String, String]])
     extends Serializable
     with RiverMonitorStateActorCommand
-
-case class RiverMonitorResourceState(
-    riverMonitorState: String,
-    threshold: Float,
-    sensorsForView: Option[Map[String, Map[String, String]]]
-)
 
 object RiverMonitorStateActor:
   def apply(
