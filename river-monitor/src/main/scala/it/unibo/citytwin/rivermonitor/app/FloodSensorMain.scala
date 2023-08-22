@@ -6,7 +6,7 @@ import it.unibo.citytwin.rivermonitor.actors.floodsensor.FloodSensorActor
 import it.unibo.citytwin.rivermonitor.model.FloodSensor
 
 @main def floodSensorMain(args: String*): Unit =
-  if args.length < 4 then
+  if args.length != 4 then
     println("Usage: floodSensorMain <Port> <floodSensorName> <x_position> <y_position>")
   else
     val port            = args(0).toInt
