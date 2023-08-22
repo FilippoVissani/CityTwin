@@ -22,7 +22,7 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: admin # same mongo password as above
       ME_CONFIG_MONGODB_URL: mongodb://admin:admin@mongo:27017/
 
-  mongo-service:
+  persistence-service:
     depends_on:
       - mongo
     build: persistence-service/
