@@ -42,5 +42,6 @@ lazy val riverMonitor = project
   .settings(
     commonSettings,
     name := "river-monitor",
+    scriptClasspath := Seq("*"),
     libraryDependencies ++= Seq(upickleJson,scalaSwing),
   ).dependsOn(core).enablePlugins(JavaAppPackaging)
