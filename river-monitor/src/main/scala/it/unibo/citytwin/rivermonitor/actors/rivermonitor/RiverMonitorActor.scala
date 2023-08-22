@@ -77,9 +77,14 @@ object RiverMonitorActor:
 
         val sensorsForView: Map[String, Map[String, String]] = resources
           .filter(resource => resource.resourceType.contains(Sense))
-          .map(resource => resource.name.getOrElse("") -> Map(
-            "Status" -> resource.nodeState.map(state => if (state) "online" else "offline").getOrElse(""),
-            "WaterLevel" -> resource.state.getOrElse("")))
+          .map(resource =>
+            resource.name.getOrElse("") -> Map(
+              "Status" -> resource.nodeState
+                .map(state => if (state) "online" else "offline")
+                .getOrElse(""),
+              "WaterLevel" -> resource.state.getOrElse("")
+            )
+          )
           .toMap
         riverMonitorStateActor ! SensorsForView(sensorsForView)
 

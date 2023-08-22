@@ -26,9 +26,15 @@ object EvacuatedRiverMonitor extends Serializable with RiverMonitorStateActorCom
   */
 object EvacuatingRiverMonitor extends Serializable with RiverMonitorStateActorCommand
 
-case class SensorsForView(sensorsForView: Map[String, Map[String, String]]) extends Serializable with RiverMonitorStateActorCommand
+case class SensorsForView(sensorsForView: Map[String, Map[String, String]])
+    extends Serializable
+    with RiverMonitorStateActorCommand
 
-case class RiverMonitorResourceState(riverMonitorState: String, threshold: Float, sensorsForView: Option[Map[String, Map[String, String]]])
+case class RiverMonitorResourceState(
+    riverMonitorState: String,
+    threshold: Float,
+    sensorsForView: Option[Map[String, Map[String, String]]]
+)
 
 object RiverMonitorStateActor:
   def apply(
@@ -38,9 +44,13 @@ object RiverMonitorStateActor:
   ): Behavior[RiverMonitorStateActorCommand] =
     Behaviors.setup[RiverMonitorStateActorCommand] { ctx =>
 
-      val riverMonitorResourceState = RiverMonitorResourceState(riverMonitor.state.toString, riverMonitor.threshold, sensorsForView)
+      val riverMonitorResourceState = RiverMonitorResourceState(
+        riverMonitor.state.toString,
+        riverMonitor.threshold,
+        sensorsForView
+      )
       implicit val rw: RW[RiverMonitorResourceState] = macroRW
-      val resourceStateAsString: String = write(riverMonitorResourceState)
+      val resourceStateAsString: String              = write(riverMonitorResourceState)
 
       val resource = Resource(
         Some(riverMonitor.riverMonitorName),
@@ -65,7 +75,11 @@ object RiverMonitorStateActor:
         case EvacuatingRiverMonitor => {
           ctx.log.debug("Received EvacuatingRiverMonitor")
           if riverMonitor.state == Warned then {
-            RiverMonitorStateActor(riverMonitor.copy(state = Evacuating), resourceActor, sensorsForView)
+            RiverMonitorStateActor(
+              riverMonitor.copy(state = Evacuating),
+              resourceActor,
+              sensorsForView
+            )
           } else Behaviors.same
         }
         case SensorsForView(sensorsForView) => {

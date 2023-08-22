@@ -2,7 +2,12 @@ package it.unibo.citytwin.rivermonitor.view
 
 import com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener
 import it.unibo.citytwin.rivermonitor.actors.rivermonitor.RiverMonitorResourceState
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.{Evacuating, RiverMonitorState, Safe, Warned}
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.{
+  Evacuating,
+  RiverMonitorState,
+  Safe,
+  Warned
+}
 import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor}
 import upickle.default.{ReadWriter => RW, macroRW}
 import upickle.default._
@@ -43,7 +48,8 @@ object SwingControlPanel:
     override def updateRiverMonitorState(riverMonitorState: String): Unit =
       SwingUtilities.invokeLater(() => {
         implicit val rw: RW[RiverMonitorResourceState] = macroRW
-        val riverMonitorResourceState: RiverMonitorResourceState = read[RiverMonitorResourceState](riverMonitorState)
+        val riverMonitorResourceState: RiverMonitorResourceState =
+          read[RiverMonitorResourceState](riverMonitorState)
         riverPanel.updateRiverMonitorState(riverMonitorResourceState)
 
         riverMonitorResourceState.riverMonitorState match
@@ -109,19 +115,29 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
     var yStringPosition: Int = 15
     g2.drawString(s"View name: ${viewName}", 5, yStringPosition)
     yStringPosition += 15
-    g2.drawString(s"River monitor state: ${riverMonitorResourceState.riverMonitorState}", 5, yStringPosition)
+    g2.drawString(
+      s"River monitor state: ${riverMonitorResourceState.riverMonitorState}",
+      5,
+      yStringPosition
+    )
     yStringPosition += 15
-    g2.drawString(s"Water level threshold: ${riverMonitorResourceState.threshold}", 5, yStringPosition)
+    g2.drawString(
+      s"Water level threshold: ${riverMonitorResourceState.threshold}",
+      5,
+      yStringPosition
+    )
     yStringPosition += 15
     g2.drawRect(0, 0, width, height)
     g2.setColor(java.awt.Color.BLACK)
-    riverMonitorResourceState.sensorsForView.getOrElse(Map())
+    riverMonitorResourceState.sensorsForView
+      .getOrElse(Map())
       .foreach((sensorName, sensorData) =>
-        //var sensorString: String = sensorName
-        val sensorString: String = s"$sensorName - ${sensorData.map((key, value) => s"$key: $value").mkString(", ")}"
+        // var sensorString: String = sensorName
+        val sensorString: String =
+          s"$sensorName - ${sensorData.map((key, value) => s"$key: $value").mkString(", ")}"
         g2.drawString(sensorString, 5, yStringPosition)
         yStringPosition += 15
-    )
+      )
   end paint
 
   def updateRiverMonitorState(riverMonitorResourceState: RiverMonitorResourceState): Unit =

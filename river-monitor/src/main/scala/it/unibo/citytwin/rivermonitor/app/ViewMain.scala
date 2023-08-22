@@ -7,11 +7,10 @@ import it.unibo.citytwin.rivermonitor.actors.view.ViewActor
   if args.length != 5 then
     println("Usage: viewMain <Port> <viewName> <width> <height> <riverMonitor_to_check>")
   else {
-    val port = args(0).toInt
-    val viewName = args(1)
-    val width = args(2).toInt
-    val height = args(3).toInt
+    val port                = args(0).toInt
+    val viewName            = args(1)
+    val width               = args(2).toInt
+    val height              = args(3).toInt
     val riverMonitorToCheck = args.drop(4).toSet
     startup(port)(ViewActor(viewName, riverMonitorToCheck, width, height))
   }
-
