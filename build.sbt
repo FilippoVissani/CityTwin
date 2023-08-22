@@ -15,6 +15,7 @@ lazy val commonDependencies = Seq(
   "org.scalatest" %% "scalatest" % "3.2.16" % Test
 )
 lazy val scalaSwing = "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
+lazy val upickleJson = "com.lihaoyi" %% "upickle" % "3.1.2"
 lazy val commonSettings = Seq(
   libraryDependencies := commonDependencies,
 )
@@ -41,5 +42,5 @@ lazy val riverMonitor = project
   .settings(
     commonSettings,
     name := "river-monitor",
-    libraryDependencies += scalaSwing,
+    libraryDependencies ++= Seq(upickleJson,scalaSwing),
   ).dependsOn(core).enablePlugins(JavaAppPackaging)
