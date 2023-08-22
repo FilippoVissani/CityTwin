@@ -5,17 +5,20 @@ ThisBuild / organization := "it.unibo"
 fork := true
 
 lazy val akkaVersion = "2.8.3"
+lazy val akkaHttpVersion = "10.5.2"
 lazy val akkaGroup = "com.typesafe.akka"
 lazy val commonDependencies = Seq(
   akkaGroup %% "akka-actor-typed" % akkaVersion,
   akkaGroup %% "akka-cluster-typed" % akkaVersion,
-  "com.typesafe.akka" %% "akka-serialization-jackson" % akkaVersion,
+  akkaGroup %% "akka-serialization-jackson" % akkaVersion,
   "ch.qos.logback" % "logback-classic" % "1.4.8",
   akkaGroup %% "akka-actor-testkit-typed" % akkaVersion % Test,
   "org.scalatest" %% "scalatest" % "3.2.16" % Test
 )
 lazy val scalaSwing = "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 lazy val upickleJson = "com.lihaoyi" %% "upickle" % "3.1.2"
+lazy val akkaHttp = akkaGroup %% "akka-http" % akkaHttpVersion
+lazy val playJson = ("com.typesafe.play" %% "play-json" % "2.9.4").cross(CrossVersion.for3Use2_13)
 lazy val commonSettings = Seq(
   libraryDependencies := commonDependencies,
 )
@@ -25,6 +28,7 @@ lazy val core = project
   .settings(
     commonSettings,
     name := "core",
+    libraryDependencies ++= Seq(akkaHttp, playJson),
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.core.Main"),
   ).enablePlugins(JavaAppPackaging)
 
@@ -33,7 +37,7 @@ lazy val controlPanel = project
   .settings(
     commonSettings,
     name := "control-panel",
-    libraryDependencies += scalaSwing,
+    libraryDependencies ++= Seq(scalaSwing, akkaHttp),
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.control_panel.Main"),
   ).dependsOn(core).enablePlugins(JavaAppPackaging)
 

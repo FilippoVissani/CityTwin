@@ -33,18 +33,20 @@ object MainstayActor:
     ServiceKey[MainstayActorCommand]("mainstayService")
 
   def apply(
-      mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
-      resources: Map[ActorRef[ResourceActorCommand], Resource] = Map()
+      persistenceServiceHost: String,
+      persistenceServicePort: String,
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       ctx.log.debug("Mainstay started")
       ctx.system.receptionist ! Receptionist.Register(mainstayService, ctx.self)
       ctx.spawnAnonymous(NodesObserverGuardianActor(ctx.self))
-      mainstayActorBehavior(ctx, mainstays, resources)
+      val persistenceServiceDriverActor = ctx.spawnAnonymous(PersistenceServiceDriverActor(persistenceServiceHost, persistenceServicePort))
+      mainstayActorBehavior(ctx, persistenceServiceDriverActor)
     }
 
   private def mainstayActorBehavior(
       ctx: ActorContext[MainstayActorCommand],
+      persistenceServiceDriverActor: ActorRef[PersistenceServiceDriverActorCommand],
       mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
       resources: Map[ActorRef[ResourceActorCommand], Resource] = Map()
   ): Behavior[MainstayActorCommand] =
@@ -75,11 +77,13 @@ object MainstayActor:
         val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) =>
           if updateMap.contains(k) then (k, v.merge(updateMap(k))) else (k, v)
         ) ++ (updateMap -- resources.keys)
-        mainstayActorBehavior(ctx, mainstays, result)
+        result.foreach(r => persistenceServiceDriverActor ! PostResource(r._1.path.toString, r._2))
+        mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, result)
       }
       case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) => {
         ctx.log.debug("SetMainstays")
-        mainstayActorBehavior(ctx, nodes.toMap, resources)
+        nodes.foreach(n => persistenceServiceDriverActor ! PostMainstay(n._1.path.toString, n._2))
+        mainstayActorBehavior(ctx, persistenceServiceDriverActor, nodes.toMap, resources)
       }
       case _ => {
         ctx.log.error("ERROR. Mainstay Actor stopped")
