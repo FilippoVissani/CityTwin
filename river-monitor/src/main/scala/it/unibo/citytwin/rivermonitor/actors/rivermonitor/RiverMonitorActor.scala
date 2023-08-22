@@ -72,6 +72,7 @@ object RiverMonitorActor:
           .filter(resource => resource.state.nonEmpty)
         val actResources = resources
           .filter(resource => resource.resourceType.contains(Act))
+          .filter(resource => resource.nodeState.get)
           .filter(resource => resource.state.nonEmpty)
 
         if senseResources.nonEmpty then
