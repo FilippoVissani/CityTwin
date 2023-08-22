@@ -26,6 +26,11 @@ object EvacuatedRiverMonitor extends Serializable with RiverMonitorStateActorCom
   */
 object EvacuatingRiverMonitor extends Serializable with RiverMonitorStateActorCommand
 
+/** Message received by the RiverMonitorActor when he receives sensors from the Mainstay
+  *
+  * @param sensorsForView
+  *   a map containing sensors for the view
+  */
 case class SensorsForView(sensorsForView: Map[String, Map[String, String]])
     extends Serializable
     with RiverMonitorStateActorCommand

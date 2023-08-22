@@ -24,6 +24,11 @@ trait RiverMonitorActorCommand
   */
 case class Tick(resourcesToCheck: Set[String]) extends Serializable with RiverMonitorActorCommand
 
+/** Message received as a response when asking resources status
+  *
+  * @param resources
+  *   a set containing requested resources
+  */
 case class AdaptedResourcesStateResponse(resources: Set[Resource])
     extends Serializable
     with RiverMonitorActorCommand

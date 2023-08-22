@@ -6,6 +6,16 @@ object RiverMonitorState extends Enumeration:
   type RiverMonitorState = Value
   val Safe, Evacuating, Warned = Value
 
+/** A river monitor
+  * @param riverMonitorName
+  *   the name of the river monitor
+  * @param position
+  *   the position of the river monitor
+  * @param state
+  *   the state of the river monitor
+  * @param threshold
+  *   the threshold of the river monitor
+  */
 case class RiverMonitor(
     riverMonitorName: String,
     position: Point2D[Int],
@@ -13,6 +23,15 @@ case class RiverMonitor(
     threshold: Float
 )
 
+/** class used to represent the state of the river monitor as a resource
+  *
+  * @param riverMonitorState
+  *   the state of the river monitor
+  * @param threshold
+  *   the threshold of the river monitor
+  * @param sensorsForView
+  *   the sensors for the view
+  */
 case class RiverMonitorResourceState(
     riverMonitorState: String,
     threshold: Float,

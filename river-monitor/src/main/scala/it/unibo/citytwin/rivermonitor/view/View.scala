@@ -11,8 +11,19 @@ trait View:
   def height: Int
   def viewName: String
   def viewActor: ActorRef[ViewActorCommand]
+
+  /** Update the state of the river monitor, called by the view actor
+    *
+    * @param riverMonitorState
+    */
   def updateRiverMonitorState(riverMonitorState: String): Unit
+
+  /** Called when the "Evacuate" button is pressed
+    */
   def evacuateZonePressed(): Unit
+
+  /** Called when the "Evacuated" button is pressed
+    */
   def evacuatedZonePressed(): Unit
 
 object View:
@@ -34,7 +45,6 @@ object View:
   ) extends View:
     val frame: SwingControlPanel = SwingControlPanel(this)
 
-    // chiamato dal viewActor
     override def updateRiverMonitorState(riverMonitorState: String): Unit =
       frame.updateRiverMonitorState(riverMonitorState)
 
