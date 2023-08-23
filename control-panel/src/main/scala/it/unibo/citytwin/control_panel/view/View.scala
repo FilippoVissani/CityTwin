@@ -5,27 +5,19 @@ import com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener
 import it.unibo.citytwin.control_panel.view.View.{InfoPanel, MapPanel}
 import it.unibo.citytwin.core.actors.MainstayActorCommand
 import it.unibo.citytwin.core.model.Resource
-import java.awt.{Component, Dimension, RenderingHints, Toolkit}
+import org.jfree.chart.block.BlockBorder
+import org.jfree.chart.plot.PlotOrientation
+import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
+import org.jfree.data.xy.{XYDataset, XYSeries, XYSeriesCollection}
+
+import java.awt.{Color, Component, Dimension, RenderingHints, Toolkit}
 import java.awt.event.{WindowAdapter, WindowEvent}
 import java.io.File
 import javax.imageio.ImageIO
-import javax.swing.{JPanel, JTabbedPane, SwingUtilities}
+import javax.swing.{BorderFactory, JPanel, JTabbedPane, SwingUtilities}
 import scala.io.{BufferedSource, Source}
 import scala.swing.TabbedPane.Page
-import scala.swing.{
-  BorderPanel,
-  BoxPanel,
-  BufferWrapper,
-  Button,
-  FlowPanel,
-  Frame,
-  Graphics2D,
-  Orientation,
-  Panel,
-  ScrollPane,
-  TabbedPane,
-  TextArea
-}
+import scala.swing.{BorderPanel, BoxPanel, BufferWrapper, Button, FlowPanel, Frame, Graphics2D, Orientation, Panel, ScrollPane, TabbedPane, TextArea}
 
 trait View:
   def drawResources(resources: Set[Resource]): Unit
@@ -42,9 +34,11 @@ object View:
     private val mapPanelDimension   = calcPanelDimension(mapPanelPercentSize, frameDimension)
     private val mapPanel: MapPanel  = MapPanel(frameDimension, mapPanelDimension, citySize)
     private val infoPanel           = InfoPanel()
+    private val statsPanel          = StatsPanel()
     private val mainPane            = TabbedPane()
     mainPane.pages += Page("Map", mapPanel)
     mainPane.pages += Page("Info", infoPanel.mainPanel)
+    mainPane.pages += Page("Stats", statsPanel.mainPanel)
     title = "CityTwin Control Panel"
     size = calcFrameDimension(framePercentSize)
     resizable = false
@@ -166,3 +160,30 @@ object View:
       result = result + s"Resource type: "
       resource.resourceType.foreach(t => result = result + t + " ")
       result
+  end InfoPanel
+
+  private sealed class StatsPanel:
+    private val series: XYSeries = XYSeries("(Time, Online nodes)")
+    private val seriesData = XYSeriesCollection()
+    seriesData.addSeries(series)
+    private val chart: JFreeChart = ChartFactory.createXYLineChart(
+      "Online nodes in time",
+      "Time (timestamp)",
+      "Online nodes",
+      seriesData,
+      PlotOrientation.VERTICAL,
+      true, true, false)
+    val mainPanel: MyChartPanel = MyChartPanel(chart)
+
+    def addSeries(time: Long, onlineNodes: Float): Unit =
+      series.add(time, onlineNodes)
+
+    def resetSeries(): Unit =
+      series.clear()
+  end StatsPanel
+
+  private sealed class MyChartPanel(chart: JFreeChart) extends Panel:
+    override lazy val peer: ChartPanel = {
+      val p = new ChartPanel(chart) with SuperMixin
+      p
+    }

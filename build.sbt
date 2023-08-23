@@ -16,6 +16,7 @@ lazy val commonDependencies = Seq(
   "org.scalatest" %% "scalatest" % "3.2.16" % Test
 )
 lazy val scalaSwing = "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
+lazy val jFreeChart = "org.jfree" % "jfreechart" % "1.5.4"
 lazy val upickleJson = "com.lihaoyi" %% "upickle" % "3.1.2"
 lazy val akkaHttp = akkaGroup %% "akka-http" % akkaHttpVersion
 lazy val playJson = ("com.typesafe.play" %% "play-json" % "2.9.4").cross(CrossVersion.for3Use2_13)
@@ -38,7 +39,7 @@ lazy val controlPanel = project
   .settings(
     commonSettings,
     name := "control-panel",
-    libraryDependencies ++= Seq(scalaSwing, akkaHttp),
+    libraryDependencies ++= Seq(scalaSwing, jFreeChart, akkaHttp),
     Compile / packageBin / mainClass := Some("it.unibo.citytwin.control_panel.Main"),
   ).dependsOn(core).enablePlugins(JavaAppPackaging)
 
