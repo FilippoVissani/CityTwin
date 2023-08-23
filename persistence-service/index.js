@@ -9,21 +9,24 @@ const mongoHost = 'MONGO_HOST' in env ? env.MONGO_HOST : "localhost"
 const mongoPort = 'MONGO_PORT' in env ? env.MONGO_PORT : 27017
 const mongoUser = 'MONGO_USER' in env ? env.MONGO_USER : "admin"
 const mongoPassword = 'MONGO_PASSWORD' in env ? env.MONGO_PASSWORD : "admin"
-const mongoConnection = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
-const mongoClient = new MongoClient(mongoConnection);
+const mongoConnectionString = `mongodb://${mongoUser}:${mongoPassword}@${mongoHost}:${mongoPort}`;
+const mongoClient = new MongoClient(mongoConnectionString);
 const server = express()
-const database = "city_twin"
 const mainstaysCollection = "mainstays"
 const resourcesCollection = "resources"
-
 server.use(bodyParser.json())
 server.use(bodyParser.urlencoded({ extended: false }))
+let mongoConnection;
+try {
+    mongoConnection = await mongoClient.connect();
+} catch(e) {
+    console.error(e);
+}
+const database = mongoConnection.db("city_twin")
 
 server.get('/mainstay', async (req, res) => {
     try {
-        await mongoClient.connect()
-        let db = mongoClient.db(database);
-        let collection = await db.collection(mainstaysCollection);
+        let collection = await database.collection(mainstaysCollection);
         let query = {address: req.query.address};
         let result = await collection.find(query).toArray();
         if (!result) res.send("Not found").status(404);
@@ -31,16 +34,12 @@ server.get('/mainstay', async (req, res) => {
     } catch (e) {
         res.send(e.toString());
         console.log(e.toString());
-    } finally {
-        await mongoClient.close();
     }
 });
 
 server.post("/mainstay", async (req, res) => {
     try {
-        await mongoClient.connect();
-        let db = mongoClient.db(database);
-        let collection = await db.collection(mainstaysCollection);
+        let collection = await database.collection(mainstaysCollection);
         let document = req.body;
         document.date = new Date();
         let result = await collection.insertOne(document);
@@ -48,16 +47,12 @@ server.post("/mainstay", async (req, res) => {
     } catch (e) {
         res.send(e.toString());
         console.log(e.toString());
-    } finally {
-        await mongoClient.close();
     }
 });
 
 server.get('/resource', async (req, res) => {
     try {
-        await mongoClient.connect()
-        let db = mongoClient.db(database);
-        let collection = await db.collection(resourcesCollection);
+        let collection = await database.collection(resourcesCollection);
         let query = {name: req.query.name};
         let result = await collection.find(query).toArray();
         if (!result) res.send("Not found").status(404);
@@ -65,16 +60,12 @@ server.get('/resource', async (req, res) => {
     } catch (e) {
         res.send(e.toString());
         console.log(e.toString());
-    } finally {
-        await mongoClient.close();
     }
 });
 
 server.post("/resource", async (req, res) => {
     try {
-        await mongoClient.connect();
-        let db = mongoClient.db(database);
-        let collection = await db.collection(resourcesCollection);
+        let collection = await database.collection(resourcesCollection);
         let document = req.body;
         document.date = new Date();
         let result = await collection.insertOne(document);
@@ -82,8 +73,6 @@ server.post("/resource", async (req, res) => {
     } catch (e) {
         res.send(e.toString());
         console.log(e.toString());
-    } finally {
-        await mongoClient.close();
     }
 });
 
