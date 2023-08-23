@@ -2,7 +2,7 @@ package it.unibo.citytwin.airqualitymonitor
 
 import akka.actor
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.util.Timeout
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.{Resource, ResourceType}
@@ -10,8 +10,12 @@ import it.unibo.citytwin.core.Serializable
 import upickle.default.*
 import upickle.default.{macroRW, ReadWriter as RW}
 import upickle.*
-import java.util.concurrent.ThreadLocalRandom
+import akka.util.ByteString
 import scala.concurrent.duration.DurationInt
+import akka.http.scaladsl.model.{HttpMethod, HttpRequest, HttpResponse}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
+import akka.http.scaladsl.Http
 
 /** Commands supported by the AirSensorActor */
 trait AirSensorActorCommand
@@ -22,7 +26,7 @@ trait AirSensorActorCommand
 object Tick extends Serializable with AirSensorActorCommand
 
 object AirSensorActor:
-  def apply(airSensor: AirSensor): Behavior[AirSensorActorCommand] =
+  def apply(airSensor: AirSensor, sensorUri: String): Behavior[AirSensorActorCommand] =
     Behaviors.setup[AirSensorActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds
       val resourceActor             = ctx.spawnAnonymous(ResourceActor())
@@ -31,20 +35,27 @@ object AirSensorActor:
         implicit val rw: RW[AirSensorResourceState] = macroRW
         Behaviors.receiveMessage {
           case Tick => {
-            ctx.log.debug(s"Received Tick")
-            // Calculate pm10, pm25 and nox. pm25 is a fraction of pm10
-            val pm10 = ThreadLocalRandom.current().nextFloat(100)
-            val pm25 = ThreadLocalRandom.current().nextFloat(pm10)
-            val nox  = ThreadLocalRandom.current().nextFloat(150)
-            // Create resource to send to mainstay
-            val resourceStateAsString: String = write(AirSensorResourceState(pm10, pm25, nox))
-            val resource = Resource(
-              Some(airSensor.name),
-              Some(airSensor.position),
-              Some(resourceStateAsString),
-              Set(ResourceType.Sense)
-            )
-            resourceActor ! ResourceChanged(resource)
+            ctx.log.info(s"Received Tick")
+            implicit val executionContext: ExecutionContext = ctx.executionContext
+            implicit val system: ActorSystem[Nothing]       = ctx.system
+            val request                                     = HttpRequest(uri = sensorUri)
+            val responseFuture: Future[HttpResponse]        = Http().singleRequest(request)
+            responseFuture
+              .onComplete {
+                case Success(response) => {
+                  response.entity.dataBytes.runFold(ByteString(""))(_ ++ _).foreach { body =>
+                    val resourceStateAsString: String = body.utf8String
+                    val resource = Resource(
+                      Some(airSensor.name),
+                      Some(airSensor.position),
+                      Some(resourceStateAsString),
+                      Set(ResourceType.Sense)
+                    )
+                    resourceActor ! ResourceChanged(resource)
+                  }
+                }
+                case Failure(ex) =>
+              }
             Behaviors.same
           }
           case _ => {
