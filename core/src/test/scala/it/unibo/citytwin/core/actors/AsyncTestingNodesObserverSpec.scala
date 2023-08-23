@@ -33,7 +33,7 @@ class AsyncTestingNodesObserverSpec extends AnyWordSpec with BeforeAndAfterAll w
     "Send mainstay updates to mainstay correctly" in {
       val probe    = testKit.createTestProbe[MainstayActorCommand]()
       val observer = testKit.spawn(NodesObserverActor(probe.ref))
-      val mainstay = testKit.spawn(MainstayActor())
+      val mainstay = testKit.spawn(MainstayActor("", ""))
       observer ! UpdateMainstayNodesState(Set(mainstay))
       probe.expectMessage(SetMainstays(Map(mainstay -> true).toSet))
       observer ! UpdateMainstayNodesState(Set())

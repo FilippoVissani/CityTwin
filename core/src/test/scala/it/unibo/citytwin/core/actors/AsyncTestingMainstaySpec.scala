@@ -28,7 +28,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
         name = Option("sensor1")
       )
       val dummyResourceActor = testKit.spawn(DummyResourceActor())
-      val mainstay           = testKit.spawn(MainstayActor())
+      val mainstay           = testKit.spawn(MainstayActor("", ""))
       val probe              = testKit.createTestProbe[ResourceStatesResponse]()
       mainstay ! UpdateResources(Map(dummyResourceActor -> resource).toSet)
       mainstay ! AskResourcesState(probe.ref, Set("sensor1"))
@@ -38,7 +38,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
     }
 
     "Register a new mainstay" in {
-      val mainstay      = testKit.spawn(MainstayActor())
+      val mainstay      = testKit.spawn(MainstayActor("", ""))
       val mainstayState = Map(mainstay -> true)
       val probe         = testKit.createTestProbe[MainstayActorCommand]()
       probe ! SetMainstays(mainstayState.toSet)

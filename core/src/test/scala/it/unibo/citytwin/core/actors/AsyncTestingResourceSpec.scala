@@ -35,7 +35,7 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
     }
 
     "Send response when resource state is asked" in {
-      val mainstayActor = testKit.spawn(MainstayActor())
+      val mainstayActor = testKit.spawn(MainstayActor("", ""))
       val resourceActor = testKit.spawn(ResourceActor())
       val probe         = testKit.createTestProbe[ResourcesFromMainstayResponse]()
       val resource      = Resource(name = Some("sensor1"), nodeState = Some(true))
