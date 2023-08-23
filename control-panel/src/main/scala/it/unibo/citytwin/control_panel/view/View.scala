@@ -142,10 +142,27 @@ object View:
 
     def drawResources(resources: Set[Resource]): Unit =
       resourcesInfoTextArea.text = "RESOURCES INFO:\n"
+      val divider = "#################################################### \n"
       resources.foreach(r =>
-        resourcesInfoTextArea.text = resourcesInfoTextArea.text + r.toString + "\n"
+        resourcesInfoTextArea.text = resourcesInfoTextArea.text + divider
+        resourcesInfoTextArea.text = resourcesInfoTextArea.text + formatResource(r) + "\n"
+        resourcesInfoTextArea.text = resourcesInfoTextArea.text + divider
       )
 
     def drawMainstays(mainstays: Set[String]): Unit =
       mainstaysInfoTextArea.text = "MAINSTAYS INFO:\n"
       mainstays.foreach(m => mainstaysInfoTextArea.text = mainstaysInfoTextArea.text + m + "\n")
+
+    private def formatResource(resource: Resource): String =
+      var result: String = ""
+      if resource.nodeState.isDefined then
+        result = result + s"Node State: ${resource.nodeState.get} \n"
+      if resource.name.isDefined then
+        result = result + s"Name: ${resource.name.get} \n"
+      if resource.position.isDefined then
+        result = result + s"Position: ${resource.position.get} \n"
+      if resource.state.isDefined then
+        result = result + s"State: ${resource.state.get} \n"
+      result = result + s"Resource type: "
+      resource.resourceType.foreach(t => result = result + t + " ")
+      result
