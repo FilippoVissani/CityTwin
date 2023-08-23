@@ -21,6 +21,7 @@ lazy val akkaHttp = akkaGroup %% "akka-http" % akkaHttpVersion
 lazy val playJson = ("com.typesafe.play" %% "play-json" % "2.9.4").cross(CrossVersion.for3Use2_13)
 lazy val commonSettings = Seq(
   libraryDependencies := commonDependencies,
+  scriptClasspath := Seq("*"),
 )
 
 lazy val core = project
@@ -46,6 +47,5 @@ lazy val riverMonitor = project
   .settings(
     commonSettings,
     name := "river-monitor",
-    scriptClasspath := Seq("*"),
     libraryDependencies ++= Seq(upickleJson,scalaSwing),
   ).dependsOn(core).enablePlugins(JavaAppPackaging)
