@@ -5,6 +5,7 @@ call sbt universal:packageBin
 tar -x -f ./core/target/universal/core-0.1.0.zip -C ./core/target/
 tar -x -f ./control-panel/target/universal/control-panel-0.1.0.zip -C ./control-panel/target/
 tar -x -f ./river-monitor/target/universal/river-monitor-0.1.0.zip -C ./river-monitor/target/
+tar -x -f ./air-quality-monitor/target/universal/air-quality-monitor-0.1.0.zip -C ./air-quality-monitor/target/
 
 start cmd /k call ./core/target/core-0.1.0/bin/core.bat 2551 127.0.0.1 8080
 start cmd /k call ./core/target/core-0.1.0/bin/core.bat 2552 127.0.0.1 8080
@@ -14,3 +15,4 @@ start cmd /k call ./river-monitor/target/river-monitor-0.1.0/bin/river-monitor-m
 start cmd /k call ./river-monitor/target/river-monitor-0.1.0/bin/flood-sensor-main.bat 2556 floodSensor1 4800 4500
 start cmd /k call ./river-monitor/target/river-monitor-0.1.0/bin/flood-sensor-main.bat 2558 floodSensor2 4500 6500
 start cmd /k call ./river-monitor/target/river-monitor-0.1.0/bin/view-main.bat 2557 view1 600 200 riverMonitor1
+start cmd /k call ./air-quality-monitor/target/air-quality-monitor-0.1.0/bin/air-quality-monitor.bat 2559 AirSensor_ParcoDelleQuerce 6800 6600
