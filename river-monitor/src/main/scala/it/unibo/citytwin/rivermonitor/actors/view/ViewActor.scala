@@ -1,7 +1,6 @@
 package it.unibo.citytwin.rivermonitor.actors.view
 
-import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
-import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.util.Timeout
 import it.unibo.citytwin.core.actors.{
@@ -12,14 +11,14 @@ import it.unibo.citytwin.core.actors.{
   ResourcesFromMainstayResponse
 }
 import it.unibo.citytwin.rivermonitor.actors.*
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.{Evacuating, RiverMonitorState, Safe}
-import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor}
 import it.unibo.citytwin.rivermonitor.view.View
 import it.unibo.citytwin.core.model.{Resource, ResourceType}
 
 import scala.concurrent.duration.DurationInt
 import scala.util.Success
 
+/** Command trait for messages that the ViewActor can receive.
+  */
 trait ViewActorCommand
 
 /** Message received when "evacuate" button pressed
@@ -32,6 +31,8 @@ object EvacuatedZone extends Serializable with ViewActorCommand
 
 /** A message representing a periodic tick event for the ViewActor. This is used to trigger the
   * ViewActor to perform periodic tasks.
+  * @param resourcesToCheck
+  *   A set of resource names to be checked during each tick.
   */
 case class Tick(resourcesToCheck: Set[String]) extends Serializable with ViewActorCommand
 
@@ -43,7 +44,22 @@ case class AdaptedResourcesStateResponse(resources: Set[Resource])
     extends Serializable
     with ViewActorCommand
 
+/** An actor responsible for simulating a view behaviour.
+  */
 object ViewActor:
+  /** Factory method to create a new ViewActor.
+    *
+    * @param viewName
+    *   The name of the view.
+    * @param resourcesToCheck
+    *   A set of resource names to periodically check.
+    * @param width
+    *   The width of the view.
+    * @param height
+    *   The height of the view.
+    * @return
+    *   Behavior[ViewActorCommand]
+    */
   def apply(
       viewName: String,
       resourcesToCheck: Set[String],
@@ -59,6 +75,7 @@ object ViewActor:
       }
     }
 
+  // Private method to define the behavior of the ViewActor
   private def viewActorLogic(
       ctx: ActorContext[ViewActorCommand],
       view: View,
@@ -69,6 +86,7 @@ object ViewActor:
     Behaviors.receiveMessage {
       case Tick(resourcesToCheck) => {
         ctx.log.debug("Received Tick")
+        // Request resource status from the ResourceActor using AskResourcesToMainstay message
         ctx.ask(resourceActor, ref => AskResourcesToMainstay(ref, resourcesToCheck)) {
           case Success(ResourcesFromMainstayResponse(resources: Set[Resource])) =>
             AdaptedResourcesStateResponse(resources)
@@ -91,6 +109,7 @@ object ViewActor:
       }
       case EvacuatingZone => {
         ctx.log.debug("Received EvacuatingZone")
+        // Send an "Evacuating" resource state to the ResourceActor
         val resource = Resource(
           name = Some(viewName),
           state = Some("Evacuating"),
@@ -101,6 +120,7 @@ object ViewActor:
       }
       case EvacuatedZone => {
         ctx.log.debug("Received EvacuatedZone")
+        // Send a "Safe" resource state to the ResourceActor
         val resource = Resource(
           name = Some(viewName),
           state = Some("Safe"),

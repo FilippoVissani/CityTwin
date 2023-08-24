@@ -12,6 +12,8 @@ import upickle.default.*
 import upickle.default.{macroRW, ReadWriter as RW}
 import upickle.*
 
+/** Command trait for messages that the RiverMonitorStateActor can receive.
+  */
 trait RiverMonitorStateActorCommand
 
 /** Message to set the riverMonitor state as 'Warned'
@@ -35,14 +37,27 @@ case class MonitoredSensors(monitoredSensors: Map[String, Map[String, String]])
     extends Serializable
     with RiverMonitorStateActorCommand
 
+/** An actor responsible for simulating a river monitor state.
+  */
 object RiverMonitorStateActor:
+  /** Factory method to create a new RiverMonitorStateActor.
+    *
+    * @param riverMonitor
+    *   The RiverMonitor instance associated with the actor.
+    * @param resourceActor
+    *   The ActorRef of the ResourceActor.
+    * @param monitoredSensors
+    *   Optional monitored sensor data.
+    * @return
+    *   Behavior[RiverMonitorStateActorCommand]
+    */
   def apply(
       riverMonitor: RiverMonitor,
       resourceActor: ActorRef[ResourceActorCommand],
       monitoredSensors: Option[Map[String, Map[String, String]]] = None
   ): Behavior[RiverMonitorStateActorCommand] =
     Behaviors.setup[RiverMonitorStateActorCommand] { ctx =>
-
+      // Serialize the RiverMonitorResourceState instance to JSON
       val riverMonitorResourceState = RiverMonitorResourceState(
         riverMonitor.state.toString,
         riverMonitor.threshold,
@@ -51,6 +66,7 @@ object RiverMonitorStateActor:
       implicit val rw: RW[RiverMonitorResourceState] = macroRW
       val resourceStateAsString: String              = write(riverMonitorResourceState)
 
+      // Create a Resource instance to represent the river monitor's state
       val resource = Resource(
         Some(riverMonitor.riverMonitorName),
         Some(riverMonitor.position),
@@ -58,11 +74,17 @@ object RiverMonitorStateActor:
         Set(Sense, Act)
       )
       resourceActor ! ResourceChanged(resource)
+
+      // Define the actor's behavior based on received messages
       Behaviors.receiveMessage {
         case WarnRiverMonitor => {
           ctx.log.debug("Received WarnRiverMonitor")
           if riverMonitor.state == Safe then {
-            RiverMonitorStateActor(riverMonitor.copy(state = Warned), resourceActor, monitoredSensors)
+            RiverMonitorStateActor(
+              riverMonitor.copy(state = Warned),
+              resourceActor,
+              monitoredSensors
+            )
           } else Behaviors.same
         }
         case EvacuatedRiverMonitor => {

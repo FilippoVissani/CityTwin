@@ -17,6 +17,8 @@ import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
 import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
 
+/** Command trait for messages that the RiverMonitorActor can receive.
+  */
 trait RiverMonitorActorCommand
 
 /** A message representing a periodic tick event for the RiverMonitorActor. This is used to trigger
@@ -33,7 +35,18 @@ case class AdaptedResourcesStateResponse(resources: Set[Resource])
     extends Serializable
     with RiverMonitorActorCommand
 
+/** An actor responsible for simulating a river monitor behavior.
+  */
 object RiverMonitorActor:
+  /** Factory method to create a new RiverMonitorActor.
+    *
+    * @param riverMonitor
+    *   The RiverMonitor instance associated with the actor.
+    * @param resourcesToCheck
+    *   A set of resource names to periodically check.
+    * @return
+    *   Behavior[RiverMonitorActorCommand]
+    */
   def apply(
       riverMonitor: RiverMonitor,
       resourcesToCheck: Set[String]
@@ -43,12 +56,14 @@ object RiverMonitorActor:
       val resourceActor             = ctx.spawnAnonymous(ResourceActor())
       val riverMonitorStateActor =
         ctx.spawnAnonymous(RiverMonitorStateActor(riverMonitor, resourceActor))
+      // Set up timers for periodic Tick messages
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick(resourcesToCheck), 1.seconds)
         RiverMonitorActorLogic(ctx, riverMonitorStateActor, resourceActor, riverMonitor)
       }
     }
 
+  // Private method to define the behavior of the RiverMonitorActor
   private def RiverMonitorActorLogic(
       ctx: ActorContext[RiverMonitorActorCommand],
       riverMonitorStateActor: ActorRef[RiverMonitorStateActorCommand],
@@ -59,6 +74,7 @@ object RiverMonitorActor:
     Behaviors.receiveMessage {
       case Tick(resourcesToCheck) => {
         ctx.log.debug("Received Tick")
+        // Request resource status from the ResourceActor using AskResourcesToMainstay message
         ctx.ask(resourceActor, ref => AskResourcesToMainstay(ref, resourcesToCheck)) {
           case Success(ResourcesFromMainstayResponse(resources: Set[Resource])) =>
             AdaptedResourcesStateResponse(resources)
@@ -71,6 +87,7 @@ object RiverMonitorActor:
       }
       case AdaptedResourcesStateResponse(resources) => {
         ctx.log.debug("Received AdaptedResourcesStateResponse")
+        // Filter resources for sensors and actions
         val senseResources = resources
           .filter(resource => resource.resourceType.contains(Sense))
           .filter(resource => resource.nodeState.get)
@@ -80,6 +97,7 @@ object RiverMonitorActor:
           .filter(resource => resource.nodeState.get)
           .filter(resource => resource.state.nonEmpty)
 
+        // Create a map of monitored sensors
         val monitoredSensors: Map[String, Map[String, String]] = resources
           .filter(resource => resource.resourceType.contains(Sense))
           .map(resource =>
@@ -91,8 +109,10 @@ object RiverMonitorActor:
             )
           )
           .toMap
+        // Send MonitoredSensors message to the RiverMonitorStateActor
         riverMonitorStateActor ! MonitoredSensors(monitoredSensors)
 
+        // Check conditions and send appropriate messages to the RiverMonitorStateActor
         if senseResources.nonEmpty then
           if senseResources.count(resource =>
               resource.state.get.toFloat > riverMonitor.threshold

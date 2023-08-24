@@ -16,13 +16,28 @@ import javax.swing.{BorderFactory, SwingUtilities}
 import scala.swing.BorderPanel.Position.{Center, North}
 import scala.swing.{Action, BorderPanel, Button, FlowPanel, Frame, Label, Panel}
 
+/** Defines a trait representing the Swing control panel
+  */
 trait SwingControlPanel:
+  /** Updates the displayed river monitor state.
+    *
+    * @param riverMonitorState
+    *   The representation of the river monitor resource state.
+    */
   def updateRiverMonitorState(riverMonitorState: String): Unit
 
+/** Factory object for creating a SwingControlPanel instance. */
 object SwingControlPanel:
-
+  /** Creates a SwingControlPanel instance.
+    *
+    * @param view
+    *   The View associated with the control panel.
+    * @return
+    *   An instance of SwingControlPanel.
+    */
   def apply(view: View): SwingControlPanel = SwingControlPanelImpl(view)
 
+  /** Implementation class for the SwingControlPanel trait. */
   private class SwingControlPanelImpl(view: View) extends Frame with SwingControlPanel:
     val buttonsPanel: ButtonsPanel = ButtonsPanel(view)
     val riverPanel: RiverPanel     = RiverPanel(view.width, view.height, view.viewName)
@@ -35,6 +50,7 @@ object SwingControlPanel:
     }
     visible = true
 
+    // Handle window closing event
     addWindowListener(new WindowAdapter() {
       override def windowClosing(ev: WindowEvent): Unit =
         System.exit(-1)
@@ -43,7 +59,7 @@ object SwingControlPanel:
         System.exit(-1)
     })
 
-    // chiamato dalla View
+    // Called by the View to update the river monitor state
     override def updateRiverMonitorState(riverMonitorState: String): Unit =
       SwingUtilities.invokeLater(() => {
         implicit val rw: RW[RiverMonitorResourceState] = macroRW
@@ -71,6 +87,7 @@ object SwingControlPanel:
   end SwingControlPanelImpl
 end SwingControlPanel
 
+/** Defines a sealed class representing the buttons panel for the control panel GUI. */
 sealed class ButtonsPanel(view: View) extends FlowPanel:
   val buttonEvacuate: Button = new Button {
     text = "Evacuate Zone"
@@ -93,6 +110,7 @@ sealed class ButtonsPanel(view: View) extends FlowPanel:
 
 end ButtonsPanel
 
+/** Defines a sealed class representing the river panel for displaying river monitor information. */
 sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel:
   var riverMonitorResourceState: RiverMonitorResourceState = RiverMonitorResourceState("", 0, None)
 
@@ -139,6 +157,11 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
       )
   end paint
 
+  /** Updates the displayed river monitor state.
+    *
+    * @param riverMonitorResourceState
+    *   The updated river monitor resource state.
+    */
   def updateRiverMonitorState(riverMonitorResourceState: RiverMonitorResourceState): Unit =
     this.riverMonitorResourceState = riverMonitorResourceState
 
