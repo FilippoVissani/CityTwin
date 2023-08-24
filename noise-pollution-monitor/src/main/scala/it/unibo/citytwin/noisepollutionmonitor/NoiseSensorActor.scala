@@ -31,7 +31,7 @@ object NoiseSensorActor:
             val noiseLevel = scala.util.Random.nextInt(61) + 40 // Noise level range: 40-100 dB
             // Create JSON string with noise level value and description
             val description = getNoiseDescription(noiseLevel)
-            val json = s"""{"value (dB)": $noiseLevel, "description": "$description"}"""
+            val json        = s"""{"value (dB)": $noiseLevel, "description": "$description"}"""
             // Create resource to send to mainstay
             val resource = Resource(
               Some(noiseSensor.name),
@@ -55,5 +55,5 @@ object NoiseSensorActor:
     case _ if noiseLevel <= 50 => "Quiet environment"
     case _ if noiseLevel <= 70 => "Moderate noise"
     case _ if noiseLevel <= 90 => "Noisy environment"
-    case _ => "Very noisy environment"
+    case _                     => "Very noisy environment"
   }
