@@ -17,7 +17,16 @@ trait NoiseSensorActorCommand
   */
 object Tick extends Serializable with NoiseSensorActorCommand
 
+/** An actor responsible for simulating a noise sensor's behavior.
+  */
 object NoiseSensorActor:
+  /** Create an instance of NoiseSensorActor.
+    *
+    * @param noiseSensor
+    *   The noise sensor instance.
+    * @return
+    *   Behavior[NoiseSensorActorCommand].
+    */
   def apply(noiseSensor: NoiseSensor): Behavior[NoiseSensorActorCommand] =
     Behaviors.setup[NoiseSensorActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds

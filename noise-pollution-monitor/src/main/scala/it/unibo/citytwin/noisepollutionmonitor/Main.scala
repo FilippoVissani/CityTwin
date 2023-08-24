@@ -13,9 +13,11 @@ import it.unibo.citytwin.core.model.Point2D
     println("Usage: main <Port> <NoiseSensorName> <x_position> <y_position>")
     println(args(4))
   } else
+    // Extract command-line arguments
     val port            = args(0).toInt
     val noiseSensorName = args(1)
     val positionX       = args(2).toInt
     val positionY       = args(3).toInt
     val noiseSensor     = NoiseSensor(noiseSensorName, Point2D[Int](positionX, positionY))
+    // Start the actor system
     startup(port)(NoiseSensorActor(noiseSensor))
