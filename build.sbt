@@ -65,3 +65,11 @@ lazy val acidRainMonitor = project
     name := "acid-rain-monitor",
     libraryDependencies ++= Seq(upickleJson, scalaSwing)
   ).dependsOn(core).enablePlugins(JavaAppPackaging)
+
+lazy val noisePollutionMonitor = project
+  .in(file("noise-pollution-monitor"))
+  .settings(
+    commonSettings,
+    name := "noise-pollution-monitor",
+    libraryDependencies ++= Seq(upickleJson, scalaSwing)
+  ).dependsOn(core).enablePlugins(JavaAppPackaging)
