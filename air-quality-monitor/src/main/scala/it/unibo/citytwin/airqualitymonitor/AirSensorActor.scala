@@ -22,7 +22,18 @@ trait AirSensorActorCommand
   */
 object Tick extends Serializable with AirSensorActorCommand
 
+/** An actor responsible for simulating an air sensor's behavior.
+  */
 object AirSensorActor:
+  /** Create an instance of AirSensorActor.
+    *
+    * @param airSensor
+    *   The air sensor instance.
+    * @param sensorUri
+    *   The URI for the sensor data.
+    * @return
+    *   Behavior[AirSensorActorCommand].
+    */
   def apply(airSensor: AirSensor, sensorUri: String): Behavior[AirSensorActorCommand] =
     Behaviors.setup[AirSensorActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds
