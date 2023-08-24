@@ -6,13 +6,14 @@ import it.unibo.citytwin.control_panel.view.View.{InfoPanel, MapPanel}
 import it.unibo.citytwin.core.actors.MainstayActorCommand
 import it.unibo.citytwin.core.model.Resource
 import org.jfree.chart.block.BlockBorder
-import org.jfree.chart.plot.PlotOrientation
+import org.jfree.chart.plot.{PlotOrientation, XYPlot}
 import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
 import org.jfree.data.xy.{XYDataset, XYSeries, XYSeriesCollection}
-
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 import java.awt.{Color, Component, Dimension, RenderingHints, Toolkit}
 import java.awt.event.{WindowAdapter, WindowEvent}
 import java.io.File
+import java.sql.Timestamp
 import javax.imageio.ImageIO
 import javax.swing.{BorderFactory, JPanel, JTabbedPane, SwingUtilities}
 import scala.io.{BufferedSource, Source}
@@ -23,6 +24,10 @@ trait View:
   def drawResources(resources: Set[Resource]): Unit
 
   def drawMainstays(mainstays: Set[String]): Unit
+
+  def drawMainstaysStats(data: Map[Timestamp, Int]): Unit
+
+  def drawResourcesStats(data: Map[Timestamp, Int]): Unit
 
 object View:
   def apply(citySize: (Double, Double)): View = ViewImpl(citySize)
@@ -45,18 +50,6 @@ object View:
     visible = true
     contents = mainPane
 
-    private def calcFrameDimension(framePercentSize: (Int, Int)) =
-      Dimension(
-        framePercentSize._1 * Toolkit.getDefaultToolkit.getScreenSize.width / 100,
-        framePercentSize._2 * Toolkit.getDefaultToolkit.getScreenSize.height / 100
-      )
-
-    private def calcPanelDimension(panelPercentSize: (Int, Int), frameDimension: Dimension) =
-      Dimension(
-        panelPercentSize._1 * frameDimension.width / 100,
-        panelPercentSize._2 * frameDimension.height / 100
-      )
-
     addWindowListener(new WindowAdapter() {
       override def windowClosing(ev: WindowEvent): Unit =
         System.exit(-1)
@@ -75,6 +68,30 @@ object View:
       SwingUtilities.invokeLater(() => {
         infoPanel.drawMainstays(mainstays)
       })
+
+    override def drawMainstaysStats(data: Map[Timestamp, Int]): Unit =
+      SwingUtilities.invokeLater(() => {
+        statsPanel.resetMainstaysSeries()
+        data.map((k, v) => (k.getTime, v)).foreach((k, v) => statsPanel.addMainstaysSeries(k, v))
+      })
+
+    override def drawResourcesStats(data: Map[Timestamp, Int]): Unit =
+      SwingUtilities.invokeLater(() => {
+        statsPanel.resetResourcesSeries()
+        data.map((k, v) => (k.getTime, v)).foreach((k, v) => statsPanel.addResourcesSeries(k, v))
+      })
+
+    private def calcFrameDimension(framePercentSize: (Int, Int)) =
+      Dimension(
+        framePercentSize._1 * Toolkit.getDefaultToolkit.getScreenSize.width / 100,
+        framePercentSize._2 * Toolkit.getDefaultToolkit.getScreenSize.height / 100
+      )
+
+    private def calcPanelDimension(panelPercentSize: (Int, Int), frameDimension: Dimension) =
+      Dimension(
+        panelPercentSize._1 * frameDimension.width / 100,
+        panelPercentSize._2 * frameDimension.height / 100
+      )
 
   end ViewImpl
 
@@ -163,9 +180,11 @@ object View:
   end InfoPanel
 
   private sealed class StatsPanel:
-    private val series: XYSeries = XYSeries("(Time, Online nodes)")
+    private val mainstaysSeries: XYSeries = XYSeries("Mainstays")
+    private val resourcesSeries: XYSeries = XYSeries("Resources")
     private val seriesData = XYSeriesCollection()
-    seriesData.addSeries(series)
+    seriesData.addSeries(mainstaysSeries)
+    seriesData.addSeries(resourcesSeries)
     private val chart: JFreeChart = ChartFactory.createXYLineChart(
       "Online nodes in time",
       "Time (timestamp)",
@@ -173,16 +192,24 @@ object View:
       seriesData,
       PlotOrientation.VERTICAL,
       true, true, false)
-    val mainPanel: MyChartPanel = MyChartPanel(chart)
+    chart.getXYPlot.setRenderer(XYLineAndShapeRenderer())
 
-    def addSeries(time: Long, onlineNodes: Float): Unit =
-      series.add(time, onlineNodes)
+    val mainPanel: ChartPanelWrapper = ChartPanelWrapper(chart)
 
-    def resetSeries(): Unit =
-      series.clear()
+    def addMainstaysSeries(time: Long, onlineNodes: Int): Unit =
+      mainstaysSeries.add(time, onlineNodes)
+
+    def addResourcesSeries(time: Long, onlineNodes: Int): Unit =
+      resourcesSeries.add(time, onlineNodes)
+
+    def resetMainstaysSeries(): Unit =
+      mainstaysSeries.clear()
+
+    def resetResourcesSeries(): Unit =
+      resourcesSeries.clear()
   end StatsPanel
 
-  private sealed class MyChartPanel(chart: JFreeChart) extends Panel:
+  private sealed class ChartPanelWrapper(chart: JFreeChart) extends Panel:
     override lazy val peer: ChartPanel = {
       val p = new ChartPanel(chart) with SuperMixin
       p
