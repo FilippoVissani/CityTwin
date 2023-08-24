@@ -7,9 +7,6 @@ import akka.util.Timeout
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.{Resource, ResourceType}
 import it.unibo.citytwin.core.Serializable
-import upickle.default.*
-import upickle.default.{macroRW, ReadWriter as RW}
-import upickle.*
 import akka.util.ByteString
 import scala.concurrent.duration.DurationInt
 import akka.http.scaladsl.model.{HttpMethod, HttpRequest, HttpResponse}
@@ -32,7 +29,6 @@ object AirSensorActor:
       val resourceActor             = ctx.spawnAnonymous(ResourceActor())
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick, 5.seconds)
-        implicit val rw: RW[AirSensorResourceState] = macroRW
         Behaviors.receiveMessage {
           case Tick => {
             ctx.log.info(s"Received Tick")
