@@ -143,7 +143,7 @@ object View:
     def drawResources(resources: Set[Resource]): Unit =
       resourcesInfoTextArea.text = "RESOURCES INFO:\n"
       val divider = "#################################################### \n"
-      resources.foreach(r =>
+      resources.toList.sortBy(_.name.getOrElse("")).foreach(r =>
         resourcesInfoTextArea.text = resourcesInfoTextArea.text + divider
         resourcesInfoTextArea.text = resourcesInfoTextArea.text + formatResource(r) + "\n"
         resourcesInfoTextArea.text = resourcesInfoTextArea.text + divider
