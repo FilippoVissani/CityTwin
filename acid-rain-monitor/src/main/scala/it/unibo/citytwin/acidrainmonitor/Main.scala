@@ -13,9 +13,12 @@ import it.unibo.citytwin.core.model.Point2D
     println("Usage: main <Port> <acidRainSensorName> <x_position> <y_position>")
     println(args(4))
   } else
+    // Extract command-line arguments
     val port               = args(0).toInt
     val acidRainSensorName = args(1)
     val positionX          = args(2).toInt
     val positionY          = args(3).toInt
-    val acidRainSensor     = AcidRainSensor(acidRainSensorName, Point2D[Int](positionX, positionY))
+    // Create an instance of AcidRainSensor using the provided arguments
+    val acidRainSensor = AcidRainSensor(acidRainSensorName, Point2D[Int](positionX, positionY))
+    // Start the actor system
     startup(port)(AcidRainSensorActor(acidRainSensor))

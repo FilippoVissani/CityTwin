@@ -17,7 +17,16 @@ trait AcidRainSensorActorCommand
   */
 object Tick extends Serializable with AcidRainSensorActorCommand
 
+/** An actor responsible for simulating an acid rain sensor's behavior.
+  */
 object AcidRainSensorActor:
+  /** Creates a new instance of AcidRainSensorActor.
+    *
+    * @param acidRainSensor
+    *   The AcidRainSensor object representing the sensor's properties.
+    * @return
+    *   Behavior[AcidRainSensorActorCommand].
+    */
   def apply(acidRainSensor: AcidRainSensor): Behavior[AcidRainSensorActorCommand] =
     Behaviors.setup[AcidRainSensorActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds
