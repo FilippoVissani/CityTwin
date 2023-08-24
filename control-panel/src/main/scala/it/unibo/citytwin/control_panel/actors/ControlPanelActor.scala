@@ -5,7 +5,21 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.model.DateTime
 import akka.util.Timeout
 import it.unibo.citytwin.control_panel.view.View
-import it.unibo.citytwin.core.actors.{AskAllResourcesToMainstay, AskMainstaysHistory, AskMainstaysState, AskResourcesHistory, AskResourcesToMainstay, MainstayActorCommand, MainstaysHistoryResponse, MainstaysStateResponse, PersistenceServiceDriverActor, ResourceActor, ResourceActorCommand, ResourcesFromMainstayResponse, ResourcesHistoryResponse}
+import it.unibo.citytwin.core.actors.{
+  AskAllResourcesToMainstay,
+  AskMainstaysHistory,
+  AskMainstaysState,
+  AskResourcesHistory,
+  AskResourcesToMainstay,
+  MainstayActorCommand,
+  MainstaysHistoryResponse,
+  MainstaysStateResponse,
+  PersistenceServiceDriverActor,
+  ResourceActor,
+  ResourceActorCommand,
+  ResourcesFromMainstayResponse,
+  ResourcesHistoryResponse
+}
 import it.unibo.citytwin.core.model.Resource
 
 import java.sql.Timestamp
@@ -24,11 +38,11 @@ case class AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCo
     with Serializable
 
 case class AdaptedMainstaysHistoryResponse(states: Seq[(Boolean, LocalDateTime)])
-  extends ControlPanelActorCommand
+    extends ControlPanelActorCommand
     with Serializable
 
 case class AdaptedResourcesHistoryResponse(states: Seq[(Boolean, LocalDateTime)])
-  extends ControlPanelActorCommand
+    extends ControlPanelActorCommand
     with Serializable
 
 object Tick extends ControlPanelActorCommand with Serializable
@@ -37,8 +51,9 @@ object ControlPanelActor:
     Behaviors.setup[ControlPanelActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds
       val resourceActor             = ctx.spawnAnonymous(ResourceActor())
-      val persistenceServiceDriverActor = ctx.spawnAnonymous(PersistenceServiceDriverActor("127.0.0.1", "8080"))
-      val view                      = View(citySize)
+      val persistenceServiceDriverActor =
+        ctx.spawnAnonymous(PersistenceServiceDriverActor("127.0.0.1", "8080"))
+      val view = View(citySize)
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick, 8.seconds)
         Behaviors.receiveMessage {

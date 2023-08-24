@@ -18,7 +18,20 @@ import javax.imageio.ImageIO
 import javax.swing.{BorderFactory, JPanel, JTabbedPane, SwingUtilities}
 import scala.io.{BufferedSource, Source}
 import scala.swing.TabbedPane.Page
-import scala.swing.{BorderPanel, BoxPanel, BufferWrapper, Button, FlowPanel, Frame, Graphics2D, Orientation, Panel, ScrollPane, TabbedPane, TextArea}
+import scala.swing.{
+  BorderPanel,
+  BoxPanel,
+  BufferWrapper,
+  Button,
+  FlowPanel,
+  Frame,
+  Graphics2D,
+  Orientation,
+  Panel,
+  ScrollPane,
+  TabbedPane,
+  TextArea
+}
 
 trait View:
   def drawResources(resources: Set[Resource]): Unit
@@ -95,7 +108,11 @@ object View:
 
   end ViewImpl
 
-  sealed class MapPanel(frameDimension: Dimension, mapPanelDimension: Dimension, citySize: (Double, Double)) extends Panel:
+  sealed class MapPanel(
+      frameDimension: Dimension,
+      mapPanelDimension: Dimension,
+      citySize: (Double, Double)
+  ) extends Panel:
     private val image =
       Toolkit.getDefaultToolkit.getImage("control-panel/src/main/resources/city-map.png")
     private var resources: Set[Resource] = Set()
@@ -118,10 +135,8 @@ object View:
           val scaledPosition = (scaleX(r.position.get.x), scaleY(r.position.get.y))
           g2.setColor(java.awt.Color.BLACK)
           g2.drawString(r.name.get, scaledPosition._1 - 20, scaledPosition._2 - 10)
-          if r.nodeState.get then
-            g2.setColor(java.awt.Color.RED)
-          else
-            g2.setColor(java.awt.Color.GRAY)
+          if r.nodeState.get then g2.setColor(java.awt.Color.RED)
+          else g2.setColor(java.awt.Color.GRAY)
           g2.fillOval(scaledPosition._1, scaledPosition._2, 10, 10)
         })
     end paint
@@ -154,11 +169,13 @@ object View:
     def drawResources(resources: Set[Resource]): Unit =
       resourcesInfoTextArea.text = "RESOURCES INFO:\n"
       val divider = "#################################################### \n"
-      resources.toList.sortBy(_.name.getOrElse("")).foreach(r =>
-        resourcesInfoTextArea.text = resourcesInfoTextArea.text + divider
-        resourcesInfoTextArea.text = resourcesInfoTextArea.text + formatResource(r) + "\n"
-        resourcesInfoTextArea.text = resourcesInfoTextArea.text + divider
-      )
+      resources.toList
+        .sortBy(_.name.getOrElse(""))
+        .foreach(r =>
+          resourcesInfoTextArea.text = resourcesInfoTextArea.text + divider
+          resourcesInfoTextArea.text = resourcesInfoTextArea.text + formatResource(r) + "\n"
+          resourcesInfoTextArea.text = resourcesInfoTextArea.text + divider
+        )
 
     def drawMainstays(mainstays: Set[String]): Unit =
       mainstaysInfoTextArea.text = "MAINSTAYS INFO:\n"
@@ -168,12 +185,9 @@ object View:
       var result: String = ""
       if resource.nodeState.isDefined then
         result = result + s"Node State: ${resource.nodeState.get} \n"
-      if resource.name.isDefined then
-        result = result + s"Name: ${resource.name.get} \n"
-      if resource.position.isDefined then
-        result = result + s"Position: ${resource.position.get} \n"
-      if resource.state.isDefined then
-        result = result + s"State: ${resource.state.get} \n"
+      if resource.name.isDefined then result = result + s"Name: ${resource.name.get} \n"
+      if resource.position.isDefined then result = result + s"Position: ${resource.position.get} \n"
+      if resource.state.isDefined then result = result + s"State: ${resource.state.get} \n"
       result = result + s"Resource type: "
       resource.resourceType.foreach(t => result = result + t + " ")
       result
@@ -182,7 +196,7 @@ object View:
   private sealed class StatsPanel:
     private val mainstaysSeries: XYSeries = XYSeries("Mainstays")
     private val resourcesSeries: XYSeries = XYSeries("Resources")
-    private val seriesData = XYSeriesCollection()
+    private val seriesData                = XYSeriesCollection()
     seriesData.addSeries(mainstaysSeries)
     seriesData.addSeries(resourcesSeries)
     private val chart: JFreeChart = ChartFactory.createXYLineChart(
@@ -191,7 +205,10 @@ object View:
       "Online nodes",
       seriesData,
       PlotOrientation.VERTICAL,
-      true, true, false)
+      true,
+      true,
+      false
+    )
     chart.getXYPlot.setRenderer(XYLineAndShapeRenderer())
 
     val mainPanel: ChartPanelWrapper = ChartPanelWrapper(chart)

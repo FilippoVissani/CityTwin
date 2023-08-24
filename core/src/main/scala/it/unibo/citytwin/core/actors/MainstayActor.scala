@@ -34,13 +34,15 @@ object MainstayActor:
 
   def apply(
       persistenceServiceHost: String,
-      persistenceServicePort: String,
+      persistenceServicePort: String
   ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       ctx.log.debug("Mainstay started")
       ctx.system.receptionist ! Receptionist.Register(mainstayService, ctx.self)
       ctx.spawnAnonymous(NodesObserverGuardianActor(ctx.self))
-      val persistenceServiceDriverActor = ctx.spawnAnonymous(PersistenceServiceDriverActor(persistenceServiceHost, persistenceServicePort))
+      val persistenceServiceDriverActor = ctx.spawnAnonymous(
+        PersistenceServiceDriverActor(persistenceServiceHost, persistenceServicePort)
+      )
       mainstayActorBehavior(ctx, persistenceServiceDriverActor)
     }
 
