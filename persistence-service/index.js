@@ -27,7 +27,12 @@ const database = mongoConnection.db("city_twin")
 server.get('/mainstay', async (req, res) => {
     try {
         let collection = await database.collection(mainstaysCollection);
-        let query = {address: req.query.address};
+        let query
+        if(req.query.address === "*") {
+            query = {}
+        } else {
+            query = {address: req.query.address}
+        }
         let result = await collection.find(query).toArray();
         if (!result) res.send("Not found").status(404);
         else res.send(result).status(200);
@@ -41,7 +46,6 @@ server.post("/mainstay", async (req, res) => {
     try {
         let collection = await database.collection(mainstaysCollection);
         let document = req.body;
-        document.date = new Date();
         let result = await collection.insertOne(document);
         res.send(result).status(204);
     } catch (e) {
@@ -53,7 +57,12 @@ server.post("/mainstay", async (req, res) => {
 server.get('/resource', async (req, res) => {
     try {
         let collection = await database.collection(resourcesCollection);
-        let query = {name: req.query.name};
+        let query
+        if(req.query.name === "*") {
+            query = {}
+        } else {
+            query = {address: req.query.name}
+        }
         let result = await collection.find(query).toArray();
         if (!result) res.send("Not found").status(404);
         else res.send(result).status(200);
@@ -67,7 +76,6 @@ server.post("/resource", async (req, res) => {
     try {
         let collection = await database.collection(resourcesCollection);
         let document = req.body;
-        document.date = new Date();
         let result = await collection.insertOne(document);
         res.send(result).status(204);
     } catch (e) {
