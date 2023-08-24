@@ -28,10 +28,10 @@ object EvacuatingRiverMonitor extends Serializable with RiverMonitorStateActorCo
 
 /** Message received by the RiverMonitorActor when he receives sensors from the Mainstay
   *
-  * @param sensorsForView
-  *   a map containing sensors for the view
+  * @param monitoredSensors
+  *   a map containing monitored sensors
   */
-case class SensorsForView(sensorsForView: Map[String, Map[String, String]])
+case class MonitoredSensors(monitoredSensors: Map[String, Map[String, String]])
     extends Serializable
     with RiverMonitorStateActorCommand
 
@@ -39,14 +39,14 @@ object RiverMonitorStateActor:
   def apply(
       riverMonitor: RiverMonitor,
       resourceActor: ActorRef[ResourceActorCommand],
-      sensorsForView: Option[Map[String, Map[String, String]]] = None
+      monitoredSensors: Option[Map[String, Map[String, String]]] = None
   ): Behavior[RiverMonitorStateActorCommand] =
     Behaviors.setup[RiverMonitorStateActorCommand] { ctx =>
 
       val riverMonitorResourceState = RiverMonitorResourceState(
         riverMonitor.state.toString,
         riverMonitor.threshold,
-        sensorsForView
+        monitoredSensors
       )
       implicit val rw: RW[RiverMonitorResourceState] = macroRW
       val resourceStateAsString: String              = write(riverMonitorResourceState)
@@ -62,13 +62,13 @@ object RiverMonitorStateActor:
         case WarnRiverMonitor => {
           ctx.log.debug("Received WarnRiverMonitor")
           if riverMonitor.state == Safe then {
-            RiverMonitorStateActor(riverMonitor.copy(state = Warned), resourceActor, sensorsForView)
+            RiverMonitorStateActor(riverMonitor.copy(state = Warned), resourceActor, monitoredSensors)
           } else Behaviors.same
         }
         case EvacuatedRiverMonitor => {
           ctx.log.debug("Received EvacuatedRiverMonitor")
           if riverMonitor.state == Evacuating then {
-            RiverMonitorStateActor(riverMonitor.copy(state = Safe), resourceActor, sensorsForView)
+            RiverMonitorStateActor(riverMonitor.copy(state = Safe), resourceActor, monitoredSensors)
           } else Behaviors.same
         }
         case EvacuatingRiverMonitor => {
@@ -77,13 +77,13 @@ object RiverMonitorStateActor:
             RiverMonitorStateActor(
               riverMonitor.copy(state = Evacuating),
               resourceActor,
-              sensorsForView
+              monitoredSensors
             )
           } else Behaviors.same
         }
-        case SensorsForView(sensorsForView) => {
-          ctx.log.debug("Received SensorsForView")
-          RiverMonitorStateActor(riverMonitor, resourceActor, Some(sensorsForView))
+        case MonitoredSensors(monitoredSensors) => {
+          ctx.log.debug("Received monitoredSensors")
+          RiverMonitorStateActor(riverMonitor, resourceActor, Some(monitoredSensors))
         }
         case _ => {
           ctx.log.debug(s"Unexpected message. The actor is being stopped")

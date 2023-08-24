@@ -80,7 +80,7 @@ object RiverMonitorActor:
           .filter(resource => resource.nodeState.get)
           .filter(resource => resource.state.nonEmpty)
 
-        val sensorsForView: Map[String, Map[String, String]] = resources
+        val monitoredSensors: Map[String, Map[String, String]] = resources
           .filter(resource => resource.resourceType.contains(Sense))
           .map(resource =>
             resource.name.getOrElse("") -> Map(
@@ -91,7 +91,7 @@ object RiverMonitorActor:
             )
           )
           .toMap
-        riverMonitorStateActor ! SensorsForView(sensorsForView)
+        riverMonitorStateActor ! MonitoredSensors(monitoredSensors)
 
         if senseResources.nonEmpty then
           if senseResources.count(resource =>

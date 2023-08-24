@@ -128,7 +128,7 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
     yStringPosition += 15
     g2.drawRect(0, 0, width, height)
     g2.setColor(java.awt.Color.BLACK)
-    riverMonitorResourceState.sensorsForView
+    riverMonitorResourceState.monitoredSensors
       .getOrElse(Map())
       .foreach((sensorName, sensorData) =>
         // var sensorString: String = sensorName

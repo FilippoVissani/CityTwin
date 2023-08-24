@@ -29,11 +29,11 @@ case class RiverMonitor(
   *   the state of the river monitor
   * @param threshold
   *   the threshold of the river monitor
-  * @param sensorsForView
-  *   the sensors for the view
+  * @param monitoredSensors
+  *   the sensors monitored
   */
 case class RiverMonitorResourceState(
     riverMonitorState: String,
     threshold: Float,
-    sensorsForView: Option[Map[String, Map[String, String]]]
+    monitoredSensors: Option[Map[String, Map[String, String]]]
 )
