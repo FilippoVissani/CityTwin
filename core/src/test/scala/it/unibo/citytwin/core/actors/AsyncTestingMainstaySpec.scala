@@ -12,7 +12,6 @@ import it.unibo.citytwin.core.model.{Point2D, Resource}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-
 import concurrent.duration.DurationInt
 import scala.util.{Failure, Success}
 
@@ -43,6 +42,19 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       val probe         = testKit.createTestProbe[MainstayActorCommand]()
       probe ! SetMainstays(mainstayState.toSet)
       probe.expectMessage(SetMainstays(mainstayState.toSet))
+      testKit.stop(mainstay)
+    }
+
+    "Sync with other mainstasy" in {
+      val resource = Resource(
+        name = Option("sensor1")
+      )
+      val mainstay = testKit.spawn(MainstayActor("", ""))
+      val dummyResourceActor = testKit.spawn(DummyResourceActor())
+      val probe = testKit.createTestProbe[MainstayActorCommand]()
+      mainstay ! SetMainstays(Map(probe.ref -> true).toSet)
+      mainstay ! UpdateResources(Map(dummyResourceActor -> resource).toSet)
+      probe.expectMessage(Sync(Map(dummyResourceActor -> resource).toSet))
       testKit.stop(mainstay)
     }
   }
