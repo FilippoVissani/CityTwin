@@ -56,7 +56,7 @@ object ControlPanelActor:
             ctx.log.debug(s"Received AdaptedMainstayHistoryResponse $states")
             val statsData: Map[Timestamp, Int] =
               states
-                .map((s, t) => (s, Timestamp.valueOf(t.truncatedTo(ChronoUnit.SECONDS))))
+                .map((s, t) => (s, Timestamp.valueOf(t.truncatedTo(ChronoUnit.MINUTES))))
                 .filter((s, _) => s.address.isDefined && s.state.isDefined)
                 .filter((s, _) => s.state.get)
                 .groupBy((_, t) => t)
@@ -69,7 +69,7 @@ object ControlPanelActor:
             ctx.log.debug(s"Received AdaptedResourcesHistoryResponse $states")
             val statsData: Map[Timestamp, Int] =
               states
-                .map((s, t) => (s, Timestamp.valueOf(t.truncatedTo(ChronoUnit.SECONDS))))
+                .map((s, t) => (s, Timestamp.valueOf(t.truncatedTo(ChronoUnit.MINUTES))))
                 .filter((s, _) => s.name.isDefined && s.nodeState.isDefined)
                 .filter((s, _) => s.nodeState.get)
                 .groupBy((_, t) => t)

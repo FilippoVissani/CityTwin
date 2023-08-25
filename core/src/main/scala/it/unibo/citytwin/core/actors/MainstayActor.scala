@@ -82,8 +82,6 @@ object MainstayActor:
         result.filter((_, s) =>
           s.name.isDefined
           && s.nodeState.isDefined
-          && s.state.isDefined
-          && s.position.isDefined
           && s.resourceType.nonEmpty
         ).foreach((a, r) => persistenceServiceDriverActor ! PostResource(a.path.toString, r))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, result)
