@@ -125,16 +125,16 @@ object ResourceActor:
             replyTo: ActorRef[ResourcesFromMainstayResponse],
             resources: Set[Resource]
           ) => {
-        ctx.log.error("AdaptedResourcesStateResponse")
+        ctx.log.debug("AdaptedResourcesStateResponse")
         replyTo ! ResourcesFromMainstayResponse(resources)
         Behaviors.same
       }
       case SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActorCommand]]) => {
-        ctx.log.error("SetMainstayActorsToResourceActor")
+        ctx.log.debug("SetMainstayActorsToResourceActor")
         resourceActorBehaviour(ctx, mainstays)
       }
       case ResourceChanged(resource: Resource) => {
-        ctx.log.error("ResourceChanged")
+        ctx.log.debug("ResourceChanged")
         if mainstays.nonEmpty then
           Random.shuffle(mainstays).head ! UpdateResources(Set((ctx.self, resource)))
         Behaviors.same
@@ -143,7 +143,7 @@ object ResourceActor:
             replyTo: ActorRef[ResourcesFromMainstayResponse],
             names: Set[String]
           ) => {
-        ctx.log.error("AskResourcesToMainstay")
+        ctx.log.debug("AskResourcesToMainstay")
         if mainstays.nonEmpty then
           val selectedMainstay = Random.shuffle(mainstays).head
           ctx.ask(selectedMainstay, ref => AskResourcesState(ref, names)) {
@@ -156,7 +156,7 @@ object ResourceActor:
       case AskAllResourcesToMainstay(
             replyTo: ActorRef[ResourcesFromMainstayResponse]
           ) => {
-        ctx.log.error("AskAllResourcesToMainstay")
+        ctx.log.debug("AskAllResourcesToMainstay")
         if mainstays.nonEmpty then
           val selectedMainstay = Random.shuffle(mainstays).head
           ctx.ask(selectedMainstay, ref => AskAllResourcesState(ref)) {
@@ -167,7 +167,7 @@ object ResourceActor:
         Behaviors.same
       }
       case AskMainstaysState(replyTo: ActorRef[MainstaysStateResponse]) => {
-        ctx.log.error("AskMainstaysState")
+        ctx.log.debug("AskMainstaysState")
         replyTo ! MainstaysStateResponse(mainstays)
         Behaviors.same
       }
