@@ -33,7 +33,7 @@ server.get('/mainstay', async (req, res) => {
         } else {
             query = {address: req.query.address}
         }
-        let result = await collection.find(query).toArray();
+        let result = await collection.find(query).sort( { "time": -1, "_id": -1 } ).limit(10000).toArray();
         if (!result) res.send("Not found").status(404);
         else res.send(result).status(200);
     } catch (e) {
@@ -63,7 +63,7 @@ server.get('/resource', async (req, res) => {
         } else {
             query = {address: req.query.name}
         }
-        let result = await collection.find(query).toArray();
+        let result = await collection.find(query).sort( { "time": -1, "_id": -1 } ).limit(10000).toArray();
         if (!result) res.send("Not found").status(404);
         else res.send(result).status(200);
     } catch (e) {
