@@ -7,70 +7,76 @@ import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
 import scala.collection.immutable.{Map, Set}
 
-/**
- * MainstayActorCommand is the trait that defines the messages that can be sent to the MainstayActor
- */
+/** MainstayActorCommand is the trait that defines the messages that can be sent to the
+  * MainstayActor
+  */
 trait MainstayActorCommand
 
-/**
- * AskResourcesState is the message that can be sent to the MainstayActor to ask for the state of a set of resources
- * @param replyTo the actor that will receive the response
- * @param names the names of the resources to ask for
- */
+/** AskResourcesState is the message that can be sent to the MainstayActor to ask for the state of a
+  * set of resources
+  * @param replyTo
+  *   the actor that will receive the response
+  * @param names
+  *   the names of the resources to ask for
+  */
 case class AskResourcesState(
     replyTo: ActorRef[ResourceStatesResponse],
     names: Set[String]
 ) extends MainstayActorCommand
     with Serializable
 
-/**
- * AskAllResourcesState is the message that can be sent to the MainstayActor to ask for the state of all the resources
- * @param replyTo the actor that will receive the response
- */
+/** AskAllResourcesState is the message that can be sent to the MainstayActor to ask for the state
+  * of all the resources
+  * @param replyTo
+  *   the actor that will receive the response
+  */
 case class AskAllResourcesState(
     replyTo: ActorRef[ResourceStatesResponse]
 ) extends MainstayActorCommand
     with Serializable
 
-/**
- * UpdateResources is the message that can be sent to the MainstayActor to update the state of a set of resources
- * @param update the set of resources to update
- */
+/** UpdateResources is the message that can be sent to the MainstayActor to update the state of a
+  * set of resources
+  * @param update
+  *   the set of resources to update
+  */
 case class UpdateResources(
     update: Set[(ActorRef[ResourceActorCommand], Resource)]
 ) extends MainstayActorCommand
     with Serializable
 
-/**
- * SetMainstays is the message that can be sent to the MainstayActor to update the state of a set of Mainstay Actors
- * @param nodes the set of Mainstay Actor's state
- */
+/** SetMainstays is the message that can be sent to the MainstayActor to update the state of a set
+  * of Mainstay Actors
+  * @param nodes
+  *   the set of Mainstay Actor's state
+  */
 case class SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)])
     extends MainstayActorCommand
     with Serializable
 
-    /**
-      * ResourceStatesResponse is the message that is sent by the MainstayActor as a response to AskResourcesState and AskAllResourcesState messages
-      * @param resources the set of resources
-      */
+/** ResourceStatesResponse is the message that is sent by the MainstayActor as a response to
+  * AskResourcesState and AskAllResourcesState messages
+  * @param resources
+  *   the set of resources
+  */
 case class ResourceStatesResponse(resources: Set[Resource]) extends Serializable
 
-/**
-  * MainstayActor is the actor that manages the state of the resources and the Mainstay Actors
+/** MainstayActor is the actor that manages the state of the resources and the Mainstay Actors
   */
 object MainstayActor:
-  /**
-    * mainstayService is the key that identifies the Mainstay Actor in the Receptionist pattern
+  /** mainstayService is the key that identifies the Mainstay Actor in the Receptionist pattern
     */
   val mainstayService: ServiceKey[MainstayActorCommand] =
     ServiceKey[MainstayActorCommand]("mainstayService")
 
-  /**
-   * Generates new Mainstay Actor.
-   * @param persistenceServiceHost the host of the persistence service
-   * @param persistenceServicePort the port of the persistence service
-   * @return the behavior of Mainstay Actor.
-   */
+  /** Generates new Mainstay Actor.
+    * @param persistenceServiceHost
+    *   the host of the persistence service
+    * @param persistenceServicePort
+    *   the port of the persistence service
+    * @return
+    *   the behavior of Mainstay Actor.
+    */
   def apply(
       persistenceServiceHost: String,
       persistenceServicePort: String

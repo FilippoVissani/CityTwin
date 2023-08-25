@@ -3,17 +3,19 @@ package it.unibo.citytwin.core
 import akka.actor.typed.{ActorSystem, Behavior}
 import com.typesafe.config.{Config, ConfigFactory}
 
-/**
- * ActorSystemStarter is the object that starts an Akka Actor System
- */
+/** ActorSystemStarter is the object that starts an Akka Actor System
+  */
 object ActorSystemStarter:
-  /**
-   * startup is the method that starts an Akka Actor System
-   * @param port the port of the Actor System
-   * @param root the root behavior of the Actor System
-   * @tparam X the type of the root behavior
-   * @return the Actor System
-   */
+  /** startup is the method that starts an Akka Actor System
+    * @param port
+    *   the port of the Actor System
+    * @param root
+    *   the root behavior of the Actor System
+    * @tparam X
+    *   the type of the root behavior
+    * @return
+    *   the Actor System
+    */
   def startup[X](port: Int)(root: => Behavior[X]): ActorSystem[X] =
     // Override the configuration of the port
     val config: Config = ConfigFactory

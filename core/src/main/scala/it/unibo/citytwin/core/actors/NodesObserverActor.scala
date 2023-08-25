@@ -4,39 +4,44 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
 import it.unibo.citytwin.core.model.Resource
 
-/**
-  * NodesObserverActorCommand is the trait that defines the messages that can be sent to the NodesObserverActor
+/** NodesObserverActorCommand is the trait that defines the messages that can be sent to the
+  * NodesObserverActor
   */
 trait NodesObserverActorCommand
 
-/**
-  * UpdateMainstayNodesState is the message that can be sent to the NodesObserverActor to update the state of a set of Mainstay Actors
+/** UpdateMainstayNodesState is the message that can be sent to the NodesObserverActor to update the
+  * state of a set of Mainstay Actors
   *
-  * @param refs the set of Mainstay Actor's refs
+  * @param refs
+  *   the set of Mainstay Actor's refs
   */
 case class UpdateMainstayNodesState(refs: Set[ActorRef[MainstayActorCommand]])
     extends NodesObserverActorCommand
     with Serializable
 
-/**
- * UpdateResourceNodesState is the message that can be sent to the NodesObserverActor to update the state of a set of Resource Actors
- * @param refs the set of Resource Actor's refs
- */
+/** UpdateResourceNodesState is the message that can be sent to the NodesObserverActor to update the
+  * state of a set of Resource Actors
+  * @param refs
+  *   the set of Resource Actor's refs
+  */
 case class UpdateResourceNodesState(refs: Set[ActorRef[ResourceActorCommand]])
     extends NodesObserverActorCommand
     with Serializable
 
-/**
- * NodesObserverActor is the actor that sends updates to the Mainstay Actor about the state of the nodes of the cluster
- */
+/** NodesObserverActor is the actor that sends updates to the Mainstay Actor about the state of the
+  * nodes of the cluster
+  */
 object NodesObserverActor:
-  /**
-   * Generates new NodesObserverActor.
-   * @param mainstay the Mainstay Actor that will receive the updates.
-   * @param mainstays the state of the Mainstay Actors.
-   * @param resources the state of the Resource Actors.
-   * @return the behavior of NodesObserverActor.
-   */
+  /** Generates new NodesObserverActor.
+    * @param mainstay
+    *   the Mainstay Actor that will receive the updates.
+    * @param mainstays
+    *   the state of the Mainstay Actors.
+    * @param resources
+    *   the state of the Resource Actors.
+    * @return
+    *   the behavior of NodesObserverActor.
+    */
   def apply(
       mainstay: ActorRef[MainstayActorCommand],
       mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),

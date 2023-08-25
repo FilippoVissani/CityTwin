@@ -4,16 +4,17 @@ import it.unibo.citytwin.core.model.{MainstayState, Resource}
 import play.api.libs.json.{JsValue, Json}
 import java.time.LocalDateTime
 
-/**
- * JSONParser is the object that parses the JSON responses from the persistence service
- */
+/** JSONParser is the object that parses the JSON responses from the persistence service
+  */
 object JSONParser:
 
-  /**
-   * jsonToMainstaysHistory is the function that parses the JSON response from the persistence service to a sequence of MainstayState
-   * @param jsonString the JSON response from the persistence service
-   * @return the sequence of MainstayState
-   */
+  /** jsonToMainstaysHistory is the function that parses the JSON response from the persistence
+    * service to a sequence of MainstayState
+    * @param jsonString
+    *   the JSON response from the persistence service
+    * @return
+    *   the sequence of MainstayState
+    */
   def jsonToMainstaysHistory(jsonString: String): Seq[(MainstayState, LocalDateTime)] =
     val json: JsValue    = Json.parse(jsonString)
     val addressesHistory = (json \\ "address").map(v => v.asOpt[String])
@@ -28,11 +29,13 @@ object JSONParser:
       .toSeq
     mergedHistory
 
-  /**
-   * jsonToResourcesHistory is the function that parses the JSON response from the persistence service to a sequence of Resource
-   * @param jsonString the JSON response from the persistence service
-   * @return the sequence of Resource
-   */
+  /** jsonToResourcesHistory is the function that parses the JSON response from the persistence
+    * service to a sequence of Resource
+    * @param jsonString
+    *   the JSON response from the persistence service
+    * @return
+    *   the sequence of Resource
+    */
   def jsonToResourcesHistory(jsonString: String): Seq[(Resource, LocalDateTime)] =
     val json: JsValue = Json.parse(jsonString)
     val namesHistory  = (json \\ "name").map(v => v.asOpt[String])

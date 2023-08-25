@@ -22,7 +22,20 @@ import javax.imageio.ImageIO
 import javax.swing.{BorderFactory, JPanel, JTabbedPane, SwingUtilities}
 import scala.io.{BufferedSource, Source}
 import scala.swing.TabbedPane.Page
-import scala.swing.{BorderPanel, BoxPanel, BufferWrapper, Button, FlowPanel, Frame, Graphics2D, Orientation, Panel, ScrollPane, TabbedPane, TextArea}
+import scala.swing.{
+  BorderPanel,
+  BoxPanel,
+  BufferWrapper,
+  Button,
+  FlowPanel,
+  Frame,
+  Graphics2D,
+  Orientation,
+  Panel,
+  ScrollPane,
+  TabbedPane,
+  TextArea
+}
 
 trait View:
   def drawResources(resources: Set[Resource]): Unit
@@ -125,11 +138,16 @@ object View:
         .filter(r => r.name.isDefined)
         .filter(r => r.nodeState.isDefined)
         .foreach(r => {
-          val scaledPosition = (scaleX(r.position.get.x), scaleY(r.position.get.y))
-          val fm: FontMetrics = g2.getFontMetrics()
+          val scaledPosition    = (scaleX(r.position.get.x), scaleY(r.position.get.y))
+          val fm: FontMetrics   = g2.getFontMetrics()
           val rect: Rectangle2D = fm.getStringBounds(r.name.get, g2)
           g2.setColor(java.awt.Color.WHITE)
-          g2.fillRect(scaledPosition._1 - 20, scaledPosition._2 - 10 - fm.getAscent, rect.getWidth.toInt, rect.getHeight.toInt)
+          g2.fillRect(
+            scaledPosition._1 - 20,
+            scaledPosition._2 - 10 - fm.getAscent,
+            rect.getWidth.toInt,
+            rect.getHeight.toInt
+          )
           g2.setColor(java.awt.Color.BLACK)
           g2.drawString(r.name.get, scaledPosition._1 - 20, scaledPosition._2 - 10)
           if r.nodeState.get then g2.setColor(java.awt.Color.RED)

@@ -2,21 +2,24 @@ package it.unibo.citytwin.core.model
 
 import it.unibo.citytwin.core.model.ResourceType.ResourceType
 
-/**
-  * ResourceType is the enumeration that represents the type of a resource
+/** ResourceType is the enumeration that represents the type of a resource
   */
 object ResourceType extends Enumeration:
   type ResourceType = Value
   val Act, Sense = Value
 
-/**
- * Resource is the class that represents a resource
- * @param name the name of the resource
- * @param position the position of the resource
- * @param state the state of the resource
- * @param resourceType the type of the resource
- * @param nodeState the state of the node
- */
+/** Resource is the class that represents a resource
+  * @param name
+  *   the name of the resource
+  * @param position
+  *   the position of the resource
+  * @param state
+  *   the state of the resource
+  * @param resourceType
+  *   the type of the resource
+  * @param nodeState
+  *   the state of the node
+  */
 case class Resource(
     name: Option[String] = None,
     position: Option[Point2D[Int]] = None,
