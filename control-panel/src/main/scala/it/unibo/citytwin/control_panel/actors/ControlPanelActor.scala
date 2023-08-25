@@ -5,23 +5,8 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.model.DateTime
 import akka.util.Timeout
 import it.unibo.citytwin.control_panel.view.View
-import it.unibo.citytwin.core.actors.{
-  AskAllResourcesToMainstay,
-  AskMainstaysHistory,
-  AskMainstaysState,
-  AskResourcesHistory,
-  AskResourcesToMainstay,
-  MainstayActorCommand,
-  MainstaysHistoryResponse,
-  MainstaysStateResponse,
-  PersistenceServiceDriverActor,
-  ResourceActor,
-  ResourceActorCommand,
-  ResourcesFromMainstayResponse,
-  ResourcesHistoryResponse
-}
-import it.unibo.citytwin.core.model.Resource
-
+import it.unibo.citytwin.core.actors.{AskAllResourcesToMainstay, AskMainstaysHistory, AskMainstaysState, AskResourcesHistory, AskResourcesToMainstay, MainstayActorCommand, MainstaysHistoryResponse, MainstaysStateResponse, PersistenceServiceDriverActor, ResourceActor, ResourceActorCommand, ResourcesFromMainstayResponse, ResourcesHistoryResponse}
+import it.unibo.citytwin.core.model.{MainstayState, Resource}
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -37,11 +22,11 @@ case class AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCo
     extends ControlPanelActorCommand
     with Serializable
 
-case class AdaptedMainstaysHistoryResponse(states: Seq[(Boolean, LocalDateTime)])
+case class AdaptedMainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)])
     extends ControlPanelActorCommand
     with Serializable
 
-case class AdaptedResourcesHistoryResponse(states: Seq[(Boolean, LocalDateTime)])
+case class AdaptedResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)])
     extends ControlPanelActorCommand
     with Serializable
 
@@ -67,26 +52,30 @@ object ControlPanelActor:
             view.drawMainstays(mainstays.map(m => m.path.toString))
             Behaviors.same
           }
-          case AdaptedMainstaysHistoryResponse(states: Seq[(Boolean, LocalDateTime)]) => {
+          case AdaptedMainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)]) => {
             ctx.log.debug(s"Received AdaptedMainstayHistoryResponse $states")
-            val data: Map[Timestamp, Int] = states
-              .filter((s, _) => s)
-              .map((_, t) => Timestamp.valueOf(t.truncatedTo(ChronoUnit.SECONDS)))
-              .groupBy(t => t)
-              .map((k, v) => (k, v.length))
-            ctx.log.debug(s"Updating view with: $data")
-            view.drawMainstaysStats(data)
+            val statsData: Map[Timestamp, Int] =
+              states
+                .map((s, t) => (s, Timestamp.valueOf(t.truncatedTo(ChronoUnit.SECONDS))))
+                .filter((s, _) => s.address.isDefined && s.state.isDefined)
+                .filter((s, _) => s.state.get)
+                .groupBy((_, t) => t)
+                .map((k, v) => (k, v.map((s, _) => s.address.get).toSet.size))
+            ctx.log.debug(s"Updating view with Mainstays: $statsData")
+            view.drawMainstaysStats(statsData)
             Behaviors.same
           }
-          case AdaptedResourcesHistoryResponse(states: Seq[(Boolean, LocalDateTime)]) => {
+          case AdaptedResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)]) => {
             ctx.log.debug(s"Received AdaptedResourcesHistoryResponse $states")
-            val data: Map[Timestamp, Int] = states
-              .filter((s, _) => s)
-              .map((_, t) => Timestamp.valueOf(t.truncatedTo(ChronoUnit.SECONDS)))
-              .groupBy(t => t)
-              .map((k, v) => (k, v.length))
-            ctx.log.debug(s"Updating view with: $data")
-            view.drawResourcesStats(data)
+            val statsData: Map[Timestamp, Int] =
+              states
+                .map((s, t) => (s, Timestamp.valueOf(t.truncatedTo(ChronoUnit.SECONDS))))
+                .filter((s, _) => s.name.isDefined && s.nodeState.isDefined)
+                .filter((s, _) => s.nodeState.get)
+                .groupBy((_, t) => t)
+                .map((k, v) => (k, v.map((s, _) => s.name.get).toSet.size))
+            ctx.log.debug(s"Updating view with Resources: $statsData")
+            view.drawResourcesStats(statsData)
             Behaviors.same
           }
           case Tick => {
@@ -103,12 +92,12 @@ object ControlPanelActor:
               case _ => AdaptedResourcesFromMainstayResponse(Set())
             }
             ctx.ask(persistenceServiceDriverActor, ref => AskMainstaysHistory(ref)) {
-              case Success(MainstaysHistoryResponse(states: Seq[(Boolean, LocalDateTime)])) =>
+              case Success(MainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)])) =>
                 AdaptedMainstaysHistoryResponse(states)
               case _ => AdaptedMainstaysHistoryResponse(Seq())
             }
             ctx.ask(persistenceServiceDriverActor, ref => AskResourcesHistory(ref)) {
-              case Success(ResourcesHistoryResponse(states: Seq[(Boolean, LocalDateTime)])) =>
+              case Success(ResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)])) =>
                 AdaptedResourcesHistoryResponse(states)
               case _ => AdaptedResourcesHistoryResponse(Seq())
             }

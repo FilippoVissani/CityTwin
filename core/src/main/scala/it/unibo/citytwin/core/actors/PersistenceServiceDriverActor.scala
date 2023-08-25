@@ -5,18 +5,11 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.client.RequestBuilding.Post
 import akka.http.scaladsl.model.HttpResponse.unapply
-import akka.http.scaladsl.model.{
-  ContentTypes,
-  HttpEntity,
-  HttpMethod,
-  HttpMethods,
-  HttpRequest,
-  HttpResponse
-}
+import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethod, HttpMethods, HttpRequest, HttpResponse}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import it.unibo.citytwin.core.JSONParser.{jsonToMainstaysHistory, jsonToResourcesHistory}
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.{MainstayState, Resource}
 import play.api.libs.json.{JsValue, Json}
 
 import java.time.{LocalDate, LocalDateTime}
@@ -41,9 +34,9 @@ case class PostResource(address: String, resource: Resource)
     extends PersistenceServiceDriverActorCommand
     with Serializable
 
-case class MainstaysHistoryResponse(states: Seq[(Boolean, LocalDateTime)])
+case class MainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)])
 
-case class ResourcesHistoryResponse(states: Seq[(Boolean, LocalDateTime)])
+case class ResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)])
 
 object PersistenceServiceDriverActor:
 
