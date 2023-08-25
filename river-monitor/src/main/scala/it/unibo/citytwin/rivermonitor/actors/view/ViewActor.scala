@@ -69,6 +69,12 @@ object ViewActor:
     Behaviors.setup[ViewActorCommand] { ctx =>
       val view: View    = View(width, height, viewName, ctx.self)
       val resourceActor = ctx.spawnAnonymous(ResourceActor())
+      val resource = Resource(
+        name = Some(viewName),
+        state = Some("Safe"),
+        resourceType = Set(ResourceType.Act)
+      )
+      resourceActor ! ResourceChanged(resource)
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick(resourcesToCheck), 1.seconds)
         viewActorLogic(ctx, view, viewName, resourceActor)
