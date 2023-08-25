@@ -5,7 +5,14 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.client.RequestBuilding.Post
 import akka.http.scaladsl.model.HttpResponse.unapply
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpMethod, HttpMethods, HttpRequest, HttpResponse}
+import akka.http.scaladsl.model.{
+  ContentTypes,
+  HttpEntity,
+  HttpMethod,
+  HttpMethods,
+  HttpRequest,
+  HttpResponse
+}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
 import it.unibo.citytwin.core.JSONParser.{jsonToMainstaysHistory, jsonToResourcesHistory}

@@ -79,16 +79,20 @@ object MainstayActor:
         val result: Map[ActorRef[ResourceActorCommand], Resource] = resources.map((k, v) =>
           if updateMap.contains(k) then (k, v.merge(updateMap(k))) else (k, v)
         ) ++ (updateMap -- resources.keys)
-        result.filter((_, s) =>
-          s.name.isDefined
-          && s.nodeState.isDefined
-          && s.resourceType.nonEmpty
-        ).foreach((a, r) => persistenceServiceDriverActor ! PostResource(a.path.toString, r))
+        result
+          .filter((_, s) =>
+            s.name.isDefined
+              && s.nodeState.isDefined
+              && s.resourceType.nonEmpty
+          )
+          .foreach((a, r) => persistenceServiceDriverActor ! PostResource(a.path.toString, r))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, result)
       }
       case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) => {
         ctx.log.debug("SetMainstays")
-        nodes.filter((n, _) => n.path != ctx.self.path).foreach((a, s) => persistenceServiceDriverActor ! PostMainstay(a.path.toString, s))
+        nodes
+          .filter((n, _) => n.path != ctx.self.path)
+          .foreach((a, s) => persistenceServiceDriverActor ! PostMainstay(a.path.toString, s))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, nodes.toMap, resources)
       }
       case _ => {
