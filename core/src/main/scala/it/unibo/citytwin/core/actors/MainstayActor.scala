@@ -54,6 +54,15 @@ case class SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)])
     extends MainstayActorCommand
     with Serializable
 
+/** Sync is the message that can be sent to the MainstayActor to synchronize the state of a set of
+  * resources
+  * @param update
+  *   the set of resources to update
+  */
+case class Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)])
+  extends MainstayActorCommand
+    with Serializable
+
 /** ResourceStatesResponse is the message that is sent by the MainstayActor as a response to
   * AskResourcesState and AskAllResourcesState messages
   * @param resources
@@ -131,6 +140,7 @@ object MainstayActor:
               && s.resourceType.nonEmpty
           )
           .foreach((a, r) => persistenceServiceDriverActor ! PostResource(a.path.toString, r))
+        mainstays.filter((m, _) => m != ctx.self).filter((_, s) => s).foreach((m, _) => m ! Sync(result.toSet))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, result)
       }
       case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) => {
@@ -139,6 +149,10 @@ object MainstayActor:
           .filter((n, _) => n.path != ctx.self.path)
           .foreach((a, s) => persistenceServiceDriverActor ! PostMainstay(a.path.toString, s))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, nodes.toMap, resources)
+      }
+      case Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {
+        ctx.log.debug("Sync")
+        mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, update.toMap)
       }
       case _ => {
         ctx.log.error("ERROR. Mainstay Actor stopped")
