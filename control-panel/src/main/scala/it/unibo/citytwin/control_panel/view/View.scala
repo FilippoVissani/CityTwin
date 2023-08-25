@@ -10,28 +10,18 @@ import org.jfree.chart.plot.{PlotOrientation, XYPlot}
 import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
 import org.jfree.data.xy.{XYDataset, XYSeries, XYSeriesCollection}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
+import org.jfree.data.time.{Minute, TimeSeries, TimeSeriesCollection}
+
 import java.awt.{Color, Component, Dimension, RenderingHints, Toolkit}
 import java.awt.event.{WindowAdapter, WindowEvent}
 import java.io.File
 import java.sql.Timestamp
+import java.util.Date
 import javax.imageio.ImageIO
 import javax.swing.{BorderFactory, JPanel, JTabbedPane, SwingUtilities}
 import scala.io.{BufferedSource, Source}
 import scala.swing.TabbedPane.Page
-import scala.swing.{
-  BorderPanel,
-  BoxPanel,
-  BufferWrapper,
-  Button,
-  FlowPanel,
-  Frame,
-  Graphics2D,
-  Orientation,
-  Panel,
-  ScrollPane,
-  TabbedPane,
-  TextArea
-}
+import scala.swing.{BorderPanel, BoxPanel, BufferWrapper, Button, FlowPanel, Frame, Graphics2D, Orientation, Panel, ScrollPane, TabbedPane, TextArea}
 
 trait View:
   def drawResources(resources: Set[Resource]): Unit
@@ -52,11 +42,13 @@ object View:
     private val mapPanelDimension   = calcPanelDimension(mapPanelPercentSize, frameDimension)
     private val mapPanel: MapPanel  = MapPanel(frameDimension, mapPanelDimension, citySize)
     private val infoPanel           = InfoPanel()
-    private val statsPanel          = StatsPanel()
+    private val mainstaysStatsPanel          = StatsPanel("mainstays")
+    private val resourcesStatsPanel          = StatsPanel("resources")
     private val mainPane            = TabbedPane()
     mainPane.pages += Page("Map", mapPanel)
     mainPane.pages += Page("Info", infoPanel.mainPanel)
-    mainPane.pages += Page("Stats", statsPanel.mainPanel)
+    mainPane.pages += Page("Mainstays Stats", mainstaysStatsPanel.mainPanel)
+    mainPane.pages += Page("Resources Stats", resourcesStatsPanel.mainPanel)
     title = "CityTwin Control Panel"
     size = calcFrameDimension(framePercentSize)
     resizable = false
@@ -84,14 +76,14 @@ object View:
 
     override def drawMainstaysStats(data: Map[Timestamp, Int]): Unit =
       SwingUtilities.invokeLater(() => {
-        statsPanel.resetMainstaysSeries()
-        data.map((k, v) => (k.getTime, v)).foreach((k, v) => statsPanel.addMainstaysSeries(k, v))
+        mainstaysStatsPanel.resetSeries()
+        data.map((k, v) => (k.getTime, v)).foreach((k, v) => mainstaysStatsPanel.addSeries(k, v))
       })
 
     override def drawResourcesStats(data: Map[Timestamp, Int]): Unit =
       SwingUtilities.invokeLater(() => {
-        statsPanel.resetResourcesSeries()
-        data.map((k, v) => (k.getTime, v)).foreach((k, v) => statsPanel.addResourcesSeries(k, v))
+        resourcesStatsPanel.resetSeries()
+        data.map((k, v) => (k.getTime, v)).foreach((k, v) => resourcesStatsPanel.addSeries(k, v))
       })
 
     private def calcFrameDimension(framePercentSize: (Int, Int)) =
@@ -192,38 +184,25 @@ object View:
       resource.resourceType.foreach(t => result = result + t + " ")
       result
   end InfoPanel
-
-  private sealed class StatsPanel:
-    private val mainstaysSeries: XYSeries = XYSeries("Mainstays")
-    private val resourcesSeries: XYSeries = XYSeries("Resources")
-    private val seriesData                = XYSeriesCollection()
-    seriesData.addSeries(mainstaysSeries)
-    seriesData.addSeries(resourcesSeries)
-    private val chart: JFreeChart = ChartFactory.createXYLineChart(
-      "Online nodes in time",
-      "Time (timestamp)",
-      "Online nodes",
-      seriesData,
-      PlotOrientation.VERTICAL,
-      true,
-      true,
-      false
-    )
+  
+  private sealed class StatsPanel(name: String):
+    val dataset: TimeSeriesCollection = new TimeSeriesCollection()
+    val series: TimeSeries = new TimeSeries(name)
+    dataset.addSeries(series)
+    val chart: JFreeChart = ChartFactory.createTimeSeriesChart(
+      s"Online $name in time",
+      "Time",
+      s"Online $name",
+      dataset)
     chart.getXYPlot.setRenderer(XYLineAndShapeRenderer())
 
     val mainPanel: ChartPanelWrapper = ChartPanelWrapper(chart)
 
-    def addMainstaysSeries(time: Long, onlineNodes: Int): Unit =
-      mainstaysSeries.add(time, onlineNodes)
+    def addSeries(time: Long, onlineNodes: Int): Unit =
+      series.add(Minute(Date(time)), onlineNodes)
 
-    def addResourcesSeries(time: Long, onlineNodes: Int): Unit =
-      resourcesSeries.add(time, onlineNodes)
-
-    def resetMainstaysSeries(): Unit =
-      mainstaysSeries.clear()
-
-    def resetResourcesSeries(): Unit =
-      resourcesSeries.clear()
+    def resetSeries(): Unit =
+      series.clear()
   end StatsPanel
 
   private sealed class ChartPanelWrapper(chart: JFreeChart) extends Panel:
