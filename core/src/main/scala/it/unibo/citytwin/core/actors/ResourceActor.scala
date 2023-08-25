@@ -6,17 +6,19 @@ import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.util.Timeout
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
-
 import concurrent.duration.DurationInt
 import scala.util.{Random, Success}
 
+/**
+ * ResourceActorCommand is the trait that defines the messages that can be sent to the ResourceActor
+ */
 trait ResourceActorCommand
 
-/** Message received by the `ResourceActor` from the `MainstayActor` as a response to a request for
-  * the current state of resources.
+/**
+  * AdaptedResourcesStateResponse is the message that is sent by the ResourceActor as a response to AskResourcesToMainstay and AskAllResourcesToMainstay messages
   *
-  * @param resources
-  *   A set of resources.
+  * @param replyTo the actor that will receive the response
+  * @param resources the resources that are sent as a response
   */
 case class AdaptedResourcesStateResponse(
     replyTo: ActorRef[ResourcesFromMainstayResponse],
@@ -24,29 +26,25 @@ case class AdaptedResourcesStateResponse(
 ) extends ResourceActorCommand
     with Serializable
 
-/** Message received by the `ResourceActor` to save references to all Mainstay Actors with which it
-  * can communicate.
-  *
-  * @param mainstays
-  *   A set containing references to all Mainstay Actors.
-  */
+/**
+ * SetMainstayActorsToResourceActor is the message that can be sent to the ResourceActor to set the mainstay actors
+ * @param mainstays the mainstay actors
+ */
 case class SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActorCommand]])
     extends ResourceActorCommand
     with Serializable
 
-/** Message received by the `ResourceActor` from the effective sensor or actuator actor to notify
-  * that the resource has changed.
-  *
-  * @param resource
-  *   The updated resource.
-  */
+/**
+ * ResourceChanged is the message that can be sent to the ResourceActor to notify that a resource has changed
+ * @param resource the resource that has changed
+ */
 case class ResourceChanged(resource: Resource) extends ResourceActorCommand with Serializable
 
-/** Used by view/actuators. Message that contact the `MainstayActor` to ask for the current state of
-  * resources.
+/**
+  * AskResourcesToMainstay is the message that can be sent to the ResourceActor to ask for a set of resources to a mainstay actor
   *
-  * @param names
-  *   A set containing names of requested resources.
+  * @param replyTo the actor that will receive the response
+  * @param names the names of the resources to ask
   */
 case class AskResourcesToMainstay(
     replyTo: ActorRef[ResourcesFromMainstayResponse],
@@ -54,25 +52,50 @@ case class AskResourcesToMainstay(
 ) extends ResourceActorCommand
     with Serializable
 
+/**
+  * AskAllResourcesToMainstay is the message that can be sent to the ResourceActor to ask for all the resources to a mainstay actor
+  *
+  * @param replyTo the actor that will receive the response
+  */
 case class AskAllResourcesToMainstay(
     replyTo: ActorRef[ResourcesFromMainstayResponse]
 ) extends ResourceActorCommand
     with Serializable
 
+/**
+ * AskMainstaysState is the message that can be sent to the ResourceActor to ask for the mainstay actors
+ * @param replyTo the actor that will receive the response
+ */
 case class AskMainstaysState(
     replyTo: ActorRef[MainstaysStateResponse]
 ) extends ResourceActorCommand
     with Serializable
 
+/**
+ * ResourcesFromMainstayResponse is the message that is sent by the ResourceActor as a response to AskResourcesToMainstay and AskAllResourcesToMainstay messages
+ * @param resources the resources that are sent as a response
+ */
 case class ResourcesFromMainstayResponse(resources: Set[Resource]) extends Serializable
 
+/**
+ * MainstaysStateResponse is the message that is sent by the ResourceActor as a response to AskMainstaysState message
+ * @param mainstays the mainstay actors
+ */
 case class MainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]])
     extends Serializable
 
+/**
+ * ResourceActor is the actor that manages the resource
+ */
 object ResourceActor:
   val resourceService: ServiceKey[ResourceActorCommand] =
     ServiceKey[ResourceActorCommand]("resourceService")
 
+  /**
+   * Generates new ResourceActor.
+   * @param mainstays the mainstay actors
+   * @return the behavior of ResourceActor.
+   */
   def apply(
       mainstays: Set[ActorRef[MainstayActorCommand]] = Set()
   ): Behavior[ResourceActorCommand] =

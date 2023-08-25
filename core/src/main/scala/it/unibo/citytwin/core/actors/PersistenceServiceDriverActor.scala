@@ -18,18 +18,28 @@ import akka.stream.ActorMaterializer
 import it.unibo.citytwin.core.JSONParser.{jsonToMainstaysHistory, jsonToResourcesHistory}
 import it.unibo.citytwin.core.model.{MainstayState, Resource}
 import play.api.libs.json.{JsValue, Json}
-
 import java.time.{LocalDate, LocalDateTime}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 import concurrent.duration.DurationInt
 
+/**
+ * PersistenceServiceDriverActorCommand is the trait that defines the messages that can be sent to the PersistenceServiceDriverActor
+ */
 trait PersistenceServiceDriverActorCommand
 
+/**
+ * AskMainstaysHistory is the message that can be sent to the PersistenceServiceDriverActor to ask for the history of the Mainstay Actors
+ * @param replyTo the actor that will receive the response
+ */
 case class AskMainstaysHistory(replyTo: ActorRef[MainstaysHistoryResponse])
     extends PersistenceServiceDriverActorCommand
     with Serializable
 
+/**
+ * AskResourcesHistory is the message that can be sent to the PersistenceServiceDriverActor to ask for the history of the resources
+ * @param replyTo the actor that will receive the response
+ */
 case class AskResourcesHistory(replyTo: ActorRef[ResourcesHistoryResponse])
     extends PersistenceServiceDriverActorCommand
     with Serializable
@@ -37,16 +47,40 @@ case class PostMainstay(address: String, state: Boolean)
     extends PersistenceServiceDriverActorCommand
     with Serializable
 
+/**
+  * PostResource is the message that can be sent to the PersistenceServiceDriverActor to send a resource to the persistence service
+  *
+  * @param address the address of the resource
+  * @param resource the resource to send
+  */
 case class PostResource(address: String, resource: Resource)
     extends PersistenceServiceDriverActorCommand
     with Serializable
 
+/**
+ * MainstayHistoryResponse is the message that is sent by the PersistenceServiceDriverActor as a response to AskMainstaysHistory message
+ * @param states the history of the Mainstay Actors
+ */
 case class MainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)])
 
+/**
+ * ResourcesHistoryResponse is the message that is sent by the PersistenceServiceDriverActor as a response to AskResourcesHistory message
+ * @param states the history of the resources
+ */
 case class ResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)])
 
+/**
+ * PersistenceServiceDriverActor is the actor that manages the communication with the persistence service
+ */
 object PersistenceServiceDriverActor:
-
+  
+  /**
+    * Generates new PersistenceServiceDriverActor.
+    *
+    * @param host the host of the persistence service
+    * @param port the port of the persistence service
+    * @return the behavior of PersistenceServiceDriverActor.
+    */
   def apply(host: String, port: String): Behavior[PersistenceServiceDriverActorCommand] =
     Behaviors.setup[PersistenceServiceDriverActorCommand] { ctx =>
       ctx.log.debug("PersistenceServiceDriverActor started")
