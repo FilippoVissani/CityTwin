@@ -121,9 +121,10 @@ object RiverMonitorActor:
 
         if actResources.nonEmpty then
           actResources.foreach(resource => {
-            resource.state.get match
+            resource.state.getOrElse("") match
               case "Evacuating" => riverMonitorStateActor ! EvacuatingRiverMonitor
               case "Safe"       => riverMonitorStateActor ! EvacuatedRiverMonitor
+              case _            => ctx.log.debug(s"Unexpected message")
           })
         Behaviors.same
       }
