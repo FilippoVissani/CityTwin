@@ -27,25 +27,58 @@ import java.time.temporal.ChronoUnit
 import concurrent.duration.DurationInt
 import scala.util.Success
 
+/**
+ * ControlPanelActorCommand is the trait that defines the messages that can be sent to the ControlPanelActor
+ */
 trait ControlPanelActorCommand
+
+/**
+ * AdaptedResourcesFromMainstayResponse is the message that is sent by the ControlPanelActor as a response to AskResourcesToMainstay and AskAllResourcesToMainstay messages
+ *
+ * @param resources the resources that are sent as a response
+ */
 case class AdaptedResourcesFromMainstayResponse(resources: Set[Resource])
     extends ControlPanelActorCommand
     with Serializable
 
+/**
+ * AdaptedMainstaysStateResponse is the message that is sent by the ControlPanelActor as a response to AskMainstaysState messages
+ * @param mainstays the mainstays that are sent as a response
+ */
 case class AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]])
     extends ControlPanelActorCommand
     with Serializable
 
+/**
+ * AdaptedMainstaysHistoryResponse is the message that is sent by the ControlPanelActor as a response to AskMainstaysHistory messages
+ * @param states the states of the mainstays that are sent as a response
+ */
 case class AdaptedMainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)])
     extends ControlPanelActorCommand
     with Serializable
 
+/**
+ * AdaptedResourcesHistoryResponse is the message that is sent by the ControlPanelActor as a response to AskResourcesHistory messages
+ * @param states the states of the resources that are sent as a response
+ */
 case class AdaptedResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)])
     extends ControlPanelActorCommand
     with Serializable
 
+/**
+ * Tick is the message that is sent by the ControlPanelActor to itself to request the state of the mainstays and the resources
+ */
 object Tick extends ControlPanelActorCommand with Serializable
+
+/**
+ * ControlPanelActor is the actor that manages the control panel
+ */
 object ControlPanelActor:
+  /**
+   * apply is the method that creates the behavior of the ControlPanelActor
+   * @param citySize the size of the city
+   * @return the behavior of the ControlPanelActor
+   */
   def apply(citySize: (Double, Double)): Behavior[ControlPanelActorCommand] =
     Behaviors.setup[ControlPanelActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds
