@@ -21,7 +21,20 @@ import javax.imageio.ImageIO
 import javax.swing.{BorderFactory, JPanel, JTabbedPane, SwingUtilities}
 import scala.io.{BufferedSource, Source}
 import scala.swing.TabbedPane.Page
-import scala.swing.{BorderPanel, BoxPanel, BufferWrapper, Button, FlowPanel, Frame, Graphics2D, Orientation, Panel, ScrollPane, TabbedPane, TextArea}
+import scala.swing.{
+  BorderPanel,
+  BoxPanel,
+  BufferWrapper,
+  Button,
+  FlowPanel,
+  Frame,
+  Graphics2D,
+  Orientation,
+  Panel,
+  ScrollPane,
+  TabbedPane,
+  TextArea
+}
 
 trait View:
   def drawResources(resources: Set[Resource]): Unit
@@ -42,8 +55,8 @@ object View:
     private val mapPanelDimension   = calcPanelDimension(mapPanelPercentSize, frameDimension)
     private val mapPanel: MapPanel  = MapPanel(frameDimension, mapPanelDimension, citySize)
     private val infoPanel           = InfoPanel()
-    private val mainstaysStatsPanel          = StatsPanel("mainstays")
-    private val resourcesStatsPanel          = StatsPanel("resources")
+    private val mainstaysStatsPanel = StatsPanel("mainstays")
+    private val resourcesStatsPanel = StatsPanel("resources")
     private val mainPane            = TabbedPane()
     mainPane.pages += Page("Map", mapPanel)
     mainPane.pages += Page("Info", infoPanel.mainPanel)
@@ -184,16 +197,13 @@ object View:
       resource.resourceType.foreach(t => result = result + t + " ")
       result
   end InfoPanel
-  
+
   private sealed class StatsPanel(name: String):
     val dataset: TimeSeriesCollection = new TimeSeriesCollection()
-    val series: TimeSeries = new TimeSeries(name)
+    val series: TimeSeries            = new TimeSeries(name)
     dataset.addSeries(series)
-    val chart: JFreeChart = ChartFactory.createTimeSeriesChart(
-      s"Online $name in time",
-      "Time",
-      s"Online $name",
-      dataset)
+    val chart: JFreeChart =
+      ChartFactory.createTimeSeriesChart(s"Online $name in time", "Time", s"Online $name", dataset)
     chart.getXYPlot.setRenderer(XYLineAndShapeRenderer())
 
     val mainPanel: ChartPanelWrapper = ChartPanelWrapper(chart)
