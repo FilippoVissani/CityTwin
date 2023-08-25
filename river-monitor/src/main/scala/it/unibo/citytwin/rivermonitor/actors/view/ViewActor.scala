@@ -13,7 +13,6 @@ import it.unibo.citytwin.core.actors.{
 import it.unibo.citytwin.rivermonitor.actors.*
 import it.unibo.citytwin.rivermonitor.view.View
 import it.unibo.citytwin.core.model.{Resource, ResourceType}
-
 import scala.concurrent.duration.DurationInt
 import scala.util.Success
 
@@ -77,7 +76,7 @@ object ViewActor:
       resourceActor ! ResourceChanged(resource)
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick(resourcesToCheck), 1.seconds)
-        viewActorLogic(ctx, view, viewName, resourceActor)
+        viewActorLogic(ctx, view, viewName, resourceActor, resource)
       }
     }
 
@@ -86,7 +85,8 @@ object ViewActor:
       ctx: ActorContext[ViewActorCommand],
       view: View,
       viewName: String,
-      resourceActor: ActorRef[ResourceActorCommand]
+      resourceActor: ActorRef[ResourceActorCommand],
+      resource: Resource
   ): Behavior[ViewActorCommand] =
     implicit val timeout: Timeout = 3.seconds
     Behaviors.receiveMessage {
@@ -116,23 +116,13 @@ object ViewActor:
       case EvacuatingZone => {
         ctx.log.debug("Received EvacuatingZone")
         // Send an "Evacuating" resource state to the ResourceActor
-        val resource = Resource(
-          name = Some(viewName),
-          state = Some("Evacuating"),
-          resourceType = Set(ResourceType.Act)
-        )
-        resourceActor ! ResourceChanged(resource)
+        resourceActor ! ResourceChanged(resource.copy(state = Some("Evacuating")))
         Behaviors.same
       }
       case EvacuatedZone => {
         ctx.log.debug("Received EvacuatedZone")
         // Send a "Safe" resource state to the ResourceActor
-        val resource = Resource(
-          name = Some(viewName),
-          state = Some("Safe"),
-          resourceType = Set(ResourceType.Act)
-        )
-        resourceActor ! ResourceChanged(resource)
+        resourceActor ! ResourceChanged(resource.copy(state = Some("Safe")))
         Behaviors.same
       }
       case _ => {
