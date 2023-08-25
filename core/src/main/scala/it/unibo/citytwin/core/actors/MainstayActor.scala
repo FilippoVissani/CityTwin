@@ -60,7 +60,7 @@ case class SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)])
   *   the set of resources to update
   */
 case class Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)])
-  extends MainstayActorCommand
+    extends MainstayActorCommand
     with Serializable
 
 /** ResourceStatesResponse is the message that is sent by the MainstayActor as a response to
@@ -140,7 +140,10 @@ object MainstayActor:
               && s.resourceType.nonEmpty
           )
           .foreach((a, r) => persistenceServiceDriverActor ! PostResource(a.path.toString, r))
-        mainstays.filter((m, _) => m != ctx.self).filter((_, s) => s).foreach((m, _) => m ! Sync(result.toSet))
+        mainstays
+          .filter((m, _) => m != ctx.self)
+          .filter((_, s) => s)
+          .foreach((m, _) => m ! Sync(result.toSet))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, result)
       }
       case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) => {
