@@ -45,7 +45,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
       testKit.stop(mainstay)
     }
 
-    "Sync with other mainstasy" in {
+    "Sync with other mainstay" in {
       val resource = Resource(
         name = Option("sensor1")
       )
