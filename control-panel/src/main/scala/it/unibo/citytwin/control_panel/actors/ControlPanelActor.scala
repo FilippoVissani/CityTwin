@@ -93,17 +93,15 @@ object ControlPanelActor:
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick, 8.seconds)
         Behaviors.receiveMessage {
-          case AdaptedResourcesFromMainstayResponse(resources: Set[Resource]) => {
-            ctx.log.debug(s"Received AdaptedResourcesFromMainstayResponse: ${resources}")
+          case AdaptedResourcesFromMainstayResponse(resources: Set[Resource]) =>
+            ctx.log.debug(s"Received AdaptedResourcesFromMainstayResponse: $resources")
             view.drawResources(resources)
             Behaviors.same
-          }
-          case AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]]) => {
+          case AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]]) =>
             ctx.log.debug(s"Received AdaptedMainstaysStateResponse: $mainstays")
             view.drawMainstays(mainstays.map(m => m.path.toString))
             Behaviors.same
-          }
-          case AdaptedMainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)]) => {
+          case AdaptedMainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)]) =>
             ctx.log.debug(s"Received AdaptedMainstayHistoryResponse $states")
             val statsData: Map[Timestamp, Int] =
               states
@@ -115,8 +113,7 @@ object ControlPanelActor:
             ctx.log.debug(s"Updating view with Mainstays: $statsData")
             view.drawMainstaysStats(statsData)
             Behaviors.same
-          }
-          case AdaptedResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)]) => {
+          case AdaptedResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)]) =>
             ctx.log.debug(s"Received AdaptedResourcesHistoryResponse $states")
             val statsData: Map[Timestamp, Int] =
               states
@@ -128,8 +125,7 @@ object ControlPanelActor:
             ctx.log.debug(s"Updating view with Resources: $statsData")
             view.drawResourcesStats(statsData)
             Behaviors.same
-          }
-          case Tick => {
+          case Tick =>
             ctx.ask(resourceActor, ref => AskMainstaysState(ref)) {
               case Success(
                     MainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCommand]])
@@ -153,7 +149,6 @@ object ControlPanelActor:
               case _ => AdaptedResourcesHistoryResponse(Seq())
             }
             Behaviors.same
-          }
         }
       }
     }

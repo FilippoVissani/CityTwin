@@ -110,7 +110,7 @@ object MainstayActor:
       case AskResourcesState(
             replyTo: ActorRef[ResourceStatesResponse],
             names: Set[String]
-          ) => {
+          ) =>
         ctx.log.debug("AskResourceState")
         replyTo ! ResourceStatesResponse(
           resources.values
@@ -119,15 +119,13 @@ object MainstayActor:
             .toSet
         )
         Behaviors.same
-      }
       case AskAllResourcesState(
             replyTo: ActorRef[ResourceStatesResponse]
-          ) => {
+          ) =>
         ctx.log.debug("AskAllResourcesState")
         replyTo ! ResourceStatesResponse(resources.values.toSet)
         Behaviors.same
-      }
-      case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {
+      case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) =>
         ctx.log.debug(s"UpdateResources: $update")
         update
           .map((a, r) => if resources.contains(a) then (a, resources(a).merge(r)) else (a, r))
@@ -138,22 +136,18 @@ object MainstayActor:
           .filter((_, s) => s)
           .foreach((m, _) => m ! Sync(update))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, mergeResourcesUpdate(resources, update.toMap))
-      }
-      case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) => {
+      case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) =>
         ctx.log.debug("SetMainstays")
         nodes
           .filter((n, _) => n.path != ctx.self.path)
           .foreach((a, s) => persistenceServiceDriverActor ! PostMainstay(a.path.toString, s))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, nodes.toMap, resources)
-      }
-      case Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)]) => {
+      case Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)]) =>
         ctx.log.debug("Sync")
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, mergeResourcesUpdate(resources, update.toMap))
-      }
-      case _ => {
+      case _ =>
         ctx.log.error("ERROR. Mainstay Actor stopped")
         Behaviors.stopped
-      }
     }
   end mainstayActorBehavior
 

@@ -95,7 +95,7 @@ object PersistenceServiceDriverActor:
       implicit val executionContext: ExecutionContext = ctx.executionContext
       implicit val system: ActorSystem[Nothing]       = ctx.system
       Behaviors.receiveMessage {
-        case AskMainstaysHistory(replyTo: ActorRef[MainstaysHistoryResponse]) => {
+        case AskMainstaysHistory(replyTo: ActorRef[MainstaysHistoryResponse]) =>
           ctx.log.debug("Received AskMainstayHistory")
           val response: Future[HttpResponse] =
             Http().singleRequest(HttpRequest(uri = s"http://$host:$port/mainstay?address=*"))
@@ -108,8 +108,7 @@ object PersistenceServiceDriverActor:
               case Failure(exception) => println(exception)
             }
           Behaviors.same
-        }
-        case AskResourcesHistory(replyTo: ActorRef[ResourcesHistoryResponse]) => {
+        case AskResourcesHistory(replyTo: ActorRef[ResourcesHistoryResponse]) =>
           ctx.log.debug("Received AskResourcesHistory")
           val response: Future[HttpResponse] =
             Http().singleRequest(HttpRequest(uri = s"http://$host:$port/resource?name=*"))
@@ -122,8 +121,7 @@ object PersistenceServiceDriverActor:
               case Failure(exception) => println(exception)
             }
           Behaviors.same
-        }
-        case PostMainstay(address: String, state: Boolean) => {
+        case PostMainstay(address: String, state: Boolean) =>
           ctx.log.debug("Received PostMainstay")
           val body = Json
             .obj(
@@ -140,8 +138,7 @@ object PersistenceServiceDriverActor:
             )
           )
           Behaviors.same
-        }
-        case PostResource(address: String, resource: Resource) => {
+        case PostResource(address: String, resource: Resource) =>
           ctx.log.debug("Received PostResource")
           var body = Json.obj(
             "address"       -> address,
@@ -165,6 +162,5 @@ object PersistenceServiceDriverActor:
             )
           )
           Behaviors.same
-        }
       }
     }

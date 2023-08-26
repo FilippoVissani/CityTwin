@@ -12,11 +12,10 @@ object DummyResourceActor:
     Behaviors.setup[ResourceActorCommand] { ctx =>
       Behaviors.receiveMessage {
         case AdaptedResourcesStateResponse(
-              replyTo: ActorRef[ResourcesFromMainstayResponse],
+              _: ActorRef[ResourcesFromMainstayResponse],
               resources: Set[Resource]
-            ) => {
+            ) =>
           ctx.log.debug(s"$resources")
           Behaviors.same
-        }
       }
     }

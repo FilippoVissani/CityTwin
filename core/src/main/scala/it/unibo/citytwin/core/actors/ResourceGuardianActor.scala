@@ -23,11 +23,10 @@ object ResourceGuardianActor:
           ctx.self
         )
         Behaviors.receiveMessagePartial[Receptionist.Listing] {
-          case mainstayService.Listing(listings) => {
+          case mainstayService.Listing(listings) =>
             ctx.log.debug("Received mainstayService")
             resourceActor ! SetMainstayActorsToResourceActor(listings)
             Behaviors.same
-          }
           case _ => Behaviors.stopped
         }
       }

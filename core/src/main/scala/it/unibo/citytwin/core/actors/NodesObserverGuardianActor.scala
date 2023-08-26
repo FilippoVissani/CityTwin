@@ -31,16 +31,14 @@ object NodesObserverGuardianActor:
           ctx.self
         )
         Behaviors.receiveMessagePartial[Receptionist.Listing] {
-          case mainstayService.Listing(listings) => {
+          case mainstayService.Listing(listings) =>
             ctx.log.debug("Received mainstayService")
             nodesObserverActor ! UpdateMainstayNodesState(listings)
             Behaviors.same
-          }
-          case resourceService.Listing(listings) => {
+          case resourceService.Listing(listings) =>
             ctx.log.debug("Received mainstayService")
             nodesObserverActor ! UpdateResourceNodesState(listings)
             Behaviors.same
-          }
           case _ => Behaviors.stopped
         }
       }

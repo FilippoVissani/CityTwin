@@ -124,25 +124,22 @@ object ResourceActor:
       case AdaptedResourcesStateResponse(
             replyTo: ActorRef[ResourcesFromMainstayResponse],
             resources: Set[Resource]
-          ) => {
+          ) =>
         ctx.log.debug("AdaptedResourcesStateResponse")
         replyTo ! ResourcesFromMainstayResponse(resources)
         Behaviors.same
-      }
-      case SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActorCommand]]) => {
+      case SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActorCommand]]) =>
         ctx.log.debug("SetMainstayActorsToResourceActor")
         resourceActorBehaviour(ctx, mainstays)
-      }
-      case ResourceChanged(resource: Resource) => {
+      case ResourceChanged(resource: Resource) =>
         ctx.log.debug("ResourceChanged")
         if mainstays.nonEmpty then
           Random.shuffle(mainstays).head ! UpdateResources(Set((ctx.self, resource)))
         Behaviors.same
-      }
       case AskResourcesToMainstay(
             replyTo: ActorRef[ResourcesFromMainstayResponse],
             names: Set[String]
-          ) => {
+          ) =>
         ctx.log.debug("AskResourcesToMainstay")
         if mainstays.nonEmpty then
           val selectedMainstay = Random.shuffle(mainstays).head
@@ -152,10 +149,9 @@ object ResourceActor:
             case _ => AdaptedResourcesStateResponse(replyTo, Set())
           }
         Behaviors.same
-      }
       case AskAllResourcesToMainstay(
             replyTo: ActorRef[ResourcesFromMainstayResponse]
-          ) => {
+          ) =>
         ctx.log.debug("AskAllResourcesToMainstay")
         if mainstays.nonEmpty then
           val selectedMainstay = Random.shuffle(mainstays).head
@@ -165,14 +161,11 @@ object ResourceActor:
             case _ => AdaptedResourcesStateResponse(replyTo, Set())
           }
         Behaviors.same
-      }
-      case AskMainstaysState(replyTo: ActorRef[MainstaysStateResponse]) => {
+      case AskMainstaysState(replyTo: ActorRef[MainstaysStateResponse]) =>
         ctx.log.debug("AskMainstaysState")
         replyTo ! MainstaysStateResponse(mainstays)
         Behaviors.same
-      }
-      case _ => {
+      case _ =>
         ctx.log.error("ERROR. Resource Actor stopped")
         Behaviors.stopped
-      }
     }

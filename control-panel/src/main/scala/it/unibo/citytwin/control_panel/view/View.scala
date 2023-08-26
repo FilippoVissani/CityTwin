@@ -209,10 +209,10 @@ object View:
   end InfoPanel
 
   private sealed class StatsPanel(name: String):
-    val dataset: TimeSeriesCollection = new TimeSeriesCollection()
-    val series: TimeSeries            = new TimeSeries(name)
+    private val dataset: TimeSeriesCollection = new TimeSeriesCollection()
+    private val series: TimeSeries            = new TimeSeries(name)
     dataset.addSeries(series)
-    val chart: JFreeChart =
+    private val chart: JFreeChart =
       ChartFactory.createTimeSeriesChart(s"Online $name in time", "Time", s"Online $name", dataset)
     chart.getXYPlot.setRenderer(XYLineAndShapeRenderer())
 
