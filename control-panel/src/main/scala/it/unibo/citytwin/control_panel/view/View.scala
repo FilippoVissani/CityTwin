@@ -2,40 +2,56 @@ package it.unibo.citytwin.control_panel.view
 
 import akka.actor.typed.ActorRef
 import com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener
-import it.unibo.citytwin.control_panel.view.View.{InfoPanel, MapPanel}
+import it.unibo.citytwin.control_panel.view.View.InfoPanel
+import it.unibo.citytwin.control_panel.view.View.MapPanel
 import it.unibo.citytwin.core.actors.MainstayActorCommand
 import it.unibo.citytwin.core.model.Resource
+import org.jfree.chart.ChartFactory
+import org.jfree.chart.ChartPanel
+import org.jfree.chart.JFreeChart
 import org.jfree.chart.block.BlockBorder
-import org.jfree.chart.plot.{PlotOrientation, XYPlot}
-import org.jfree.chart.{ChartFactory, ChartPanel, JFreeChart}
-import org.jfree.data.xy.{XYDataset, XYSeries, XYSeriesCollection}
+import org.jfree.chart.plot.PlotOrientation
+import org.jfree.chart.plot.XYPlot
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
-import org.jfree.data.time.{Minute, TimeSeries, TimeSeriesCollection}
+import org.jfree.data.time.Minute
+import org.jfree.data.time.TimeSeries
+import org.jfree.data.time.TimeSeriesCollection
+import org.jfree.data.xy.XYDataset
+import org.jfree.data.xy.XYSeries
+import org.jfree.data.xy.XYSeriesCollection
 
-import java.awt.{Color, Component, Dimension, FontMetrics, RenderingHints, Toolkit}
-import java.awt.event.{WindowAdapter, WindowEvent}
+import java.awt.Color
+import java.awt.Component
+import java.awt.Dimension
+import java.awt.FontMetrics
+import java.awt.RenderingHints
+import java.awt.Toolkit
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import java.awt.geom.Rectangle2D
 import java.io.File
 import java.sql.Timestamp
 import java.util.Date
 import javax.imageio.ImageIO
-import javax.swing.{BorderFactory, JPanel, JTabbedPane, SwingUtilities}
-import scala.io.{BufferedSource, Source}
+import javax.swing.BorderFactory
+import javax.swing.JPanel
+import javax.swing.JTabbedPane
+import javax.swing.SwingUtilities
+import scala.io.BufferedSource
+import scala.io.Source
+import scala.swing.BorderPanel
+import scala.swing.BoxPanel
+import scala.swing.BufferWrapper
+import scala.swing.Button
+import scala.swing.FlowPanel
+import scala.swing.Frame
+import scala.swing.Graphics2D
+import scala.swing.Orientation
+import scala.swing.Panel
+import scala.swing.ScrollPane
+import scala.swing.TabbedPane
 import scala.swing.TabbedPane.Page
-import scala.swing.{
-  BorderPanel,
-  BoxPanel,
-  BufferWrapper,
-  Button,
-  FlowPanel,
-  Frame,
-  Graphics2D,
-  Orientation,
-  Panel,
-  ScrollPane,
-  TabbedPane,
-  TextArea
-}
+import scala.swing.TextArea
 
 trait View:
   def drawResources(resources: Set[Resource]): Unit
@@ -203,7 +219,7 @@ object View:
       if resource.name.isDefined then result = result + s"Name: ${resource.name.get} \n"
       if resource.position.isDefined then result = result + s"Position: ${resource.position.get} \n"
       if resource.state.isDefined then result = result + s"State: ${resource.state.get} \n"
-      result = result + s"Resource type: "
+      result = result + "Resource type: "
       resource.resourceType.foreach(t => result = result + t + " ")
       result
   end InfoPanel

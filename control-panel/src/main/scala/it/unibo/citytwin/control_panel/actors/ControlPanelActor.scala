@@ -1,31 +1,33 @@
 package it.unibo.citytwin.control_panel.actors
 
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.model.DateTime
 import akka.util.Timeout
 import it.unibo.citytwin.control_panel.view.View
-import it.unibo.citytwin.core.actors.{
-  AskAllResourcesToMainstay,
-  AskMainstaysHistory,
-  AskMainstaysState,
-  AskResourcesHistory,
-  AskResourcesToMainstay,
-  MainstayActorCommand,
-  MainstaysHistoryResponse,
-  MainstaysStateResponse,
-  PersistenceServiceDriverActor,
-  ResourceActor,
-  ResourceActorCommand,
-  ResourcesFromMainstayResponse,
-  ResourcesHistoryResponse
-}
-import it.unibo.citytwin.core.model.{MainstayState, Resource}
+import it.unibo.citytwin.core.actors.AskAllResourcesToMainstay
+import it.unibo.citytwin.core.actors.AskMainstaysHistory
+import it.unibo.citytwin.core.actors.AskMainstaysState
+import it.unibo.citytwin.core.actors.AskResourcesHistory
+import it.unibo.citytwin.core.actors.AskResourcesToMainstay
+import it.unibo.citytwin.core.actors.MainstayActorCommand
+import it.unibo.citytwin.core.actors.MainstaysHistoryResponse
+import it.unibo.citytwin.core.actors.MainstaysStateResponse
+import it.unibo.citytwin.core.actors.PersistenceServiceDriverActor
+import it.unibo.citytwin.core.actors.ResourceActor
+import it.unibo.citytwin.core.actors.ResourceActorCommand
+import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
+import it.unibo.citytwin.core.actors.ResourcesHistoryResponse
+import it.unibo.citytwin.core.model.MainstayState
+import it.unibo.citytwin.core.model.Resource
+
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import concurrent.duration.DurationInt
 import scala.util.Success
+
+import concurrent.duration.DurationInt
 
 /** ControlPanelActorCommand is the trait that defines the messages that can be sent to the
   * ControlPanelActor
