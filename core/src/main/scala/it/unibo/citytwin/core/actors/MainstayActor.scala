@@ -135,7 +135,12 @@ object MainstayActor:
           .filter((m, _) => m != ctx.self)
           .filter((_, s) => s)
           .foreach((m, _) => m ! Sync(update))
-        mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, mergeResourcesUpdate(resources, update.toMap))
+        mainstayActorBehavior(
+          ctx,
+          persistenceServiceDriverActor,
+          mainstays,
+          mergeResourcesUpdate(resources, update.toMap)
+        )
       case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) =>
         ctx.log.debug("SetMainstays")
         nodes
@@ -144,14 +149,22 @@ object MainstayActor:
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, nodes.toMap, resources)
       case Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)]) =>
         ctx.log.debug("Sync")
-        mainstayActorBehavior(ctx, persistenceServiceDriverActor, mainstays, mergeResourcesUpdate(resources, update.toMap))
+        mainstayActorBehavior(
+          ctx,
+          persistenceServiceDriverActor,
+          mainstays,
+          mergeResourcesUpdate(resources, update.toMap)
+        )
       case _ =>
         ctx.log.error("ERROR. Mainstay Actor stopped")
         Behaviors.stopped
     }
   end mainstayActorBehavior
 
-  private def mergeResourcesUpdate(actual: Map[ActorRef[ResourceActorCommand], Resource], update: Map[ActorRef[ResourceActorCommand], Resource]): Map[ActorRef[ResourceActorCommand], Resource] =
+  private def mergeResourcesUpdate(
+      actual: Map[ActorRef[ResourceActorCommand], Resource],
+      update: Map[ActorRef[ResourceActorCommand], Resource]
+  ): Map[ActorRef[ResourceActorCommand], Resource] =
     actual.map((k, v) =>
       if update.contains(k) then (k, v.merge(update(k))) else (k, v)
     ) ++ (update -- actual.keys)
