@@ -45,6 +45,7 @@ docker compose up
 ```
 
 Then start the rest of the system in another terminal:
+
 On Linux:
 
 ```bash
