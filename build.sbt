@@ -1,6 +1,7 @@
 ThisBuild / version := "0.1.0"
 ThisBuild / scalaVersion := "3.3.0"
 ThisBuild / organization := "it.unibo"
+ThisBuild / scalacOptions ++= Seq("-feature", "-deprecation")
 
 fork := true
 
