@@ -166,9 +166,11 @@ object View:
           )
           g2.setColor(java.awt.Color.BLACK)
           g2.drawString(r.name.get, scaledPosition._1 - 20, scaledPosition._2 - 10)
-          if r.nodeState.get then g2.setColor(java.awt.Color.RED)
-          else g2.setColor(java.awt.Color.GRAY)
+          if r.nodeState.get then g2.setColor(java.awt.Color.GREEN)
+          else g2.setColor(java.awt.Color.RED)
           g2.fillOval(scaledPosition._1, scaledPosition._2, 10, 10)
+          g2.setColor(java.awt.Color.BLACK)
+          g2.drawOval(scaledPosition._1, scaledPosition._2, 10, 10)
         })
     end paint
 
