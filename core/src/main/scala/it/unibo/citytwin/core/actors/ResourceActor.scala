@@ -1,13 +1,19 @@
 package it.unibo.citytwin.core.actors
 
-import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
+import akka.actor.typed.receptionist.Receptionist
+import akka.actor.typed.receptionist.ServiceKey
+import akka.actor.typed.scaladsl.ActorContext
+import akka.actor.typed.scaladsl.Behaviors
 import akka.util.Timeout
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
+
+import scala.util.Random
+import scala.util.Success
+
 import concurrent.duration.DurationInt
-import scala.util.{Random, Success}
 
 /** ResourceActorCommand is the trait that defines the messages that can be sent to the
   * ResourceActor

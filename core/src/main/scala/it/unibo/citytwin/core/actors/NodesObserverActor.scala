@@ -1,7 +1,8 @@
 package it.unibo.citytwin.core.actors
 
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, Behavior}
 import it.unibo.citytwin.core.model.Resource
 
 /** NodesObserverActorCommand is the trait that defines the messages that can be sent to the

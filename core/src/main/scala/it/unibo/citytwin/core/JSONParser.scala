@@ -1,7 +1,10 @@
 package it.unibo.citytwin.core
 
-import it.unibo.citytwin.core.model.{MainstayState, Resource}
-import play.api.libs.json.{JsValue, Json}
+import it.unibo.citytwin.core.model.MainstayState
+import it.unibo.citytwin.core.model.Resource
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+
 import java.time.LocalDateTime
 
 /** JSONParser is the object that parses the JSON responses from the persistence service

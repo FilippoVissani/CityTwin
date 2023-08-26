@@ -1,7 +1,9 @@
 package it.unibo.citytwin.core
 
-import akka.actor.typed.{ActorSystem, Behavior}
-import com.typesafe.config.{Config, ConfigFactory}
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.Behavior
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 
 /** ActorSystemStarter is the object that starts an Akka Actor System
   */

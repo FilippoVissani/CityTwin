@@ -1,11 +1,16 @@
 package it.unibo.citytwin.core.actors
 
-import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
+import akka.actor.typed.receptionist.Receptionist
+import akka.actor.typed.receptionist.ServiceKey
+import akka.actor.typed.scaladsl.ActorContext
+import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.Resource
-import scala.collection.immutable.{Map, Set}
+
+import scala.collection.immutable.Map
+import scala.collection.immutable.Set
 
 /** MainstayActorCommand is the trait that defines the messages that can be sent to the
   * MainstayActor

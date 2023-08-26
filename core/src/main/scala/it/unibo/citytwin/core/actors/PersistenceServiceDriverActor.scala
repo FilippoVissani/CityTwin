@@ -1,26 +1,35 @@
 package it.unibo.citytwin.core.actors
 
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, scaladsl}
+import akka.actor.typed.ActorRef
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.client.RequestBuilding.Post
+import akka.http.scaladsl.model.ContentTypes
+import akka.http.scaladsl.model.HttpEntity
+import akka.http.scaladsl.model.HttpMethod
+import akka.http.scaladsl.model.HttpMethods
+import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.HttpResponse.unapply
-import akka.http.scaladsl.model.{
-  ContentTypes,
-  HttpEntity,
-  HttpMethod,
-  HttpMethods,
-  HttpRequest,
-  HttpResponse
-}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import it.unibo.citytwin.core.JSONParser.{jsonToMainstaysHistory, jsonToResourcesHistory}
-import it.unibo.citytwin.core.model.{MainstayState, Resource}
-import play.api.libs.json.{JsValue, Json}
-import java.time.{LocalDate, LocalDateTime}
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import it.unibo.citytwin.core.JSONParser.jsonToMainstaysHistory
+import it.unibo.citytwin.core.JSONParser.jsonToResourcesHistory
+import it.unibo.citytwin.core.model.MainstayState
+import it.unibo.citytwin.core.model.Resource
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+
+import java.time.LocalDate
+import java.time.LocalDateTime
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
+
 import concurrent.duration.DurationInt
 
 /** PersistenceServiceDriverActorCommand is the trait that defines the messages that can be sent to

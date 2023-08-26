@@ -1,6 +1,7 @@
 package it.unibo.citytwin.core.actors
 
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
 import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.actors.MainstayActor.mainstayService
