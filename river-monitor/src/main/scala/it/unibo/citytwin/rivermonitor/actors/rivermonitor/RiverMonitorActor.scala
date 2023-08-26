@@ -1,21 +1,24 @@
 package it.unibo.citytwin.rivermonitor.actors.rivermonitor
 
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.ActorContext
+import akka.actor.typed.scaladsl.Behaviors
 import akka.util.Timeout
-import scala.util.Success
-import concurrent.duration.DurationInt
-import it.unibo.citytwin.core.actors.{
-  AskResourcesToMainstay,
-  ResourceActor,
-  ResourceActorCommand,
-  ResourcesFromMainstayResponse
-}
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
-import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 import it.unibo.citytwin.core.Serializable
+import it.unibo.citytwin.core.actors.AskResourcesToMainstay
+import it.unibo.citytwin.core.actors.ResourceActor
+import it.unibo.citytwin.core.actors.ResourceActorCommand
+import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
 import it.unibo.citytwin.core.model.Resource
-import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
+import it.unibo.citytwin.core.model.ResourceType.Act
+import it.unibo.citytwin.core.model.ResourceType.Sense
+import it.unibo.citytwin.rivermonitor.model.RiverMonitor
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
+
+import scala.util.Success
+
+import concurrent.duration.DurationInt
 
 /** Command trait for messages that the RiverMonitorActor can receive.
   */
@@ -124,12 +127,12 @@ object RiverMonitorActor:
             resource.state.getOrElse("") match
               case "Evacuating" => riverMonitorStateActor ! EvacuatingRiverMonitor
               case "Safe"       => riverMonitorStateActor ! EvacuatedRiverMonitor
-              case _            => ctx.log.debug(s"Unexpected message")
+              case _            => ctx.log.debug("Unexpected message")
           })
         Behaviors.same
       }
       case _ => {
-        ctx.log.debug(s"Unexpected message. The actor is being stopped")
+        ctx.log.debug("Unexpected message. The actor is being stopped")
         Behaviors.stopped
       }
     }

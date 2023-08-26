@@ -1,20 +1,33 @@
 package it.unibo.citytwin.rivermonitor.view
 
 import com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.{
-  Evacuating,
-  RiverMonitorState,
-  Safe,
-  Warned
-}
-import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor, RiverMonitorResourceState}
-import upickle.default.{macroRW, ReadWriter as RW}
+import it.unibo.citytwin.rivermonitor.model.FloodSensor
+import it.unibo.citytwin.rivermonitor.model.RiverMonitor
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorResourceState
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.Evacuating
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.RiverMonitorState
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.Safe
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.Warned
 import upickle.default.*
-import java.awt.event.{WindowAdapter, WindowEvent}
-import java.awt.{Dimension, Graphics2D, RenderingHints}
-import javax.swing.{BorderFactory, SwingUtilities}
-import scala.swing.BorderPanel.Position.{Center, North}
-import scala.swing.{Action, BorderPanel, Button, FlowPanel, Frame, Label, Panel}
+import upickle.default.macroRW
+import upickle.default.{ReadWriter => RW}
+
+import java.awt.Dimension
+import java.awt.Graphics2D
+import java.awt.RenderingHints
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
+import javax.swing.BorderFactory
+import javax.swing.SwingUtilities
+import scala.swing.Action
+import scala.swing.BorderPanel
+import scala.swing.BorderPanel.Position.Center
+import scala.swing.BorderPanel.Position.North
+import scala.swing.Button
+import scala.swing.FlowPanel
+import scala.swing.Frame
+import scala.swing.Label
+import scala.swing.Panel
 
 /** Defines a trait representing the Swing control panel
   */

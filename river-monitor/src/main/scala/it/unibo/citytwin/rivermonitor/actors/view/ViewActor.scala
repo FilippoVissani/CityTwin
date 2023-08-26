@@ -1,18 +1,20 @@
 package it.unibo.citytwin.rivermonitor.actors.view
 
-import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import akka.actor.typed.{ActorRef, Behavior}
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
+import akka.actor.typed.scaladsl.ActorContext
+import akka.actor.typed.scaladsl.Behaviors
 import akka.util.Timeout
-import it.unibo.citytwin.core.actors.{
-  AskResourcesToMainstay,
-  ResourceActor,
-  ResourceActorCommand,
-  ResourceChanged,
-  ResourcesFromMainstayResponse
-}
+import it.unibo.citytwin.core.actors.AskResourcesToMainstay
+import it.unibo.citytwin.core.actors.ResourceActor
+import it.unibo.citytwin.core.actors.ResourceActorCommand
+import it.unibo.citytwin.core.actors.ResourceChanged
+import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
+import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceType
 import it.unibo.citytwin.rivermonitor.actors.*
 import it.unibo.citytwin.rivermonitor.view.View
-import it.unibo.citytwin.core.model.{Resource, ResourceType}
+
 import scala.concurrent.duration.DurationInt
 import scala.util.Success
 
@@ -126,7 +128,7 @@ object ViewActor:
         Behaviors.same
       }
       case _ => {
-        ctx.log.debug(s"Unexpected message. The actor is being stopped")
+        ctx.log.debug("Unexpected message. The actor is being stopped")
         Behaviors.stopped
       }
     }

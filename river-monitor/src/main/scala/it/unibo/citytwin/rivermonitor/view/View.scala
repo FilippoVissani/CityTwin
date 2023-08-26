@@ -2,9 +2,12 @@ package it.unibo.citytwin.rivermonitor.view
 
 import akka.actor.typed.ActorRef
 import akka.actor.typed.receptionist.Receptionist
-import it.unibo.citytwin.rivermonitor.actors.view.{EvacuatedZone, EvacuatingZone, ViewActorCommand}
+import it.unibo.citytwin.rivermonitor.actors.view.EvacuatedZone
+import it.unibo.citytwin.rivermonitor.actors.view.EvacuatingZone
+import it.unibo.citytwin.rivermonitor.actors.view.ViewActorCommand
+import it.unibo.citytwin.rivermonitor.model.FloodSensor
+import it.unibo.citytwin.rivermonitor.model.RiverMonitor
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.RiverMonitorState
-import it.unibo.citytwin.rivermonitor.model.{FloodSensor, RiverMonitor}
 
 /** Defines the contract for a View, responsible for interacting with the UI and receiving updates
   * from actors.

@@ -1,16 +1,21 @@
 package it.unibo.citytwin.rivermonitor.actors.rivermonitor
 
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, Behavior}
-import it.unibo.citytwin.core.actors.{ResourceActorCommand, ResourceChanged}
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
-import it.unibo.citytwin.rivermonitor.model.{RiverMonitor, RiverMonitorResourceState}
 import it.unibo.citytwin.core.Serializable
+import it.unibo.citytwin.core.actors.ResourceActorCommand
+import it.unibo.citytwin.core.actors.ResourceChanged
 import it.unibo.citytwin.core.model.Resource
-import it.unibo.citytwin.core.model.ResourceType.{Act, Sense}
-import upickle.default.*
-import upickle.default.{macroRW, ReadWriter as RW}
+import it.unibo.citytwin.core.model.ResourceType.Act
+import it.unibo.citytwin.core.model.ResourceType.Sense
+import it.unibo.citytwin.rivermonitor.model.RiverMonitor
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorResourceState
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
 import upickle.*
+import upickle.default.*
+import upickle.default.macroRW
+import upickle.default.{ReadWriter => RW}
 
 /** Command trait for messages that the RiverMonitorStateActor can receive.
   */
@@ -108,7 +113,7 @@ object RiverMonitorStateActor:
           RiverMonitorStateActor(riverMonitor, resourceActor, Some(monitoredSensors))
         }
         case _ => {
-          ctx.log.debug(s"Unexpected message. The actor is being stopped")
+          ctx.log.debug("Unexpected message. The actor is being stopped")
           Behaviors.stopped
         }
       }

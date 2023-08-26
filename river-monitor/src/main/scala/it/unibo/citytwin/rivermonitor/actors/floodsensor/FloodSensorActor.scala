@@ -1,13 +1,16 @@
 package it.unibo.citytwin.rivermonitor.actors.floodsensor
 
 import akka.actor
+import akka.actor.typed.ActorRef
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, Behavior}
 import akka.util.Timeout
-import it.unibo.citytwin.core.actors.*
-import it.unibo.citytwin.core.model.{Resource, ResourceType}
 import it.unibo.citytwin.core.Serializable
+import it.unibo.citytwin.core.actors.*
+import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceType
 import it.unibo.citytwin.rivermonitor.model.FloodSensor
+
 import java.util.concurrent.ThreadLocalRandom
 import scala.concurrent.duration.DurationInt
 
@@ -38,7 +41,7 @@ object FloodSensorActor:
         // Message handling
         Behaviors.receiveMessage {
           case Tick => {
-            ctx.log.debug(s"Received Tick")
+            ctx.log.debug("Received Tick")
             val waterLevel = ThreadLocalRandom.current().nextFloat(20)
             val resource = Resource(
               Some(floodSensor.name),
@@ -50,7 +53,7 @@ object FloodSensorActor:
             Behaviors.same
           }
           case _ => {
-            ctx.log.debug(s"Unexpected message. The actor is being stopped")
+            ctx.log.debug("Unexpected message. The actor is being stopped")
             Behaviors.stopped
           }
         }

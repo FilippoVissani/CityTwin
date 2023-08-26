@@ -1,18 +1,26 @@
 package it.unibo.citytwin.airqualitymonitor
 
 import akka.actor
+import akka.actor.typed.ActorRef
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
-import akka.util.Timeout
-import it.unibo.citytwin.core.actors.*
-import it.unibo.citytwin.core.model.{Resource, ResourceType}
-import it.unibo.citytwin.core.Serializable
-import akka.util.ByteString
-import scala.concurrent.duration.DurationInt
-import akka.http.scaladsl.model.{HttpMethod, HttpRequest, HttpResponse}
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.model.HttpMethod
+import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.HttpResponse
+import akka.util.ByteString
+import akka.util.Timeout
+import it.unibo.citytwin.core.Serializable
+import it.unibo.citytwin.core.actors.*
+import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceType
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+import scala.util.Failure
+import scala.util.Success
 
 /** Commands supported by the AirSensorActor */
 trait AirSensorActorCommand
@@ -42,7 +50,7 @@ object AirSensorActor:
         timers.startTimerAtFixedRate(Tick, 5.seconds)
         Behaviors.receiveMessage {
           case Tick => {
-            ctx.log.info(s"Received Tick")
+            ctx.log.info("Received Tick")
             implicit val executionContext: ExecutionContext = ctx.executionContext
             implicit val system: ActorSystem[Nothing]       = ctx.system
             val request                                     = HttpRequest(uri = sensorUri)
@@ -66,7 +74,7 @@ object AirSensorActor:
             Behaviors.same
           }
           case _ => {
-            ctx.log.debug(s"Unexpected message. The actor is being stopped")
+            ctx.log.debug("Unexpected message. The actor is being stopped")
             Behaviors.stopped
           }
         }
