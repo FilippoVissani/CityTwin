@@ -22,6 +22,8 @@ lazy val upickleJson = "com.lihaoyi" %% "upickle" % "3.1.2"
 lazy val akkaHttp = akkaGroup %% "akka-http" % akkaHttpVersion
 lazy val playJson = ("com.typesafe.play" %% "play-json" % "2.9.4").cross(CrossVersion.for3Use2_13)
 lazy val commonSettings = Seq(
+  semanticdbEnabled := true,
+  semanticdbVersion := scalafixSemanticdb.revision,
   libraryDependencies := commonDependencies,
   scriptClasspath := Seq("*"),
 )
