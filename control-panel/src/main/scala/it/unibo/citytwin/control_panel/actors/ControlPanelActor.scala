@@ -85,13 +85,13 @@ object ControlPanelActor:
     * @return
     *   the behavior of the ControlPanelActor
     */
-  def apply(citySize: (Double, Double)): Behavior[ControlPanelActorCommand] =
+  def apply(citySize: (Double, Double), cityMap: String, persistenceServiceHost: String, persistenceServicePort: String): Behavior[ControlPanelActorCommand] =
     Behaviors.setup[ControlPanelActorCommand] { ctx =>
       implicit val timeout: Timeout = 3.seconds
       val resourceActor             = ctx.spawnAnonymous(ResourceActor())
       val persistenceServiceDriverActor =
-        ctx.spawnAnonymous(PersistenceServiceDriverActor("127.0.0.1", "8080"))
-      val view = View(citySize)
+        ctx.spawnAnonymous(PersistenceServiceDriverActor(persistenceServiceHost, persistenceServicePort))
+      val view = View(citySize, cityMap)
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick, 8.seconds)
         Behaviors.receiveMessage {

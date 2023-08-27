@@ -1,5 +1,9 @@
 #!/bin/sh
 
+CESENA_MAP=$(readlink -f ./cesena-map.png)
+PERSISTENCE_SERVICE_HOST="127.0.0.1"
+PERSISTENCE_SERVICE_PORT="8080"
+
 sbt clean
 sbt universal:packageBin
 unzip ./core/target/universal/core-0.1.0.zip -d ./core/target/
@@ -9,10 +13,10 @@ unzip ./air-quality-monitor/target/universal/air-quality-monitor-0.1.0.zip -d ./
 unzip ./acid-rain-monitor/target/universal/acid-rain-monitor-0.1.0.zip -d ./acid-rain-monitor/target/
 unzip ./noise-pollution-monitor/target/universal/noise-pollution-monitor-0.1.0.zip -d ./noise-pollution-monitor/target/
 
-$TERM -e ./core/target/core-0.1.0/bin/core 2551 127.0.0.1 8080 &
-$TERM -e ./core/target/core-0.1.0/bin/core 2552 127.0.0.1 8080 &
-$TERM -e ./core/target/core-0.1.0/bin/core 2553 127.0.0.1 8080 &
-$TERM -e ./control-panel/target/control-panel-0.1.0/bin/control-panel 2554 16000 9000 &
+$TERM -e ./core/target/core-0.1.0/bin/core 2551 ${PERSISTENCE_SERVICE_HOST} ${PERSISTENCE_SERVICE_PORT} &
+$TERM -e ./core/target/core-0.1.0/bin/core 2552 ${PERSISTENCE_SERVICE_HOST} ${PERSISTENCE_SERVICE_PORT} &
+$TERM -e ./core/target/core-0.1.0/bin/core 2553 ${PERSISTENCE_SERVICE_HOST} ${PERSISTENCE_SERVICE_PORT} &
+$TERM -e ./control-panel/target/control-panel-0.1.0/bin/control-panel 2554 16000 9000 "${CESENA_MAP}" ${PERSISTENCE_SERVICE_HOST} ${PERSISTENCE_SERVICE_PORT} &
 $TERM -e ./river-monitor/target/river-monitor-0.1.0/bin/river-monitor-main 2555 RiverMonitor_Savio 15 5200 5600 FloodSensor_PonteVecchio FloodSensor_PonteNuovo View_Savio &
 $TERM -e ./river-monitor/target/river-monitor-0.1.0/bin/flood-sensor-main 2556 FloodSensor_PonteVecchio 4500 7100 &
 $TERM -e ./river-monitor/target/river-monitor-0.1.0/bin/flood-sensor-main 2557 FloodSensor_PonteNuovo 4900 4200 &

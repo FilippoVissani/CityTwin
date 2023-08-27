@@ -63,14 +63,14 @@ trait View:
   def drawResourcesStats(data: Map[Timestamp, Int]): Unit
 
 object View:
-  def apply(citySize: (Double, Double)): View = ViewImpl(citySize)
+  def apply(citySize: (Double, Double), cityMap: String): View = ViewImpl(citySize, cityMap)
 
-  private class ViewImpl(citySize: (Double, Double)) extends Frame with View:
+  private class ViewImpl(citySize: (Double, Double), cityMap: String) extends Frame with View:
     private val framePercentSize    = (80, 80)
     private val mapPanelPercentSize = (100, 100)
     private val frameDimension      = calcFrameDimension(framePercentSize)
     private val mapPanelDimension   = calcPanelDimension(mapPanelPercentSize, frameDimension)
-    private val mapPanel: MapPanel  = MapPanel(frameDimension, mapPanelDimension, citySize)
+    private val mapPanel: MapPanel  = MapPanel(frameDimension, mapPanelDimension, citySize, cityMap)
     private val infoPanel           = InfoPanel()
     private val mainstaysStatsPanel = StatsPanel("mainstays")
     private val resourcesStatsPanel = StatsPanel("resources")
@@ -133,10 +133,11 @@ object View:
   sealed class MapPanel(
       frameDimension: Dimension,
       mapPanelDimension: Dimension,
-      citySize: (Double, Double)
+      citySize: (Double, Double), 
+      cityMap: String,
   ) extends Panel:
     private val image =
-      Toolkit.getDefaultToolkit.getImage("control-panel/src/main/resources/city-map.png")
+      Toolkit.getDefaultToolkit.getImage(cityMap)
     private var resources: Set[Resource] = Set()
     preferredSize = frameDimension
 
