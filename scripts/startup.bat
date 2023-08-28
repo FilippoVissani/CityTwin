@@ -12,7 +12,7 @@ tar -x -f ./noise-pollution-monitor/target/universal/noise-pollution-monitor-0.1
 start cmd /k call ./core/target/core-0.1.0/bin/core.bat 2551 127.0.0.1 8080
 start cmd /k call ./core/target/core-0.1.0/bin/core.bat 2552 127.0.0.1 8080
 start cmd /k call ./core/target/core-0.1.0/bin/core.bat 2553 127.0.0.1 8080
-start cmd /k call ./control-panel/target/control-panel-0.1.0/bin/control-panel.bat 2554 16000 9000
+start cmd /k call ./control-panel/target/control-panel-0.1.0/bin/control-panel.bat 2554 16000 9000 "./cesena-map.png" 127.0.0.1 8080
 start cmd /k call ./river-monitor/target/river-monitor-0.1.0/bin/river-monitor-main.bat 2555 RiverMonitor_Savio 15 5200 5600 FloodSensor_PonteVecchio FloodSensor_PonteNuovo View_Savio
 start cmd /k call ./river-monitor/target/river-monitor-0.1.0/bin/flood-sensor-main.bat 2556 FloodSensor_PonteVecchio 4500 7100
 start cmd /k call ./river-monitor/target/river-monitor-0.1.0/bin/flood-sensor-main.bat 2557 FloodSensor_PonteNuovo 4900 4200
