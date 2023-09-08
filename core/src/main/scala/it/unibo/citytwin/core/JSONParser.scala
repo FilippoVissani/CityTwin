@@ -28,7 +28,6 @@ object JSONParser:
         .transpose
         .filter(x => x.forall(y => y.isDefined))
         .map(x => MainstayState(x.head.get.asInstanceOf[String], x(1).get.asInstanceOf[Boolean], x(2).get.asInstanceOf[LocalDateTime]))
-      
     mergedHistory
 
   /** jsonToResourcesHistory is the function that parses the JSON response from the persistence
@@ -38,18 +37,16 @@ object JSONParser:
     * @return
     *   the sequence of Resource
     */
-  def jsonToResourcesHistory(jsonString: String): Seq[(ResourceState, LocalDateTime)] =
+  def jsonToResourcesHistory(jsonString: String): Seq[ResourceState] =
     val json: JsValue = Json.parse(jsonString)
     val namesHistory  = (json \\ "name").map(v => v.asOpt[String])
     val statesHistory = (json \\ "node_state").map(v => v.asOpt[Boolean])
     val timeHistory   = parseTimeHistory(json)
-    val mergedHistory: Seq[(ResourceState, LocalDateTime)] = namesHistory
-      .zip(statesHistory)
-      .map((n, s) => ResourceState(name = n, nodeState = s))
-      .zip(timeHistory)
-      .filter((r, t) => r.name.isDefined && r.nodeState.isDefined && t.isDefined)
-      .map((r, t) => (r, t.get))
-      .toSeq
+    val mergedHistory: Seq[ResourceState] =
+      List(namesHistory, statesHistory, timeHistory)
+        .transpose
+        .filter(x => x.forall(y => y.isDefined))
+        .map(x => ResourceState(name = x.head.asInstanceOf[Option[String]], nodeState = x(1).asInstanceOf[Option[Boolean]], time = x(2).asInstanceOf[Option[LocalDateTime]]))
     mergedHistory
 
   private def parseTimeHistory(

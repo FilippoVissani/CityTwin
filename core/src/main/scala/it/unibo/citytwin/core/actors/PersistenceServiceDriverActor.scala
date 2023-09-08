@@ -58,12 +58,10 @@ case class AskResourcesHistory(replyTo: ActorRef[ResourcesHistoryResponse])
 /** PostMainstay is the message that can be sent to the PersistenceServiceDriverActor to send a
  * mainstay to the persistence service
  *
- * @param address
- *   the address of the mainstay
  * @param state
  *   the state to send
  */
-case class PostMainstay(address: String, state: Boolean)
+case class PostMainstay(state: MainstayState)
     extends PersistenceServiceDriverActorCommand
     with Serializable
 

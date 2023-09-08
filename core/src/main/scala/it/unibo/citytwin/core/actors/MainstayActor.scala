@@ -8,7 +8,7 @@ import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.model.ResourceState
-
+import java.time.LocalDateTime
 import scala.collection.immutable.Map
 import scala.collection.immutable.Set
 
@@ -132,19 +132,27 @@ object MainstayActor:
         Behaviors.same
       case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], ResourceState)]) =>
         ctx.log.debug(s"UpdateResources: $update")
-        update
+        // merge the update with current states
+        val mergedUpdate = update
           .map((a, r) => if resources.contains(a) then (a, resources(a).merge(r)) else (a, r))
+          .map((a, r) => (a, r.copy(time = Some(LocalDateTime.now()))))
+        // send it to persistence service
+        mergedUpdate
           .filter((_, r) => r.name.isDefined && r.nodeState.isDefined && r.resourceType.nonEmpty)
           .foreach((a, r) => persistenceServiceDriverActor ! PostResource(a.path.toString, r))
+        // compute the overall result
+        val result = resources ++ mergedUpdate
+        // sync with other mainstays
         mainstays
           .filter((m, _) => m != ctx.self)
           .filter((_, s) => s)
-          .foreach((m, _) => m ! Sync(update))
+          .foreach((m, _) => m ! Sync(result.toSet))
+        // start new behavior
         mainstayActorBehavior(
           ctx,
           persistenceServiceDriverActor,
           mainstays,
-          mergeResourcesUpdate(resources, update.toMap)
+          result
         )
       case SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)]) =>
         ctx.log.debug("SetMainstays")

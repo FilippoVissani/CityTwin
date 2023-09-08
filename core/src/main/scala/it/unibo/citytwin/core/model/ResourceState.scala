@@ -2,6 +2,8 @@ package it.unibo.citytwin.core.model
 
 import it.unibo.citytwin.core.model.ResourceType.ResourceType
 
+import java.time.LocalDateTime
+
 /** ResourceType is the enumeration that represents the type of a resource
   */
 object ResourceType extends Enumeration:
@@ -25,7 +27,8 @@ case class ResourceState(
     position: Option[Point2D[Int]] = None,
     state: Option[String] = None,
     resourceType: Set[ResourceType] = Set(),
-    nodeState: Option[Boolean] = None
+    nodeState: Option[Boolean] = None,
+    time: Option[LocalDateTime] = None
 ):
   def merge(other: ResourceState): ResourceState =
     val name     = if other.name.isDefined then other.name else this.name
@@ -34,4 +37,5 @@ case class ResourceState(
     val resourceType =
       if other.resourceType.nonEmpty then other.resourceType else this.resourceType
     val nodeState = if other.nodeState.isDefined then other.nodeState else this.nodeState
-    ResourceState(name, position, state, resourceType, nodeState)
+    val time = if other.time.isDefined then other.time else this.time
+    ResourceState(name, position, state, resourceType, nodeState, time)

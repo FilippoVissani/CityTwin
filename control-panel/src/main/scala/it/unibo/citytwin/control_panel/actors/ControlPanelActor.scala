@@ -67,7 +67,7 @@ case class AdaptedMainstaysHistoryResponse(states: Seq[MainstayState])
   * @param states
   *   the states of the resources that are sent as a response
   */
-case class AdaptedResourcesHistoryResponse(states: Seq[(ResourceState, LocalDateTime)])
+case class AdaptedResourcesHistoryResponse(states: Seq[ResourceState])
     extends ControlPanelActorCommand
     with Serializable
 
@@ -114,12 +114,12 @@ object ControlPanelActor:
             ctx.log.debug(s"Updating view with Mainstays: $statsData")
             view.drawMainstaysStats(statsData)
             Behaviors.same
-          case AdaptedResourcesHistoryResponse(states: Seq[(ResourceState, LocalDateTime)]) =>
+          case AdaptedResourcesHistoryResponse(states: Seq[ResourceState]) =>
             ctx.log.debug(s"Received AdaptedResourcesHistoryResponse $states")
             val statsData: Map[Timestamp, Int] =
               states
-                .map((s, t) => (s, Timestamp.valueOf(t.truncatedTo(ChronoUnit.MINUTES))))
-                .filter((s, _) => s.name.isDefined && s.nodeState.isDefined)
+                .filter(s => s.name.isDefined && s.nodeState.isDefined && s.time.isDefined)
+                .map(s => (s, Timestamp.valueOf(s.time.get.truncatedTo(ChronoUnit.MINUTES))))
                 .filter((s, _) => s.nodeState.get)
                 .groupBy((_, t) => t)
                 .map((k, v) => (k, v.map((s, _) => s.name.get).toSet.size))
@@ -145,7 +145,7 @@ object ControlPanelActor:
               case _ => AdaptedMainstaysHistoryResponse(Seq())
             }
             ctx.ask(persistenceServiceDriverActor, ref => AskResourcesHistory(ref)) {
-              case Success(ResourcesHistoryResponse(states: Seq[(ResourceState, LocalDateTime)])) =>
+              case Success(ResourcesHistoryResponse(states: Seq[ResourceState])) =>
                 AdaptedResourcesHistoryResponse(states)
               case _ => AdaptedResourcesHistoryResponse(Seq())
             }
