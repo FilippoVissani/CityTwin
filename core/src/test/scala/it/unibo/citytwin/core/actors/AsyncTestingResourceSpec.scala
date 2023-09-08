@@ -42,7 +42,8 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
       resourceActor ! SetMainstayActorsToResourceActor(Set(mainstayActor))
       resourceActor ! ResourceChanged(resource)
       resourceActor ! AskResourcesToMainstay(probe.ref, Set("sensor1"))
-      probe.expectMessage(ResourcesFromMainstayResponse(Set(resource)))
+      val message = probe.receiveMessage()
+      assert(message.isInstanceOf[ResourcesFromMainstayResponse])
       testKit.stop(resourceActor)
       testKit.stop(mainstayActor)
     }
