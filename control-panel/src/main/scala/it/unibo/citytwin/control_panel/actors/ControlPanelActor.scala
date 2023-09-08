@@ -58,7 +58,7 @@ case class AdaptedMainstaysStateResponse(mainstays: Set[ActorRef[MainstayActorCo
   * @param states
   *   the states of the mainstays that are sent as a response
   */
-case class AdaptedMainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)])
+case class AdaptedMainstaysHistoryResponse(states: Seq[MainstayState])
     extends ControlPanelActorCommand
     with Serializable
 
@@ -103,15 +103,14 @@ object ControlPanelActor:
             ctx.log.debug(s"Received AdaptedMainstaysStateResponse: $mainstays")
             view.drawMainstays(mainstays.map(m => m.path.toString))
             Behaviors.same
-          case AdaptedMainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)]) =>
+          case AdaptedMainstaysHistoryResponse(states: Seq[MainstayState]) =>
             ctx.log.debug(s"Received AdaptedMainstayHistoryResponse $states")
             val statsData: Map[Timestamp, Int] =
               states
-                .map((s, t) => (s, Timestamp.valueOf(t.truncatedTo(ChronoUnit.MINUTES))))
-                .filter((s, _) => s.address.isDefined && s.state.isDefined)
-                .filter((s, _) => s.state.get)
+                .map(s => (s, Timestamp.valueOf(s.time.truncatedTo(ChronoUnit.MINUTES))))
+                .filter((s, _) => s.state)
                 .groupBy((_, t) => t)
-                .map((k, v) => (k, v.map((s, _) => s.address.get).toSet.size))
+                .map((k, v) => (k, v.map((s, _) => s.address).toSet.size))
             ctx.log.debug(s"Updating view with Mainstays: $statsData")
             view.drawMainstaysStats(statsData)
             Behaviors.same
@@ -141,7 +140,7 @@ object ControlPanelActor:
               case _ => AdaptedResourcesFromMainstayResponse(Set())
             }
             ctx.ask(persistenceServiceDriverActor, ref => AskMainstaysHistory(ref)) {
-              case Success(MainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)])) =>
+              case Success(MainstaysHistoryResponse(states: Seq[MainstayState])) =>
                 AdaptedMainstaysHistoryResponse(states)
               case _ => AdaptedMainstaysHistoryResponse(Seq())
             }

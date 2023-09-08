@@ -18,18 +18,17 @@ object JSONParser:
     * @return
     *   the sequence of MainstayState
     */
-  def jsonToMainstaysHistory(jsonString: String): Seq[(MainstayState, LocalDateTime)] =
+  def jsonToMainstaysHistory(jsonString: String): Seq[MainstayState] =
     val json: JsValue    = Json.parse(jsonString)
     val addressesHistory = (json \\ "address").map(v => v.asOpt[String])
     val statesHistory    = (json \\ "state").map(v => v.asOpt[Boolean])
     val timeHistory      = parseTimeHistory(json)
-    val mergedHistory: Seq[(MainstayState, LocalDateTime)] = addressesHistory
-      .zip(statesHistory)
-      .map((a, s) => MainstayState(address = a, state = s))
-      .zip(timeHistory)
-      .filter((m, t) => m.address.isDefined && m.state.isDefined && t.isDefined)
-      .map((m, t) => (m, t.get))
-      .toSeq
+    val mergedHistory: Seq[MainstayState] =
+      List(addressesHistory, statesHistory, timeHistory)
+        .transpose
+        .filter(x => x.forall(y => y.isDefined))
+        .map(x => MainstayState(x.head.get.asInstanceOf[String], x(1).get.asInstanceOf[Boolean], x(2).get.asInstanceOf[LocalDateTime]))
+      
     mergedHistory
 
   /** jsonToResourcesHistory is the function that parses the JSON response from the persistence

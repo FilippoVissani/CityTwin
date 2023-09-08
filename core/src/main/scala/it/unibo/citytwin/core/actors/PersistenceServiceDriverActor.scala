@@ -84,7 +84,7 @@ case class PostResource(address: String, resource: Resource)
   * @param states
   *   the history of the Mainstay Actors
   */
-case class MainstaysHistoryResponse(states: Seq[(MainstayState, LocalDateTime)])
+case class MainstaysHistoryResponse(states: Seq[MainstayState])
 
 /** ResourcesHistoryResponse is the message that is sent by the PersistenceServiceDriverActor as a
   * response to AskResourcesHistory message
