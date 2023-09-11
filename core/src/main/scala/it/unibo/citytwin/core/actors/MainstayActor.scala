@@ -134,8 +134,8 @@ object MainstayActor:
         ctx.log.debug(s"UpdateResources: $update")
         // merge the update with current states
         val mergedUpdate = update
-          .map((a, r) => if resources.contains(a) then (a, resources(a).merge(r)) else (a, r))
           .map((a, r) => (a, r.copy(time = Some(LocalDateTime.now()))))
+          .map((a, r) => if resources.contains(a) then (a, resources(a).merge(r)) else (a, r))
         // send it to persistence service
         mergedUpdate
           .filter((_, r) => r.name.isDefined && r.nodeState.isDefined && r.resourceType.nonEmpty)
