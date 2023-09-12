@@ -9,7 +9,8 @@ import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
-
+import upickle._
+import upickle.default._
 import scala.concurrent.duration.DurationInt
 
 /** Commands supported by the AcidRainSensorActor */
@@ -41,8 +42,9 @@ object AcidRainSensorActor:
             ctx.log.info("Received Tick")
             // Simulate pH measurement
             val pH = scala.util.Random.nextFloat() * 14 // pH range: 0-14
-            // Create JSON string with pH value
-            val json = s"""{"ph": $pH}"""
+            // serialize pH value as JSON string
+            val acidRainSensorData = AcidRainSensorData(pH)
+            val json: String = write(acidRainSensorData)
             // Create resource to send to mainstay
             val resource = ResourceState(
               Some(acidRainSensor.name),
