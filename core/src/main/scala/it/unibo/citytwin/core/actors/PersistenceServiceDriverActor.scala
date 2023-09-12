@@ -136,7 +136,7 @@ object PersistenceServiceDriverActor:
             .obj(
               "address" -> state.address,
               "state"   -> state.state,
-              "time"    -> LocalDateTime.now()
+              "time"    -> state.time,
             )
             .toString()
           Http().singleRequest(
