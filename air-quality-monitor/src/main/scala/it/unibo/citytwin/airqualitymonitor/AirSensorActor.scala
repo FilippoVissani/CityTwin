@@ -13,7 +13,7 @@ import akka.util.ByteString
 import akka.util.Timeout
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.actors.*
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
 
 import scala.concurrent.ExecutionContext
@@ -60,7 +60,7 @@ object AirSensorActor:
                 case Success(response) => {
                   response.entity.dataBytes.runFold(ByteString(""))(_ ++ _).foreach { body =>
                     val resourceStateAsString: String = body.utf8String
-                    val resource = Resource(
+                    val resource = ResourceState(
                       Some(airSensor.name),
                       Some(airSensor.position),
                       Some(resourceStateAsString),

@@ -20,18 +20,18 @@ object ResourceType extends Enumeration:
   * @param nodeState
   *   the state of the node
   */
-case class Resource(
+case class ResourceState(
     name: Option[String] = None,
     position: Option[Point2D[Int]] = None,
     state: Option[String] = None,
     resourceType: Set[ResourceType] = Set(),
     nodeState: Option[Boolean] = None
 ):
-  def merge(other: Resource): Resource =
+  def merge(other: ResourceState): ResourceState =
     val name     = if other.name.isDefined then other.name else this.name
     val position = if other.position.isDefined then other.position else this.position
     val state    = if other.state.isDefined then other.state else this.state
     val resourceType =
       if other.resourceType.nonEmpty then other.resourceType else this.resourceType
     val nodeState = if other.nodeState.isDefined then other.nodeState else this.nodeState
-    Resource(name, position, state, resourceType, nodeState)
+    ResourceState(name, position, state, resourceType, nodeState)

@@ -6,7 +6,7 @@ import akka.actor.typed.receptionist.Receptionist
 import akka.cluster.MemberStatus.Up
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.ResourceType.*
-import it.unibo.citytwin.core.model.{Point2D, Resource}
+import it.unibo.citytwin.core.model.{Point2D, ResourceState}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -23,9 +23,9 @@ class AsyncTestingNodesObserverSpec extends AnyWordSpec with BeforeAndAfterAll w
       val observer = testKit.spawn(NodesObserverActor(probe.ref))
       val resource = testKit.spawn(DummyResourceActor())
       observer ! UpdateResourceNodesState(Set(resource))
-      probe.expectMessage(UpdateResources(Map(resource -> Resource(nodeState = Some(true))).toSet))
+      probe.expectMessage(UpdateResources(Map(resource -> ResourceState(nodeState = Some(true))).toSet))
       observer ! UpdateResourceNodesState(Set())
-      probe.expectMessage(UpdateResources(Map(resource -> Resource(nodeState = Some(false))).toSet))
+      probe.expectMessage(UpdateResources(Map(resource -> ResourceState(nodeState = Some(false))).toSet))
       testKit.stop(observer)
       testKit.stop(resource)
     }

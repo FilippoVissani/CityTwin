@@ -20,7 +20,7 @@ import it.unibo.citytwin.core.actors.ResourceActorCommand
 import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
 import it.unibo.citytwin.core.actors.ResourcesHistoryResponse
 import it.unibo.citytwin.core.model.MainstayState
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -40,7 +40,7 @@ trait ControlPanelActorCommand
   * @param resources
   *   the resources that are sent as a response
   */
-case class AdaptedResourcesFromMainstayResponse(resources: Set[Resource])
+case class AdaptedResourcesFromMainstayResponse(resources: Set[ResourceState])
     extends ControlPanelActorCommand
     with Serializable
 
@@ -67,7 +67,7 @@ case class AdaptedMainstaysHistoryResponse(states: Seq[MainstayState])
   * @param states
   *   the states of the resources that are sent as a response
   */
-case class AdaptedResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)])
+case class AdaptedResourcesHistoryResponse(states: Seq[(ResourceState, LocalDateTime)])
     extends ControlPanelActorCommand
     with Serializable
 
@@ -95,7 +95,7 @@ object ControlPanelActor:
       Behaviors.withTimers { timers =>
         timers.startTimerAtFixedRate(Tick, 8.seconds)
         Behaviors.receiveMessage {
-          case AdaptedResourcesFromMainstayResponse(resources: Set[Resource]) =>
+          case AdaptedResourcesFromMainstayResponse(resources: Set[ResourceState]) =>
             ctx.log.debug(s"Received AdaptedResourcesFromMainstayResponse: $resources")
             view.drawResources(resources)
             Behaviors.same
@@ -114,7 +114,7 @@ object ControlPanelActor:
             ctx.log.debug(s"Updating view with Mainstays: $statsData")
             view.drawMainstaysStats(statsData)
             Behaviors.same
-          case AdaptedResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)]) =>
+          case AdaptedResourcesHistoryResponse(states: Seq[(ResourceState, LocalDateTime)]) =>
             ctx.log.debug(s"Received AdaptedResourcesHistoryResponse $states")
             val statsData: Map[Timestamp, Int] =
               states
@@ -135,7 +135,7 @@ object ControlPanelActor:
               case _ => AdaptedMainstaysStateResponse(Set())
             }
             ctx.ask(resourceActor, ref => AskAllResourcesToMainstay(ref)) {
-              case Success(ResourcesFromMainstayResponse(resources: Set[Resource])) =>
+              case Success(ResourcesFromMainstayResponse(resources: Set[ResourceState])) =>
                 AdaptedResourcesFromMainstayResponse(resources)
               case _ => AdaptedResourcesFromMainstayResponse(Set())
             }
@@ -145,7 +145,7 @@ object ControlPanelActor:
               case _ => AdaptedMainstaysHistoryResponse(Seq())
             }
             ctx.ask(persistenceServiceDriverActor, ref => AskResourcesHistory(ref)) {
-              case Success(ResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)])) =>
+              case Success(ResourcesHistoryResponse(states: Seq[(ResourceState, LocalDateTime)])) =>
                 AdaptedResourcesHistoryResponse(states)
               case _ => AdaptedResourcesHistoryResponse(Seq())
             }

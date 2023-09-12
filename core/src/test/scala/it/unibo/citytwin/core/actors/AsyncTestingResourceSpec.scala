@@ -8,7 +8,7 @@ import akka.cluster.MemberStatus.Up
 import akka.util.Timeout
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.ResourceType.*
-import it.unibo.citytwin.core.model.{Point2D, Resource}
+import it.unibo.citytwin.core.model.{Point2D, ResourceState}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -27,7 +27,7 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
     "Ask resources to mainstay" in {
       val probe         = testKit.createTestProbe[MainstayActorCommand]()
       val resourceActor = testKit.spawn(ResourceActor())
-      val resource      = Resource(name = Some("sensor1"))
+      val resource      = ResourceState(name = Some("sensor1"))
       resourceActor ! SetMainstayActorsToResourceActor(Set(probe.ref))
       resourceActor ! ResourceChanged(resource)
       probe.expectMessage(UpdateResources(Set((resourceActor, resource))))
@@ -38,7 +38,7 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
       val mainstayActor = testKit.spawn(MainstayActor("", ""))
       val resourceActor = testKit.spawn(ResourceActor())
       val probe         = testKit.createTestProbe[ResourcesFromMainstayResponse]()
-      val resource      = Resource(name = Some("sensor1"), nodeState = Some(true))
+      val resource      = ResourceState(name = Some("sensor1"), nodeState = Some(true))
       resourceActor ! SetMainstayActorsToResourceActor(Set(mainstayActor))
       resourceActor ! ResourceChanged(resource)
       resourceActor ! AskResourcesToMainstay(probe.ref, Set("sensor1"))
@@ -51,8 +51,8 @@ class AsyncTestingResourceSpec extends AnyWordSpec with BeforeAndAfterAll with M
       val probe    = testKit.createTestProbe[MainstayActorCommand]()
       val resource = testKit.spawn(ResourceActor())
       resource ! SetMainstayActorsToResourceActor(Set(probe.ref))
-      resource ! ResourceChanged(Resource())
-      probe.expectMessage(UpdateResources(Set((resource, Resource()))))
+      resource ! ResourceChanged(ResourceState())
+      probe.expectMessage(UpdateResources(Set((resource, ResourceState()))))
       testKit.stop(resource)
     }
   }

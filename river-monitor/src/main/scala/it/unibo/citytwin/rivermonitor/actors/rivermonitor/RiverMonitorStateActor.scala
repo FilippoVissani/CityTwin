@@ -6,7 +6,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.actors.ResourceActorCommand
 import it.unibo.citytwin.core.actors.ResourceChanged
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType.Act
 import it.unibo.citytwin.core.model.ResourceType.Sense
 import it.unibo.citytwin.rivermonitor.model.RiverMonitor
@@ -72,7 +72,7 @@ object RiverMonitorStateActor:
       val resourceStateAsString: String              = write(riverMonitorResourceState)
 
       // Create a Resource instance to represent the river monitor's state
-      val resource = Resource(
+      val resource = ResourceState(
         Some(riverMonitor.riverMonitorName),
         Some(riverMonitor.position),
         Some(resourceStateAsString),

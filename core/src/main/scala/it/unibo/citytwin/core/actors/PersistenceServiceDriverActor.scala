@@ -19,7 +19,7 @@ import akka.stream.ActorMaterializer
 import it.unibo.citytwin.core.JSONParser.jsonToMainstaysHistory
 import it.unibo.citytwin.core.JSONParser.jsonToResourcesHistory
 import it.unibo.citytwin.core.model.MainstayState
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
@@ -75,7 +75,7 @@ case class PostMainstay(address: String, state: Boolean)
   * @param resource
   *   the resource to send
   */
-case class PostResource(address: String, resource: Resource)
+case class PostResource(address: String, resource: ResourceState)
     extends PersistenceServiceDriverActorCommand
     with Serializable
 
@@ -91,7 +91,7 @@ case class MainstaysHistoryResponse(states: Seq[MainstayState])
   * @param states
   *   the history of the resources
   */
-case class ResourcesHistoryResponse(states: Seq[(Resource, LocalDateTime)])
+case class ResourcesHistoryResponse(states: Seq[(ResourceState, LocalDateTime)])
 
 /** PersistenceServiceDriverActor is the actor that manages the communication with the persistence
   * service
@@ -156,7 +156,7 @@ object PersistenceServiceDriverActor:
             )
           )
           Behaviors.same
-        case PostResource(address: String, resource: Resource) =>
+        case PostResource(address: String, resource: ResourceState) =>
           ctx.log.debug("Received PostResource")
           var body = Json.obj(
             "address"       -> address,

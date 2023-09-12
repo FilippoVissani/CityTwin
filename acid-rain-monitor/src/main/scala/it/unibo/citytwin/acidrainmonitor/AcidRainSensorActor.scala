@@ -7,7 +7,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.util.Timeout
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.actors.*
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
 
 import scala.concurrent.duration.DurationInt
@@ -44,7 +44,7 @@ object AcidRainSensorActor:
             // Create JSON string with pH value
             val json = s"""{"ph": $pH}"""
             // Create resource to send to mainstay
-            val resource = Resource(
+            val resource = ResourceState(
               Some(acidRainSensor.name),
               Some(acidRainSensor.position),
               Some(json),

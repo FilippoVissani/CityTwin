@@ -3,7 +3,7 @@ package it.unibo.citytwin.core.actors
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.actors.ResourceActorCommand
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 
 object DummyResourceActor:
   def apply(
@@ -13,7 +13,7 @@ object DummyResourceActor:
       Behaviors.receiveMessage {
         case AdaptedResourcesStateResponse(
               _: ActorRef[ResourcesFromMainstayResponse],
-              resources: Set[Resource]
+              resources: Set[ResourceState]
             ) =>
           ctx.log.debug(s"$resources")
           Behaviors.same

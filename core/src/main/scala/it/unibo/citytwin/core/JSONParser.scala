@@ -1,7 +1,7 @@
 package it.unibo.citytwin.core
 
 import it.unibo.citytwin.core.model.MainstayState
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
 
@@ -38,14 +38,14 @@ object JSONParser:
     * @return
     *   the sequence of Resource
     */
-  def jsonToResourcesHistory(jsonString: String): Seq[(Resource, LocalDateTime)] =
+  def jsonToResourcesHistory(jsonString: String): Seq[(ResourceState, LocalDateTime)] =
     val json: JsValue = Json.parse(jsonString)
     val namesHistory  = (json \\ "name").map(v => v.asOpt[String])
     val statesHistory = (json \\ "node_state").map(v => v.asOpt[Boolean])
     val timeHistory   = parseTimeHistory(json)
-    val mergedHistory: Seq[(Resource, LocalDateTime)] = namesHistory
+    val mergedHistory: Seq[(ResourceState, LocalDateTime)] = namesHistory
       .zip(statesHistory)
-      .map((n, s) => Resource(name = n, nodeState = s))
+      .map((n, s) => ResourceState(name = n, nodeState = s))
       .zip(timeHistory)
       .filter((r, t) => r.name.isDefined && r.nodeState.isDefined && t.isDefined)
       .map((r, t) => (r, t.get))

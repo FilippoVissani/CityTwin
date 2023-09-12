@@ -8,7 +8,7 @@ import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.Behaviors
 import akka.util.Timeout
 import it.unibo.citytwin.core.Serializable
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 
 import scala.util.Random
 import scala.util.Success
@@ -30,7 +30,7 @@ trait ResourceActorCommand
   */
 case class AdaptedResourcesStateResponse(
     replyTo: ActorRef[ResourcesFromMainstayResponse],
-    resources: Set[Resource]
+    resources: Set[ResourceState]
 ) extends ResourceActorCommand
     with Serializable
 
@@ -48,7 +48,7 @@ case class SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActo
   * @param resource
   *   the resource that has changed
   */
-case class ResourceChanged(resource: Resource) extends ResourceActorCommand with Serializable
+case class ResourceChanged(resource: ResourceState) extends ResourceActorCommand with Serializable
 
 /** AskResourcesToMainstay is the message that can be sent to the ResourceActor to ask for a set of
   * resources to a mainstay actor
@@ -90,7 +90,7 @@ case class AskMainstaysState(
   * @param resources
   *   the resources that are sent as a response
   */
-case class ResourcesFromMainstayResponse(resources: Set[Resource]) extends Serializable
+case class ResourcesFromMainstayResponse(resources: Set[ResourceState]) extends Serializable
 
 /** MainstaysStateResponse is the message that is sent by the ResourceActor as a response to
   * AskMainstaysState message
@@ -129,7 +129,7 @@ object ResourceActor:
     Behaviors.receiveMessage {
       case AdaptedResourcesStateResponse(
             replyTo: ActorRef[ResourcesFromMainstayResponse],
-            resources: Set[Resource]
+            resources: Set[ResourceState]
           ) =>
         ctx.log.debug("AdaptedResourcesStateResponse")
         replyTo ! ResourcesFromMainstayResponse(resources)
@@ -137,7 +137,7 @@ object ResourceActor:
       case SetMainstayActorsToResourceActor(mainstays: Set[ActorRef[MainstayActorCommand]]) =>
         ctx.log.debug("SetMainstayActorsToResourceActor")
         resourceActorBehaviour(ctx, mainstays)
-      case ResourceChanged(resource: Resource) =>
+      case ResourceChanged(resource: ResourceState) =>
         ctx.log.debug("ResourceChanged")
         if mainstays.nonEmpty then
           Random.shuffle(mainstays).head ! UpdateResources(Set((ctx.self, resource)))
@@ -150,7 +150,7 @@ object ResourceActor:
         if mainstays.nonEmpty then
           val selectedMainstay = Random.shuffle(mainstays).head
           ctx.ask(selectedMainstay, ref => AskResourcesState(ref, names)) {
-            case Success(ResourceStatesResponse(resources: Set[Resource])) =>
+            case Success(ResourceStatesResponse(resources: Set[ResourceState])) =>
               AdaptedResourcesStateResponse(replyTo, resources)
             case _ => AdaptedResourcesStateResponse(replyTo, Set())
           }
@@ -162,7 +162,7 @@ object ResourceActor:
         if mainstays.nonEmpty then
           val selectedMainstay = Random.shuffle(mainstays).head
           ctx.ask(selectedMainstay, ref => AskAllResourcesState(ref)) {
-            case Success(ResourceStatesResponse(resources: Set[Resource])) =>
+            case Success(ResourceStatesResponse(resources: Set[ResourceState])) =>
               AdaptedResourcesStateResponse(replyTo, resources)
             case _ => AdaptedResourcesStateResponse(replyTo, Set())
           }

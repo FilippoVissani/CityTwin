@@ -10,7 +10,7 @@ import it.unibo.citytwin.core.actors.AskResourcesToMainstay
 import it.unibo.citytwin.core.actors.ResourceActor
 import it.unibo.citytwin.core.actors.ResourceActorCommand
 import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType.Act
 import it.unibo.citytwin.core.model.ResourceType.Sense
 import it.unibo.citytwin.rivermonitor.model.RiverMonitor
@@ -34,7 +34,7 @@ case class Tick(resourcesToCheck: Set[String]) extends Serializable with RiverMo
   * @param resources
   *   a set containing requested resources
   */
-case class AdaptedResourcesStateResponse(resources: Set[Resource])
+case class AdaptedResourcesStateResponse(resources: Set[ResourceState])
     extends Serializable
     with RiverMonitorActorCommand
 
@@ -79,7 +79,7 @@ object RiverMonitorActor:
         ctx.log.debug("Received Tick")
         // Request resource status from the ResourceActor using AskResourcesToMainstay message
         ctx.ask(resourceActor, ref => AskResourcesToMainstay(ref, resourcesToCheck)) {
-          case Success(ResourcesFromMainstayResponse(resources: Set[Resource])) =>
+          case Success(ResourcesFromMainstayResponse(resources: Set[ResourceState])) =>
             AdaptedResourcesStateResponse(resources)
           case _ => {
             ctx.log.debug("Resources not received. Actor is unreachable.")

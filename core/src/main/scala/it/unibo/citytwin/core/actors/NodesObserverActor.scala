@@ -3,7 +3,7 @@ package it.unibo.citytwin.core.actors
 import akka.actor.typed.ActorRef
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 
 /** NodesObserverActorCommand is the trait that defines the messages that can be sent to the
   * NodesObserverActor
@@ -62,7 +62,7 @@ object NodesObserverActor:
           ctx.log.debug("UpdateResourcesState")
           val result: Map[ActorRef[ResourceActorCommand], Boolean] =
             resources.map((k, _) => (k, false)) ++ refs.map(k => (k, true))
-          mainstay ! UpdateResources(result.map((k, v) => (k, Resource(nodeState = Some(v)))).toSet)
+          mainstay ! UpdateResources(result.map((k, v) => (k, ResourceState(nodeState = Some(v)))).toSet)
           NodesObserverActor(mainstay, mainstays, result)
         }
       }

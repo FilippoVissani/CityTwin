@@ -10,7 +10,7 @@ import it.unibo.citytwin.core.actors.ResourceActor
 import it.unibo.citytwin.core.actors.ResourceActorCommand
 import it.unibo.citytwin.core.actors.ResourceChanged
 import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
 import it.unibo.citytwin.rivermonitor.actors.*
 import it.unibo.citytwin.rivermonitor.view.View
@@ -41,7 +41,7 @@ case class Tick(resourcesToCheck: Set[String]) extends Serializable with ViewAct
   * @param resources
   *   a set containing requested resources
   */
-case class AdaptedResourcesStateResponse(resources: Set[Resource])
+case class AdaptedResourcesStateResponse(resources: Set[ResourceState])
     extends Serializable
     with ViewActorCommand
 
@@ -70,7 +70,7 @@ object ViewActor:
     Behaviors.setup[ViewActorCommand] { ctx =>
       val view: View    = View(width, height, viewName, ctx.self)
       val resourceActor = ctx.spawnAnonymous(ResourceActor())
-      val resource = Resource(
+      val resource = ResourceState(
         name = Some(viewName),
         state = Some("Safe"),
         resourceType = Set(ResourceType.Act)
@@ -88,7 +88,7 @@ object ViewActor:
       view: View,
       viewName: String,
       resourceActor: ActorRef[ResourceActorCommand],
-      resource: Resource
+      resource: ResourceState
   ): Behavior[ViewActorCommand] =
     implicit val timeout: Timeout = 3.seconds
     Behaviors.receiveMessage {
@@ -96,7 +96,7 @@ object ViewActor:
         ctx.log.debug("Received Tick")
         // Request resource status from the ResourceActor using AskResourcesToMainstay message
         ctx.ask(resourceActor, ref => AskResourcesToMainstay(ref, resourcesToCheck)) {
-          case Success(ResourcesFromMainstayResponse(resources: Set[Resource])) =>
+          case Success(ResourcesFromMainstayResponse(resources: Set[ResourceState])) =>
             AdaptedResourcesStateResponse(resources)
           case _ => {
             ctx.log.debug("Resources not received. Actor is unreachable.")

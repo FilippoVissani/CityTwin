@@ -5,7 +5,7 @@ import com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener
 import it.unibo.citytwin.control_panel.view.View.InfoPanel
 import it.unibo.citytwin.control_panel.view.View.MapPanel
 import it.unibo.citytwin.core.actors.MainstayActorCommand
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import org.jfree.chart.ChartFactory
 import org.jfree.chart.ChartPanel
 import org.jfree.chart.JFreeChart
@@ -54,7 +54,7 @@ import scala.swing.TabbedPane.Page
 import scala.swing.TextArea
 
 trait View:
-  def drawResources(resources: Set[Resource]): Unit
+  def drawResources(resources: Set[ResourceState]): Unit
 
   def drawMainstays(mainstays: Set[String]): Unit
 
@@ -93,7 +93,7 @@ object View:
         System.exit(-1)
     })
 
-    override def drawResources(resources: Set[Resource]): Unit =
+    override def drawResources(resources: Set[ResourceState]): Unit =
       SwingUtilities.invokeLater(() => {
         mapPanel.drawResources(resources)
         infoPanel.drawResources(resources)
@@ -138,10 +138,10 @@ object View:
   ) extends Panel:
     private val image =
       Toolkit.getDefaultToolkit.getImage(cityMap)
-    private var resources: Set[Resource] = Set()
+    private var resources: Set[ResourceState] = Set()
     preferredSize = frameDimension
 
-    def drawResources(resources: Set[Resource]): Unit =
+    def drawResources(resources: Set[ResourceState]): Unit =
       this.resources = resources
 
     override def paint(g: Graphics2D): Unit =
@@ -200,7 +200,7 @@ object View:
       contents ++= Seq(mainstaysInfoPanel, resourcesInfoPanel)
     }
 
-    def drawResources(resources: Set[Resource]): Unit =
+    def drawResources(resources: Set[ResourceState]): Unit =
       resourcesInfoTextArea.text = "RESOURCES INFO:\n"
       val divider = "#################################################### \n"
       resources.toList
@@ -215,7 +215,7 @@ object View:
       mainstaysInfoTextArea.text = "MAINSTAYS INFO:\n"
       mainstays.foreach(m => mainstaysInfoTextArea.text = mainstaysInfoTextArea.text + m + "\n")
 
-    private def formatResource(resource: Resource): String =
+    private def formatResource(resource: ResourceState): String =
       var result: String = ""
       if resource.nodeState.isDefined then
         result = result + s"Node State: ${resource.nodeState.get} \n"

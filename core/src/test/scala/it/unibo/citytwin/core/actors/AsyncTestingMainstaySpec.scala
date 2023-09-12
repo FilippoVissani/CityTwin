@@ -8,7 +8,7 @@ import akka.cluster.MemberStatus.Up
 import akka.util.Timeout
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.ResourceType.*
-import it.unibo.citytwin.core.model.{Point2D, Resource}
+import it.unibo.citytwin.core.model.{Point2D, ResourceState}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -23,7 +23,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
 
   "Mainstay actor" should {
     "Register a resource state" in {
-      val resource = Resource(
+      val resource = ResourceState(
         name = Option("sensor1")
       )
       val dummyResourceActor = testKit.spawn(DummyResourceActor())
@@ -46,7 +46,7 @@ class AsyncTestingMainstaySpec extends AnyWordSpec with BeforeAndAfterAll with M
     }
 
     "Sync with other mainstay" in {
-      val resource = Resource(
+      val resource = ResourceState(
         name = Option("sensor1")
       )
       val mainstay = testKit.spawn(MainstayActor("", ""))

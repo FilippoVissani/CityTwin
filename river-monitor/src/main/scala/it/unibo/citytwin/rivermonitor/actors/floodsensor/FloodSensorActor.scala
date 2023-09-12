@@ -7,7 +7,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.util.Timeout
 import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.actors.*
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
 import it.unibo.citytwin.rivermonitor.model.FloodSensor
 
@@ -43,7 +43,7 @@ object FloodSensorActor:
           case Tick => {
             ctx.log.debug("Received Tick")
             val waterLevel = ThreadLocalRandom.current().nextFloat(20)
-            val resource = Resource(
+            val resource = ResourceState(
               Some(floodSensor.name),
               Some(floodSensor.position),
               Some(waterLevel.toString),

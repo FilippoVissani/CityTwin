@@ -7,7 +7,7 @@ import akka.actor.typed.receptionist.ServiceKey
 import akka.actor.typed.scaladsl.ActorContext
 import akka.actor.typed.scaladsl.Behaviors
 import it.unibo.citytwin.core.Serializable
-import it.unibo.citytwin.core.model.Resource
+import it.unibo.citytwin.core.model.ResourceState
 
 import scala.collection.immutable.Map
 import scala.collection.immutable.Set
@@ -46,7 +46,7 @@ case class AskAllResourcesState(
   *   the set of resources to update
   */
 case class UpdateResources(
-    update: Set[(ActorRef[ResourceActorCommand], Resource)]
+    update: Set[(ActorRef[ResourceActorCommand], ResourceState)]
 ) extends MainstayActorCommand
     with Serializable
 
@@ -64,7 +64,7 @@ case class SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)])
   * @param update
   *   the set of resources to update
   */
-case class Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)])
+case class Sync(update: Set[(ActorRef[ResourceActorCommand], ResourceState)])
     extends MainstayActorCommand
     with Serializable
 
@@ -73,7 +73,7 @@ case class Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)])
   * @param resources
   *   the set of resources
   */
-case class ResourceStatesResponse(resources: Set[Resource]) extends Serializable
+case class ResourceStatesResponse(resources: Set[ResourceState]) extends Serializable
 
 /** MainstayActor is the actor that manages the state of the resources and the Mainstay Actors
   */
@@ -109,7 +109,7 @@ object MainstayActor:
       ctx: ActorContext[MainstayActorCommand],
       persistenceServiceDriverActor: ActorRef[PersistenceServiceDriverActorCommand],
       mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
-      resources: Map[ActorRef[ResourceActorCommand], Resource] = Map()
+      resources: Map[ActorRef[ResourceActorCommand], ResourceState] = Map()
   ): Behavior[MainstayActorCommand] =
     Behaviors.receiveMessage {
       case AskResourcesState(
@@ -130,7 +130,7 @@ object MainstayActor:
         ctx.log.debug("AskAllResourcesState")
         replyTo ! ResourceStatesResponse(resources.values.toSet)
         Behaviors.same
-      case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], Resource)]) =>
+      case UpdateResources(update: Set[(ActorRef[ResourceActorCommand], ResourceState)]) =>
         ctx.log.debug(s"UpdateResources: $update")
         update
           .map((a, r) => if resources.contains(a) then (a, resources(a).merge(r)) else (a, r))
@@ -152,7 +152,7 @@ object MainstayActor:
           .filter((n, _) => n.path != ctx.self.path)
           .foreach((a, s) => persistenceServiceDriverActor ! PostMainstay(a.path.toString, s))
         mainstayActorBehavior(ctx, persistenceServiceDriverActor, nodes.toMap, resources)
-      case Sync(update: Set[(ActorRef[ResourceActorCommand], Resource)]) =>
+      case Sync(update: Set[(ActorRef[ResourceActorCommand], ResourceState)]) =>
         ctx.log.debug("Sync")
         mainstayActorBehavior(
           ctx,
@@ -167,9 +167,9 @@ object MainstayActor:
   end mainstayActorBehavior
 
   private def mergeResourcesUpdate(
-      actual: Map[ActorRef[ResourceActorCommand], Resource],
-      update: Map[ActorRef[ResourceActorCommand], Resource]
-  ): Map[ActorRef[ResourceActorCommand], Resource] =
+                                    actual: Map[ActorRef[ResourceActorCommand], ResourceState],
+                                    update: Map[ActorRef[ResourceActorCommand], ResourceState]
+  ): Map[ActorRef[ResourceActorCommand], ResourceState] =
     actual.map((k, v) =>
       if update.contains(k) then (k, v.merge(update(k))) else (k, v)
     ) ++ (update -- actual.keys)
