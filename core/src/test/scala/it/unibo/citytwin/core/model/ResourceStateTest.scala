@@ -15,7 +15,7 @@ class ResourceStateTest extends AnyWordSpec with Matchers:
           name = Some("sensor1"),
           nodeState = Some(true),
           position = Some(Point2D(0, 0)),
-          time = Some(LocalDateTime.MAX),
+          time = Some(LocalDateTime.MAX)
         )
       val resource2 =
         ResourceState(
@@ -29,7 +29,7 @@ class ResourceStateTest extends AnyWordSpec with Matchers:
         resourceType = Set(Act),
         nodeState = Some(true),
         position = Some(Point2D(0, 0)),
-        time = Some(LocalDateTime.MAX),
+        time = Some(LocalDateTime.MAX)
       )
       resource1.merge(resource2) shouldBe result
     }

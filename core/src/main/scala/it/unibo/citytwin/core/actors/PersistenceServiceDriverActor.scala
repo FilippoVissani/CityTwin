@@ -33,71 +33,71 @@ import scala.util.Success
 import concurrent.duration.DurationInt
 
 /** PersistenceServiceDriverActorCommand is the trait that defines the messages that can be sent to
- * the PersistenceServiceDriverActor
- */
+  * the PersistenceServiceDriverActor
+  */
 trait PersistenceServiceDriverActorCommand
 
 /** AskMainstaysHistory is the message that can be sent to the PersistenceServiceDriverActor to ask
- * for the history of the Mainstay Actors
- * @param replyTo
- *   the actor that will receive the response
- */
+  * for the history of the Mainstay Actors
+  * @param replyTo
+  *   the actor that will receive the response
+  */
 case class AskMainstaysHistory(replyTo: ActorRef[MainstaysHistoryResponse])
-  extends PersistenceServiceDriverActorCommand
+    extends PersistenceServiceDriverActorCommand
     with Serializable
 
 /** AskResourcesHistory is the message that can be sent to the PersistenceServiceDriverActor to ask
- * for the history of the resources
- * @param replyTo
- *   the actor that will receive the response
- */
+  * for the history of the resources
+  * @param replyTo
+  *   the actor that will receive the response
+  */
 case class AskResourcesHistory(replyTo: ActorRef[ResourcesHistoryResponse])
-  extends PersistenceServiceDriverActorCommand
+    extends PersistenceServiceDriverActorCommand
     with Serializable
 case class PostMainstay(state: MainstayState)
-  extends PersistenceServiceDriverActorCommand
+    extends PersistenceServiceDriverActorCommand
     with Serializable
 
 /** PostResource is the message that can be sent to the PersistenceServiceDriverActor to send a
- * resource to the persistence service
- *
- * @param address
- *   the address of the resource
- * @param resource
- *   the resource to send
- */
+  * resource to the persistence service
+  *
+  * @param address
+  *   the address of the resource
+  * @param resource
+  *   the resource to send
+  */
 case class PostResource(address: String, resource: ResourceState)
-  extends PersistenceServiceDriverActorCommand
+    extends PersistenceServiceDriverActorCommand
     with Serializable
 
 /** MainstayHistoryResponse is the message that is sent by the PersistenceServiceDriverActor as a
- * response to AskMainstaysHistory message
- * @param states
- *   the history of the Mainstay Actors
- */
+  * response to AskMainstaysHistory message
+  * @param states
+  *   the history of the Mainstay Actors
+  */
 case class MainstaysHistoryResponse(states: Seq[MainstayState])
 
 /** ResourcesHistoryResponse is the message that is sent by the PersistenceServiceDriverActor as a
- * response to AskResourcesHistory message
- * @param states
- *   the history of the resources
- */
+  * response to AskResourcesHistory message
+  * @param states
+  *   the history of the resources
+  */
 case class ResourcesHistoryResponse(states: Seq[ResourceState])
 
 /** PersistenceServiceDriverActor is the actor that manages the communication with the persistence
- * service
- */
+  * service
+  */
 object PersistenceServiceDriverActor:
 
   /** Generates new PersistenceServiceDriverActor.
-   *
-   * @param host
-   *   the host of the persistence service
-   * @param port
-   *   the port of the persistence service
-   * @return
-   *   the behavior of PersistenceServiceDriverActor.
-   */
+    *
+    * @param host
+    *   the host of the persistence service
+    * @param port
+    *   the port of the persistence service
+    * @return
+    *   the behavior of PersistenceServiceDriverActor.
+    */
   def apply(host: String, port: String): Behavior[PersistenceServiceDriverActorCommand] =
     Behaviors.setup[PersistenceServiceDriverActorCommand] { ctx =>
       ctx.log.debug("PersistenceServiceDriverActor started")
@@ -136,7 +136,7 @@ object PersistenceServiceDriverActor:
             .obj(
               "address" -> state.address,
               "state"   -> state.state,
-              "time"    -> state.time,
+              "time"    -> state.time
             )
             .toString()
           Http().singleRequest(

@@ -133,8 +133,8 @@ object View:
   sealed class MapPanel(
       frameDimension: Dimension,
       mapPanelDimension: Dimension,
-      citySize: (Double, Double), 
-      cityMap: String,
+      citySize: (Double, Double),
+      cityMap: String
   ) extends Panel:
     private val image =
       Toolkit.getDefaultToolkit.getImage(cityMap)

@@ -33,17 +33,15 @@ case class ResourceState(
 ):
   def merge(other: ResourceState): ResourceState =
     if other.time.isDefined && this.time.isDefined then
-      if other.time.get > this.time.get then
-        mergeFields(other, this)
-      else
-        mergeFields(this, other)
+      if other.time.get > this.time.get then mergeFields(other, this)
+      else mergeFields(this, other)
     else throw new Exception("Time of resource state must be defined")
 
   private def mergeFields(r1: ResourceState, r2: ResourceState): ResourceState =
-    val name = if r1.name.isDefined then r1.name else r2.name
-    val position = if r1.position.isDefined then r1.position else r2.position
-    val state = if r1.state.isDefined then r1.state else r2.state
+    val name         = if r1.name.isDefined then r1.name else r2.name
+    val position     = if r1.position.isDefined then r1.position else r2.position
+    val state        = if r1.state.isDefined then r1.state else r2.state
     val resourceType = if r1.resourceType.nonEmpty then r1.resourceType else r2.resourceType
-    val nodeState = if r1.nodeState.isDefined then r1.nodeState else r2.nodeState
-    val time = if r1.time.isDefined then r1.time else r2.time
+    val nodeState    = if r1.nodeState.isDefined then r1.nodeState else r2.nodeState
+    val time         = if r1.time.isDefined then r1.time else r2.time
     ResourceState(name, position, state, resourceType, nodeState, time)

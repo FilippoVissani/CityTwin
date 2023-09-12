@@ -24,10 +24,15 @@ object JSONParser:
     val statesHistory    = (json \\ "state").map(v => v.asOpt[Boolean])
     val timeHistory      = parseTimeHistory(json)
     val mergedHistory: Seq[MainstayState] =
-      List(addressesHistory, statesHistory, timeHistory)
-        .transpose
+      List(addressesHistory, statesHistory, timeHistory).transpose
         .filter(x => x.forall(y => y.isDefined))
-        .map(x => MainstayState(x.head.get.asInstanceOf[String], x(1).get.asInstanceOf[Boolean], x(2).get.asInstanceOf[LocalDateTime]))
+        .map(x =>
+          MainstayState(
+            x.head.get.asInstanceOf[String],
+            x(1).get.asInstanceOf[Boolean],
+            x(2).get.asInstanceOf[LocalDateTime]
+          )
+        )
     mergedHistory
 
   /** jsonToResourcesHistory is the function that parses the JSON response from the persistence
@@ -43,10 +48,15 @@ object JSONParser:
     val statesHistory = (json \\ "node_state").map(v => v.asOpt[Boolean])
     val timeHistory   = parseTimeHistory(json)
     val mergedHistory: Seq[ResourceState] =
-      List(namesHistory, statesHistory, timeHistory)
-        .transpose
+      List(namesHistory, statesHistory, timeHistory).transpose
         .filter(x => x.forall(y => y.isDefined))
-        .map(x => ResourceState(name = x.head.asInstanceOf[Option[String]], nodeState = x(1).asInstanceOf[Option[Boolean]], time = x(2).asInstanceOf[Option[LocalDateTime]]))
+        .map(x =>
+          ResourceState(
+            name = x.head.asInstanceOf[Option[String]],
+            nodeState = x(1).asInstanceOf[Option[Boolean]],
+            time = x(2).asInstanceOf[Option[LocalDateTime]]
+          )
+        )
     mergedHistory
 
   private def parseTimeHistory(

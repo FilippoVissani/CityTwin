@@ -23,9 +23,13 @@ class AsyncTestingNodesObserverSpec extends AnyWordSpec with BeforeAndAfterAll w
       val observer = testKit.spawn(NodesObserverActor(probe.ref))
       val resource = testKit.spawn(DummyResourceActor())
       observer ! UpdateResourceNodesState(Set(resource))
-      probe.expectMessage(UpdateResources(Map(resource -> ResourceState(nodeState = Some(true))).toSet))
+      probe.expectMessage(
+        UpdateResources(Map(resource -> ResourceState(nodeState = Some(true))).toSet)
+      )
       observer ! UpdateResourceNodesState(Set())
-      probe.expectMessage(UpdateResources(Map(resource -> ResourceState(nodeState = Some(false))).toSet))
+      probe.expectMessage(
+        UpdateResources(Map(resource -> ResourceState(nodeState = Some(false))).toSet)
+      )
       testKit.stop(observer)
       testKit.stop(resource)
     }

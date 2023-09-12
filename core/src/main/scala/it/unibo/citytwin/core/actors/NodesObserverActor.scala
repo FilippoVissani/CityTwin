@@ -62,7 +62,9 @@ object NodesObserverActor:
           ctx.log.debug("UpdateResourcesState")
           val result: Map[ActorRef[ResourceActorCommand], Boolean] =
             resources.map((k, _) => (k, false)) ++ refs.map(k => (k, true))
-          mainstay ! UpdateResources(result.map((k, v) => (k, ResourceState(nodeState = Some(v)))).toSet)
+          mainstay ! UpdateResources(
+            result.map((k, v) => (k, ResourceState(nodeState = Some(v)))).toSet
+          )
           NodesObserverActor(mainstay, mainstays, result)
         }
       }

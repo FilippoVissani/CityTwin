@@ -14,88 +14,88 @@ import scala.collection.immutable.Map
 import scala.collection.immutable.Set
 
 /** MainstayActorCommand is the trait that defines the messages that can be sent to the
- * MainstayActor
- */
+  * MainstayActor
+  */
 trait MainstayActorCommand
 
 /** AskResourcesState is the message that can be sent to the MainstayActor to ask for the state of a
- * set of resources
- * @param replyTo
- *   the actor that will receive the response
- * @param names
- *   the names of the resources to ask for
- */
+  * set of resources
+  * @param replyTo
+  *   the actor that will receive the response
+  * @param names
+  *   the names of the resources to ask for
+  */
 case class AskResourcesState(
-                              replyTo: ActorRef[ResourceStatesResponse],
-                              names: Set[String]
-                            ) extends MainstayActorCommand
-  with Serializable
+    replyTo: ActorRef[ResourceStatesResponse],
+    names: Set[String]
+) extends MainstayActorCommand
+    with Serializable
 
 /** AskAllResourcesState is the message that can be sent to the MainstayActor to ask for the state
- * of all the resources
- * @param replyTo
- *   the actor that will receive the response
- */
+  * of all the resources
+  * @param replyTo
+  *   the actor that will receive the response
+  */
 case class AskAllResourcesState(
-                                 replyTo: ActorRef[ResourceStatesResponse]
-                               ) extends MainstayActorCommand
-  with Serializable
+    replyTo: ActorRef[ResourceStatesResponse]
+) extends MainstayActorCommand
+    with Serializable
 
 /** UpdateResources is the message that can be sent to the MainstayActor to update the state of a
- * set of resources
- * @param update
- *   the set of resources to update
- */
+  * set of resources
+  * @param update
+  *   the set of resources to update
+  */
 case class UpdateResources(
-                            update: Set[(ActorRef[ResourceActorCommand], ResourceState)]
-                          ) extends MainstayActorCommand
-  with Serializable
+    update: Set[(ActorRef[ResourceActorCommand], ResourceState)]
+) extends MainstayActorCommand
+    with Serializable
 
 /** SetMainstays is the message that can be sent to the MainstayActor to update the state of a set
- * of Mainstay Actors
- * @param nodes
- *   the set of Mainstay Actor's state
- */
+  * of Mainstay Actors
+  * @param nodes
+  *   the set of Mainstay Actor's state
+  */
 case class SetMainstays(nodes: Set[(ActorRef[MainstayActorCommand], Boolean)])
-  extends MainstayActorCommand
+    extends MainstayActorCommand
     with Serializable
 
 /** Sync is the message that can be sent to the MainstayActor to synchronize the state of a set of
- * resources
- * @param update
- *   the set of resources to update
- */
+  * resources
+  * @param update
+  *   the set of resources to update
+  */
 case class Sync(update: Set[(ActorRef[ResourceActorCommand], ResourceState)])
-  extends MainstayActorCommand
+    extends MainstayActorCommand
     with Serializable
 
 /** ResourceStatesResponse is the message that is sent by the MainstayActor as a response to
- * AskResourcesState and AskAllResourcesState messages
- * @param resources
- *   the set of resources
- */
+  * AskResourcesState and AskAllResourcesState messages
+  * @param resources
+  *   the set of resources
+  */
 case class ResourceStatesResponse(resources: Set[ResourceState]) extends Serializable
 
 /** MainstayActor is the actor that manages the state of the resources and the Mainstay Actors
- */
+  */
 object MainstayActor:
   /** mainstayService is the key that identifies the Mainstay Actor in the Receptionist pattern
-   */
+    */
   val mainstayService: ServiceKey[MainstayActorCommand] =
     ServiceKey[MainstayActorCommand]("mainstayService")
 
   /** Generates new Mainstay Actor.
-   * @param persistenceServiceHost
-   *   the host of the persistence service
-   * @param persistenceServicePort
-   *   the port of the persistence service
-   * @return
-   *   the behavior of Mainstay Actor.
-   */
+    * @param persistenceServiceHost
+    *   the host of the persistence service
+    * @param persistenceServicePort
+    *   the port of the persistence service
+    * @return
+    *   the behavior of Mainstay Actor.
+    */
   def apply(
-             persistenceServiceHost: String,
-             persistenceServicePort: String
-           ): Behavior[MainstayActorCommand] =
+      persistenceServiceHost: String,
+      persistenceServicePort: String
+  ): Behavior[MainstayActorCommand] =
     Behaviors.setup[MainstayActorCommand] { ctx =>
       ctx.log.debug("Mainstay started")
       ctx.system.receptionist ! Receptionist.Register(mainstayService, ctx.self)
@@ -107,16 +107,16 @@ object MainstayActor:
     }
 
   private def mainstayActorBehavior(
-                                     ctx: ActorContext[MainstayActorCommand],
-                                     persistenceServiceDriverActor: ActorRef[PersistenceServiceDriverActorCommand],
-                                     mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
-                                     resources: Map[ActorRef[ResourceActorCommand], ResourceState] = Map()
-                                   ): Behavior[MainstayActorCommand] =
+      ctx: ActorContext[MainstayActorCommand],
+      persistenceServiceDriverActor: ActorRef[PersistenceServiceDriverActorCommand],
+      mainstays: Map[ActorRef[MainstayActorCommand], Boolean] = Map(),
+      resources: Map[ActorRef[ResourceActorCommand], ResourceState] = Map()
+  ): Behavior[MainstayActorCommand] =
     Behaviors.receiveMessage {
       case AskResourcesState(
-      replyTo: ActorRef[ResourceStatesResponse],
-      names: Set[String]
-      ) =>
+            replyTo: ActorRef[ResourceStatesResponse],
+            names: Set[String]
+          ) =>
         ctx.log.debug("AskResourceState")
         replyTo ! ResourceStatesResponse(
           resources.values
@@ -126,8 +126,8 @@ object MainstayActor:
         )
         Behaviors.same
       case AskAllResourcesState(
-      replyTo: ActorRef[ResourceStatesResponse]
-      ) =>
+            replyTo: ActorRef[ResourceStatesResponse]
+          ) =>
         ctx.log.debug("AskAllResourcesState")
         replyTo ! ResourceStatesResponse(resources.values.toSet)
         Behaviors.same
@@ -180,9 +180,9 @@ object MainstayActor:
   end mainstayActorBehavior
 
   private def mergeResourcesUpdate(
-                                    actual: Map[ActorRef[ResourceActorCommand], ResourceState],
-                                    update: Map[ActorRef[ResourceActorCommand], ResourceState]
-                                  ): Map[ActorRef[ResourceActorCommand], ResourceState] =
+      actual: Map[ActorRef[ResourceActorCommand], ResourceState],
+      update: Map[ActorRef[ResourceActorCommand], ResourceState]
+  ): Map[ActorRef[ResourceActorCommand], ResourceState] =
     actual.map((k, v) =>
       if update.contains(k) then (k, v.merge(update(k))) else (k, v)
     ) ++ (update -- actual.keys)
