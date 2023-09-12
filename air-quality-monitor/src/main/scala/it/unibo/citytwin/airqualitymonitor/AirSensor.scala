@@ -1,6 +1,7 @@
 package it.unibo.citytwin.airqualitymonitor
 
 import it.unibo.citytwin.core.model.Point2D
+import upickle.default.ReadWriter
 
 /** Represents an air quality sensor with a name and position.
   * @param name
@@ -10,7 +11,7 @@ import it.unibo.citytwin.core.model.Point2D
   */
 case class AirSensor(name: String, position: Point2D[Int])
 
-/** Represents the resource state of the air quality sensor, including PM10, PM2.5, and NOx values.
+/** Represents the data of the air quality sensor, including PM10, PM2.5, and NOx values.
   * @param pm10
   *   PM10 value
   * @param pm25
@@ -18,4 +19,4 @@ case class AirSensor(name: String, position: Point2D[Int])
   * @param nox
   *   NOx value
   */
-case class AirSensorResourceState(pm10: Float, pm25: Float, nox: Float)
+case class AirSensorData(pm10: Float, pm25: Float, nox: Float) derives ReadWriter

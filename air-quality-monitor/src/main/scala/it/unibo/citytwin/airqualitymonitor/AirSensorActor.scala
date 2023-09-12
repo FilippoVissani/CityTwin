@@ -15,7 +15,10 @@ import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
-
+import upickle._
+import upickle.default._
+import upickle.default.macroRW
+import upickle.default.{ReadWriter => RW}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
@@ -60,16 +63,24 @@ object AirSensorActor:
                 case Success(response) => {
                   response.entity.dataBytes.runFold(ByteString(""))(_ ++ _).foreach { body =>
                     val resourceStateAsString: String = body.utf8String
-                    val resource = ResourceState(
-                      Some(airSensor.name),
-                      Some(airSensor.position),
-                      Some(resourceStateAsString),
-                      Set(ResourceType.Sense)
-                    )
-                    resourceActor ! ResourceChanged(resource)
+                    try {
+                      // Deserialize the received resourceStateAsString to see if it's correct
+                      val airSensorData: AirSensorData = read(resourceStateAsString)
+                      val json: String                 = write(airSensorData)
+                      // Create and send the ResourceState of the sensor
+                      val resource = ResourceState(
+                        Some(airSensor.name),
+                        Some(airSensor.position),
+                        Some(json),
+                        Set(ResourceType.Sense)
+                      )
+                      resourceActor ! ResourceChanged(resource)
+                    } catch
+                      case _ =>
+                        ctx.log.error("Error while deserializing the received resource state")
                   }
                 }
-                case Failure(ex) =>
+                case Failure(ex) => ctx.log.error("Error while retrieving data")
               }
             Behaviors.same
           }
