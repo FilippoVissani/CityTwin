@@ -9,7 +9,8 @@ import it.unibo.citytwin.core.Serializable
 import it.unibo.citytwin.core.actors.*
 import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
-
+import upickle._
+import upickle.default._
 import scala.concurrent.duration.DurationInt
 
 /** Commands supported by the NoiseSensorActor */
@@ -40,10 +41,11 @@ object NoiseSensorActor:
           case Tick => {
             ctx.log.info("Received Tick")
             // Simulate noise level measurement
-            val noiseLevel = scala.util.Random.nextInt(61) + 40 // Noise level range: 40-100 dB
-            // Create JSON string with noise level value and description
-            val description = getNoiseDescription(noiseLevel)
-            val json        = s"""{"value (dB)": $noiseLevel, "description": "$description"}"""
+            val noiseLevel      = scala.util.Random.nextInt(61) + 40 // Noise level range: 40-100 dB
+            val description     = getNoiseDescription(noiseLevel)
+            val noiseSensorData = NoiseSensorData(noiseLevel, description)
+            // serialize measurement as JSON
+            val json: String = write(noiseSensorData)
             // Create resource to send to mainstay
             val resource = ResourceState(
               Some(noiseSensor.name),
