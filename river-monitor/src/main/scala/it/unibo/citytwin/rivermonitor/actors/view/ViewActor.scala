@@ -13,7 +13,7 @@ import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
 import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
 import it.unibo.citytwin.rivermonitor.actors.*
-import it.unibo.citytwin.rivermonitor.model.{ViewData, ViewState}
+import it.unibo.citytwin.rivermonitor.model.{RiverMonitorData, ViewData, ViewState}
 import it.unibo.citytwin.rivermonitor.view.View
 import upickle.default._
 import scala.concurrent.duration.DurationInt
@@ -113,7 +113,10 @@ object ViewActor:
           resources
             .filter(resource => resource.state.nonEmpty)
             .foreach(resource => {
-              view.updateRiverMonitorState(resource.state.get)
+              try {
+                val resourceData: RiverMonitorData = read(resource.state.get)
+                view.updateRiverMonitorData(resourceData)
+              } catch case _ => ctx.log.debug("Error while parsing RiverMonitorData")
             })
         Behaviors.same
       }

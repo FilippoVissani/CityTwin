@@ -1,13 +1,10 @@
 package it.unibo.citytwin.rivermonitor.view
 
 import akka.actor.typed.ActorRef
-import akka.actor.typed.receptionist.Receptionist
 import it.unibo.citytwin.rivermonitor.actors.view.EvacuatedZone
 import it.unibo.citytwin.rivermonitor.actors.view.EvacuatingZone
 import it.unibo.citytwin.rivermonitor.actors.view.ViewActorCommand
-import it.unibo.citytwin.rivermonitor.model.FloodSensor
-import it.unibo.citytwin.rivermonitor.model.RiverMonitor
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.RiverMonitorState
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorData
 
 /** Defines the contract for a View, responsible for interacting with the UI and receiving updates
   * from actors.
@@ -31,10 +28,10 @@ trait View:
 
   /** Update the state of the river monitor, called by the view actor
     *
-    * @param riverMonitorState
-    *   The representation of the river monitor resource state
+    * @param riverMonitorData
+    *   The representation of the river monitor resource data
     */
-  def updateRiverMonitorState(riverMonitorState: String): Unit
+  def updateRiverMonitorData(riverMonitorData: RiverMonitorData): Unit
 
   /** Called when the "Evacuate" button is pressed
     */
@@ -80,8 +77,8 @@ object View:
       */
     val frame: SwingControlPanel = SwingControlPanel(this)
 
-    override def updateRiverMonitorState(riverMonitorState: String): Unit =
-      frame.updateRiverMonitorState(riverMonitorState)
+    override def updateRiverMonitorData(riverMonitorData: RiverMonitorData): Unit =
+      frame.updateRiverMonitorData(riverMonitorData)
 
     override def evacuateZonePressed(): Unit =
       viewActor ! EvacuatingZone

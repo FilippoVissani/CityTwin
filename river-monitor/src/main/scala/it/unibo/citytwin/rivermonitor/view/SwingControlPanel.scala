@@ -1,10 +1,7 @@
 package it.unibo.citytwin.rivermonitor.view
 
 import com.sun.java.accessibility.util.AWTEventMonitor.addWindowListener
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorData
-import upickle.default._
-import upickle.default.macroRW
-import upickle.default.{ReadWriter => RW}
+import it.unibo.citytwin.rivermonitor.model.{RiverMonitorData, RiverMonitorState}
 import java.awt.Dimension
 import java.awt.Graphics2D
 import java.awt.RenderingHints
@@ -25,10 +22,10 @@ import scala.swing.Panel
 trait SwingControlPanel:
   /** Updates the displayed river monitor state.
     *
-    * @param riverMonitorState
-    *   The representation of the river monitor resource state.
+    * @param riverMonitorData
+    *   The representation of the river monitor resource data.
     */
-  def updateRiverMonitorState(riverMonitorState: String): Unit
+  def updateRiverMonitorData(riverMonitorData: RiverMonitorData): Unit
 
 /** Factory object for creating a SwingControlPanel instance. */
 object SwingControlPanel:
@@ -63,28 +60,25 @@ object SwingControlPanel:
         System.exit(-1)
     })
 
-    // Called by the View to update the river monitor state
-    override def updateRiverMonitorState(riverMonitorState: String): Unit =
+    // Called by the View to update the river monitor data
+    override def updateRiverMonitorData(riverMonitorData: RiverMonitorData): Unit =
       SwingUtilities.invokeLater(() => {
-        implicit val rw: RW[RiverMonitorData] = macroRW
-        val riverMonitorData: RiverMonitorData =
-          read[RiverMonitorData](riverMonitorState)
-        riverPanel.updateRiverMonitorState(riverMonitorData)
+        riverPanel.updateRiverMonitorData(riverMonitorData)
 
         riverMonitorData.riverMonitorState match
-          case "Safe" => {
+          case RiverMonitorState.Safe => {
             buttonsPanel.buttonEvacuate.visible = false
             buttonsPanel.buttonEvacuated.visible = false
           }
-          case "Warned" => {
+          case RiverMonitorState.Warned => {
             buttonsPanel.buttonEvacuate.visible = true
             buttonsPanel.buttonEvacuated.visible = false
           }
-          case "Evacuating" => {
+          case RiverMonitorState.Evacuating => {
             buttonsPanel.buttonEvacuate.visible = false
             buttonsPanel.buttonEvacuated.visible = true
           }
-          case _ =>
+          case null =>
         repaint()
       })
 
@@ -116,7 +110,7 @@ end ButtonsPanel
 
 /** Defines a sealed class representing the river panel for displaying river monitor information. */
 sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel:
-  var riverMonitorData: RiverMonitorData = RiverMonitorData("", 0, None)
+  var riverMonitorData: RiverMonitorData = RiverMonitorData(null, 0, None)
 
   preferredSize = Dimension(width, height)
 
@@ -127,10 +121,10 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
     g2.drawRect(0, 0, width - 1, height - 1)
     g2.setColor(java.awt.Color.BLUE)
     riverMonitorData.riverMonitorState match
-      case "Safe"       => g2.setColor(java.awt.Color.GREEN)
-      case "Evacuating" => g2.setColor(java.awt.Color.YELLOW)
-      case "Warned"     => g2.setColor(java.awt.Color.RED)
-      case _            => g2.setColor(java.awt.Color.CYAN)
+      case RiverMonitorState.Safe       => g2.setColor(java.awt.Color.GREEN)
+      case RiverMonitorState.Evacuating => g2.setColor(java.awt.Color.YELLOW)
+      case RiverMonitorState.Warned     => g2.setColor(java.awt.Color.RED)
+      case null                         => g2.setColor(java.awt.Color.CYAN)
     g2.fillRect(0, 0, width, height)
     g2.setColor(java.awt.Color.BLACK)
     var yStringPosition: Int = 15
@@ -166,7 +160,7 @@ sealed class RiverPanel(width: Int, height: Int, viewName: String) extends Panel
     * @param riverMonitorData
     *   The updated river monitor data.
     */
-  def updateRiverMonitorState(riverMonitorData: RiverMonitorData): Unit =
+  def updateRiverMonitorData(riverMonitorData: RiverMonitorData): Unit =
     this.riverMonitorData = riverMonitorData
 
 end RiverPanel
