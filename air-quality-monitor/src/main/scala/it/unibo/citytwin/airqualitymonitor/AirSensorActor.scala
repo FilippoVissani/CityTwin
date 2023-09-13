@@ -17,8 +17,6 @@ import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
 import upickle._
 import upickle.default._
-import upickle.default.macroRW
-import upickle.default.{ReadWriter => RW}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
