@@ -64,7 +64,7 @@ object RiverMonitorStateActor:
     Behaviors.setup[RiverMonitorStateActorCommand] { ctx =>
       // Serialize the data in JSON
       val riverMonitorData = RiverMonitorData(
-        riverMonitor.state.toString,
+        riverMonitor.state,
         riverMonitor.threshold,
         monitoredSensors
       )

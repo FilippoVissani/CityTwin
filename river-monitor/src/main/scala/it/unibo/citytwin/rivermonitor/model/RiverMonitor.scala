@@ -1,14 +1,12 @@
 package it.unibo.citytwin.rivermonitor.model
 
 import it.unibo.citytwin.core.model.Point2D
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.RiverMonitorState
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.Safe
 import upickle.default.ReadWriter
 
 /** Enumeration representing the possible states of a river monitor. */
-object RiverMonitorState extends Enumeration:
-  type RiverMonitorState = Value
-  val Safe, Evacuating, Warned = Value
+enum RiverMonitorState derives ReadWriter:
+  case Safe, Evacuating, Warned
 
 /** Represents a river monitor with its properties.
   * @param riverMonitorName
@@ -37,7 +35,7 @@ case class RiverMonitor(
   *   the monitored sensors
   */
 case class RiverMonitorData(
-    riverMonitorState: String,
+    riverMonitorState: RiverMonitorState,
     threshold: Float,
     monitoredSensors: Option[Map[String, Map[String, String]]]
 ) derives ReadWriter
