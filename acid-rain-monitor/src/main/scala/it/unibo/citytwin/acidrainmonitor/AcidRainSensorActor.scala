@@ -44,7 +44,7 @@ object AcidRainSensorActor:
             val pH = scala.util.Random.nextFloat() * 14 // pH range: 0-14
             // serialize pH value as JSON string
             val acidRainSensorData = AcidRainSensorData(pH)
-            val json: String = write(acidRainSensorData)
+            val json: String       = write(acidRainSensorData)
             // Create resource to send to mainstay
             val resource = ResourceState(
               Some(acidRainSensor.name),
