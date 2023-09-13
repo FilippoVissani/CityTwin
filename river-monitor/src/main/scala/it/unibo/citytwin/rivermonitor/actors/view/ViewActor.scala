@@ -13,8 +13,9 @@ import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
 import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType
 import it.unibo.citytwin.rivermonitor.actors.*
+import it.unibo.citytwin.rivermonitor.model.{ViewData, ViewState}
 import it.unibo.citytwin.rivermonitor.view.View
-
+import upickle.default._
 import scala.concurrent.duration.DurationInt
 import scala.util.Success
 
@@ -70,9 +71,10 @@ object ViewActor:
     Behaviors.setup[ViewActorCommand] { ctx =>
       val view: View    = View(width, height, viewName, ctx.self)
       val resourceActor = ctx.spawnAnonymous(ResourceActor())
+      val jsonViewData  = write(ViewData(ViewState.Safe))
       val resource = ResourceState(
         name = Some(viewName),
-        state = Some("Safe"),
+        state = Some(jsonViewData),
         resourceType = Set(ResourceType.Act)
       )
       resourceActor ! ResourceChanged(resource)
@@ -118,13 +120,17 @@ object ViewActor:
       case EvacuatingZone => {
         ctx.log.debug("Received EvacuatingZone")
         // Send an "Evacuating" resource state to the ResourceActor
-        resourceActor ! ResourceChanged(resource.copy(state = Some("Evacuating")))
+        resourceActor ! ResourceChanged(
+          resource.copy(state = Some(write(ViewData(ViewState.Evacuating))))
+        )
         Behaviors.same
       }
       case EvacuatedZone => {
         ctx.log.debug("Received EvacuatedZone")
         // Send a "Safe" resource state to the ResourceActor
-        resourceActor ! ResourceChanged(resource.copy(state = Some("Safe")))
+        resourceActor ! ResourceChanged(
+          resource.copy(state = Some(write(ViewData(ViewState.Safe))))
+        )
         Behaviors.same
       }
       case _ => {
