@@ -33,6 +33,7 @@ Linux:
 
 Windows:
 
+- Powershell
 - tar
 
 ### Build and start the system
