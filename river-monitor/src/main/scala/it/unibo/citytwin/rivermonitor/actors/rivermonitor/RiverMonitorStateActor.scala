@@ -10,7 +10,7 @@ import it.unibo.citytwin.core.model.ResourceState
 import it.unibo.citytwin.core.model.ResourceType.Act
 import it.unibo.citytwin.core.model.ResourceType.Sense
 import it.unibo.citytwin.rivermonitor.model.RiverMonitor
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorResourceState
+import it.unibo.citytwin.rivermonitor.model.RiverMonitorData
 import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
 import upickle.*
 import upickle.default.*
@@ -62,20 +62,20 @@ object RiverMonitorStateActor:
       monitoredSensors: Option[Map[String, Map[String, String]]] = None
   ): Behavior[RiverMonitorStateActorCommand] =
     Behaviors.setup[RiverMonitorStateActorCommand] { ctx =>
-      // Serialize the RiverMonitorResourceState instance to JSON
-      val riverMonitorResourceState = RiverMonitorResourceState(
+      // Serialize the data in JSON
+      val riverMonitorData = RiverMonitorData(
         riverMonitor.state.toString,
         riverMonitor.threshold,
         monitoredSensors
       )
-      implicit val rw: RW[RiverMonitorResourceState] = macroRW
-      val resourceStateAsString: String              = write(riverMonitorResourceState)
+      implicit val rw: RW[RiverMonitorData] = macroRW
+      val json: String                      = write(riverMonitorData)
 
       // Create a Resource instance to represent the river monitor's state
       val resource = ResourceState(
         Some(riverMonitor.riverMonitorName),
         Some(riverMonitor.position),
-        Some(resourceStateAsString),
+        Some(json),
         Set(Sense, Act)
       )
       resourceActor ! ResourceChanged(resource)

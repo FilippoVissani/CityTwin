@@ -11,13 +11,12 @@ import it.unibo.citytwin.core.actors.ResourceActor
 import it.unibo.citytwin.core.actors.ResourceActorCommand
 import it.unibo.citytwin.core.actors.ResourcesFromMainstayResponse
 import it.unibo.citytwin.core.model.ResourceState
-import it.unibo.citytwin.core.model.ResourceType.Act
-import it.unibo.citytwin.core.model.ResourceType.Sense
-import it.unibo.citytwin.rivermonitor.model.RiverMonitor
-import it.unibo.citytwin.rivermonitor.model.RiverMonitorState.*
-
+import it.unibo.citytwin.core.model.ResourceType.{Act, ResourceType, Sense}
+import it.unibo.citytwin.core.model.ResourceType
+import it.unibo.citytwin.rivermonitor.model.{FloodSensorData, RiverMonitor, ViewData, ViewState}
+import upickle._
+import upickle.default._
 import scala.util.Success
-
 import concurrent.duration.DurationInt
 
 /** Command trait for messages that the RiverMonitorActor can receive.
@@ -90,45 +89,22 @@ object RiverMonitorActor:
       }
       case AdaptedResourcesStateResponse(resources) => {
         ctx.log.debug("Received AdaptedResourcesStateResponse")
-        // Filter resources for sensors and actions
-        val senseResources = resources
-          .filter(resource => resource.resourceType.contains(Sense))
-          .filter(resource => resource.nodeState.get)
-          .filter(resource => resource.state.nonEmpty)
-        val actResources = resources
-          .filter(resource => resource.resourceType.contains(Act))
-          .filter(resource => resource.nodeState.get)
-          .filter(resource => resource.state.nonEmpty)
 
-        // Create a map of monitored sensors
-        val monitoredSensors: Map[String, Map[String, String]] = resources
-          .filter(resource => resource.resourceType.contains(Sense))
-          .map(resource =>
-            resource.name.getOrElse("") -> Map(
-              "Status" -> resource.nodeState
-                .map(state => if (state) "online" else "offline")
-                .getOrElse(""),
-              "WaterLevel" -> resource.state.getOrElse("")
-            )
-          )
-          .toMap
-        // Send MonitoredSensors message to the RiverMonitorStateActor
+        // Send monitored sensors to RiverMonitorStateActor, useful for the view
+        val monitoredSensors = createMapOfMonitoredSensors(resources)
         riverMonitorStateActor ! MonitoredSensors(monitoredSensors)
 
-        // Check conditions and send appropriate messages to the RiverMonitorStateActor
-        if senseResources.nonEmpty then
-          if senseResources.count(resource =>
-              resource.state.get.toFloat > riverMonitor.threshold
-            ) > senseResources.size / 2
-          then riverMonitorStateActor ! WarnRiverMonitor
+        // Filter resources for sensors and actions
+        val senseResources = filterResourcesByType(resources, Sense)
+        val actResources   = filterResourcesByType(resources, Act)
 
-        if actResources.nonEmpty then
-          actResources.foreach(resource => {
-            resource.state.getOrElse("") match
-              case "Evacuating" => riverMonitorStateActor ! EvacuatingRiverMonitor
-              case "Safe"       => riverMonitorStateActor ! EvacuatedRiverMonitor
-              case _            => ctx.log.debug("Unexpected message")
-          })
+        // elaborate sense resources
+        if isNecessaryToWarn(senseResources, riverMonitor) then
+          riverMonitorStateActor ! WarnRiverMonitor
+
+        // elaborate act resources
+        elaborateActResources(actResources, riverMonitorStateActor, ctx)
+
         Behaviors.same
       }
       case _ => {
@@ -136,3 +112,108 @@ object RiverMonitorActor:
         Behaviors.stopped
       }
     }
+
+  /** Filter resources by type
+    *
+    * @param resources
+    *   A set of resources.
+    * @param resourceType
+    *   The type of resource to filter.
+    * @return
+    *   A set of resources of the specified type that are online and wich state is not empty.
+    */
+  private def filterResourcesByType(
+      resources: Set[ResourceState],
+      resourceType: ResourceType
+  ): Set[ResourceState] =
+    resources
+      .filter(resource => resource.resourceType.contains(resourceType))
+      .filter(resource => resource.nodeState.get)
+      .filter(resource => resource.state.nonEmpty)
+
+  /** Create a map of monitored sensors with their status and water level.
+    *
+    * @param resources
+    *   A set of resources to extract sensor information from.
+    * @return
+    *   A map where the keys are sensor names, and the values are maps containing "Status" and
+    *   "WaterLevel" entries.
+    */
+  private def createMapOfMonitoredSensors(
+      resources: Set[ResourceState]
+  ): Map[String, Map[String, String]] =
+    resources
+      .filter(resource => resource.resourceType.contains(Sense))
+      .map(resource =>
+        // get sensor name
+        val name: String = resource.name.getOrElse("")
+        // get sensor status
+        val status: String = resource.nodeState
+          .map(state => if (state) "online" else "offline")
+          .getOrElse("")
+        // get sensor water level
+        val waterLevel: String = resource.state
+          .map(jsonString => {
+            try {
+              val floodSensorData: FloodSensorData = read(jsonString)
+              floodSensorData.waterLevel.toString
+            } catch case _ => ""
+          })
+          .getOrElse("")
+        // return a tuple (sensor name, map of sensor status and water level)
+        (name, Map("Status" -> status, "WaterLevel" -> waterLevel))
+      )
+      .toMap // convert set of tuples to map
+
+  /** Determine if it's necessary to send a warning to the RiverMonitorStateActor based on sensor
+    * data.
+    *
+    * @param senseResources
+    *   A set of sensed resources.
+    * @param riverMonitor
+    *   The RiverMonitor instance.
+    * @return
+    *   `true` if it's necessary to send a warning, `false` otherwise.
+    */
+  private def isNecessaryToWarn(
+      senseResources: Set[ResourceState],
+      riverMonitor: RiverMonitor
+  ): Boolean =
+    if senseResources.nonEmpty then
+      // count sensors with water level above threshold
+      val aboveThresholdCount = senseResources.count(resource =>
+        resource.state.exists(jsonString =>
+          try {
+            val floodSensorData: FloodSensorData = read(jsonString)
+            floodSensorData.waterLevel > riverMonitor.threshold
+          } catch case _ => false
+        )
+      )
+      // return true if more than half of the sensors are above threshold
+      aboveThresholdCount > senseResources.size / 2
+    else false
+
+  /** Process act resources and send corresponding messages to the RiverMonitorStateActor.
+    *
+    * @param actResources
+    *   A set of act resources to process.
+    * @param riverMonitorStateActor
+    *   The actor to send messages to.
+    * @param ctx
+    *   The actor context.
+    */
+  private def elaborateActResources(
+      actResources: Set[ResourceState],
+      riverMonitorStateActor: ActorRef[RiverMonitorStateActorCommand],
+      ctx: ActorContext[RiverMonitorActorCommand]
+  ): Unit =
+    if actResources.nonEmpty then
+      actResources.foreach(resource => {
+        try {
+          val actData: ViewData = read(resource.state.get)
+          actData.state match
+            case ViewState.Evacuating => riverMonitorStateActor ! EvacuatingRiverMonitor
+            case ViewState.Safe       => riverMonitorStateActor ! EvacuatedRiverMonitor
+            case null                 => ctx.log.debug("Unexpected ViewState")
+        } catch case _ => ctx.log.debug("Unable to deserialize view state")
+      })
