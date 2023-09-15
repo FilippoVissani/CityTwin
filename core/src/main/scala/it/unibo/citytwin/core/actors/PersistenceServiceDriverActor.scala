@@ -16,8 +16,7 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.model.HttpResponse.unapply
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
-import it.unibo.citytwin.core.JSONParser.jsonToMainstaysHistory
-import it.unibo.citytwin.core.JSONParser.jsonToResourcesHistory
+import it.unibo.citytwin.core.JSONDeSerializer.{jsonToMainstaysHistory, jsonToResourcesHistory, mainstayToJson, resourceToJson}
 import it.unibo.citytwin.core.model.MainstayState
 import it.unibo.citytwin.core.model.ResourceState
 import play.api.libs.json.JsValue
@@ -29,8 +28,10 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
-
 import concurrent.duration.DurationInt
+import it.unibo.citytwin.core.PersistenceServiceAPISpec.*
+import it.unibo.citytwin.core.PersistenceServiceAPISpec.Scheme.*
+import it.unibo.citytwin.core.PersistenceServiceAPISpec.Resource.*
 
 /** PersistenceServiceDriverActorCommand is the trait that defines the messages that can be sent to
   * the PersistenceServiceDriverActor
@@ -107,7 +108,7 @@ object PersistenceServiceDriverActor:
         case AskMainstaysHistory(replyTo: ActorRef[MainstaysHistoryResponse]) =>
           ctx.log.debug("Received AskMainstayHistory")
           val response: Future[HttpResponse] =
-            Http().singleRequest(HttpRequest(uri = s"http://$host:$port/mainstays"))
+            Http().singleRequest(HttpRequest(uri = generateURI(HTTP, host, port, Mainstays)))
           response
             .flatMap(resp => resp.entity.toStrict(1.seconds))
             .map(strictEntity => strictEntity.data.utf8String)
@@ -120,7 +121,7 @@ object PersistenceServiceDriverActor:
         case AskResourcesHistory(replyTo: ActorRef[ResourcesHistoryResponse]) =>
           ctx.log.debug("Received AskResourcesHistory")
           val response: Future[HttpResponse] =
-            Http().singleRequest(HttpRequest(uri = s"http://$host:$port/resources"))
+            Http().singleRequest(HttpRequest(uri = generateURI(HTTP, host, port, Resources)))
           response
             .flatMap(resp => resp.entity.toStrict(1.seconds))
             .map(strictEntity => strictEntity.data.utf8String)
@@ -132,42 +133,21 @@ object PersistenceServiceDriverActor:
           Behaviors.same
         case PostMainstay(state: MainstayState) =>
           ctx.log.debug("Received PostMainstay")
-          val body = Json
-            .obj(
-              "address" -> state.address,
-              "state"   -> state.state,
-              "time"    -> state.time
-            )
-            .toString()
           Http().singleRequest(
             HttpRequest(
               method = HttpMethods.POST,
-              uri = s"http://$host:$port/mainstays",
-              entity = HttpEntity(ContentTypes.`application/json`, body)
+              uri = generateURI(HTTP, host, port, Mainstays),
+              entity = HttpEntity(ContentTypes.`application/json`, mainstayToJson(state))
             )
           )
           Behaviors.same
         case PostResource(address: String, resource: ResourceState) =>
           ctx.log.debug("Received PostResource")
-          var body = Json.obj(
-            "address"       -> address,
-            "name"          -> resource.name.orNull,
-            "state"         -> resource.state.orNull,
-            "resource_type" -> resource.resourceType,
-            "time"          -> resource.time.orNull
-          )
-          if resource.position.isDefined then
-            body = body ++ Json.obj(
-              "position_x" -> resource.position.get.x,
-              "position_y" -> resource.position.get.y
-            )
-          if resource.nodeState.isDefined then
-            body = body ++ Json.obj("node_state" -> resource.nodeState.get)
           Http().singleRequest(
             HttpRequest(
               method = HttpMethods.POST,
-              uri = s"http://$host:$port/resources",
-              entity = HttpEntity(ContentTypes.`application/json`, body.toString())
+              uri = generateURI(HTTP, host, port, Resources),
+              entity = HttpEntity(ContentTypes.`application/json`, resourceToJson(address, resource))
             )
           )
           Behaviors.same

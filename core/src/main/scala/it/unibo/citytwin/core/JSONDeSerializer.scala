@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 
 /** JSONParser is the object that parses the JSON responses from the persistence service
   */
-object JSONParser:
+object JSONDeSerializer:
 
   /** jsonToMainstaysHistory is the function that parses the JSON response from the persistence
     * service to a sequence of MainstayState
@@ -58,6 +58,30 @@ object JSONParser:
           )
         )
     mergedHistory
+    
+  def resourceToJson(address: String, resource: ResourceState): String =
+    var body = Json.obj(
+      "address" -> address,
+      "name" -> resource.name.orNull,
+      "state" -> resource.state.orNull,
+      "resource_type" -> resource.resourceType,
+      "time" -> resource.time.orNull
+    )
+    if resource.position.isDefined then
+      body = body ++ Json.obj(
+        "position_x" -> resource.position.get.x,
+        "position_y" -> resource.position.get.y
+      )
+    if resource.nodeState.isDefined then
+      body = body ++ Json.obj("node_state" -> resource.nodeState.get)
+    body.toString()
+    
+  def mainstayToJson(mainstay: MainstayState): String =
+    Json.obj(
+        "address" -> mainstay.address,
+        "state" -> mainstay.state,
+        "time" -> mainstay.time
+      ).toString()
 
   private def parseTimeHistory(
       json: JsValue
