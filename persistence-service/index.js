@@ -24,15 +24,10 @@ try {
 }
 const database = mongoConnection.db("city_twin")
 
-server.get('/mainstay', async (req, res) => {
+server.get('/mainstays', async (req, res) => {
     try {
         let collection = await database.collection(mainstaysCollection);
-        let query
-        if(req.query.address === "*") {
-            query = {}
-        } else {
-            query = {address: req.query.address}
-        }
+        let query = {};
         let result = await collection.find(query).sort( { "time": -1, "_id": -1 } ).limit(10000).toArray();
         if (!result) res.send("Not found").status(404);
         else res.send(result).status(200);
@@ -42,7 +37,7 @@ server.get('/mainstay', async (req, res) => {
     }
 });
 
-server.post("/mainstay", async (req, res) => {
+server.post("/mainstays", async (req, res) => {
     try {
         let collection = await database.collection(mainstaysCollection);
         let document = req.body;
@@ -54,15 +49,10 @@ server.post("/mainstay", async (req, res) => {
     }
 });
 
-server.get('/resource', async (req, res) => {
+server.get('/resources', async (req, res) => {
     try {
         let collection = await database.collection(resourcesCollection);
-        let query
-        if(req.query.name === "*") {
-            query = {}
-        } else {
-            query = {address: req.query.name}
-        }
+        let query = {};
         let result = await collection.find(query).sort( { "time": -1, "_id": -1 } ).limit(10000).toArray();
         if (!result) res.send("Not found").status(404);
         else res.send(result).status(200);
@@ -72,7 +62,7 @@ server.get('/resource', async (req, res) => {
     }
 });
 
-server.post("/resource", async (req, res) => {
+server.post("/resources", async (req, res) => {
     try {
         let collection = await database.collection(resourcesCollection);
         let document = req.body;

@@ -107,7 +107,7 @@ object PersistenceServiceDriverActor:
         case AskMainstaysHistory(replyTo: ActorRef[MainstaysHistoryResponse]) =>
           ctx.log.debug("Received AskMainstayHistory")
           val response: Future[HttpResponse] =
-            Http().singleRequest(HttpRequest(uri = s"http://$host:$port/mainstay?address=*"))
+            Http().singleRequest(HttpRequest(uri = s"http://$host:$port/mainstays"))
           response
             .flatMap(resp => resp.entity.toStrict(1.seconds))
             .map(strictEntity => strictEntity.data.utf8String)
@@ -120,7 +120,7 @@ object PersistenceServiceDriverActor:
         case AskResourcesHistory(replyTo: ActorRef[ResourcesHistoryResponse]) =>
           ctx.log.debug("Received AskResourcesHistory")
           val response: Future[HttpResponse] =
-            Http().singleRequest(HttpRequest(uri = s"http://$host:$port/resource?name=*"))
+            Http().singleRequest(HttpRequest(uri = s"http://$host:$port/resources"))
           response
             .flatMap(resp => resp.entity.toStrict(1.seconds))
             .map(strictEntity => strictEntity.data.utf8String)
@@ -142,7 +142,7 @@ object PersistenceServiceDriverActor:
           Http().singleRequest(
             HttpRequest(
               method = HttpMethods.POST,
-              uri = s"http://$host:$port/mainstay",
+              uri = s"http://$host:$port/mainstays",
               entity = HttpEntity(ContentTypes.`application/json`, body)
             )
           )
@@ -166,7 +166,7 @@ object PersistenceServiceDriverActor:
           Http().singleRequest(
             HttpRequest(
               method = HttpMethods.POST,
-              uri = s"http://$host:$port/resource",
+              uri = s"http://$host:$port/resources",
               entity = HttpEntity(ContentTypes.`application/json`, body.toString())
             )
           )
